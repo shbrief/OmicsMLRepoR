@@ -1,0 +1,32 @@
+Package: OmicsMLRepoR
+Type: Package
+Title: Queries the OmicsMLRepo data
+Version: 0.1.0
+Authors@R: person("Sehyun", "Oh", email = "shbrief@gmail.com", role = c("aut","cre"))
+Maintainer: Sehyun Oh <shbrief@gmail.com>
+Description: Query the harmonized metadata and data deposted in OmicsMLRepo.
+License: GPL-3
+Depends: R (>= 4.2.0)
+Imports: 
+    AnVIL, 
+    dplyr, 
+    DBI, 
+    tools, 
+    httr, 
+    cli, 
+    utils, 
+    dbplyr, 
+    duckdb,        
+    stringr, 
+    BiocFileCache, 
+    purrr
+Suggests: arrow
+Encoding: UTF-8
+RoxygenNote: 7.2.3
+Collate: 
+    'utils.R'
+    'getData.R'
+    'getMetadata.R'
+NeedsCompilation: no
+Packaged: 2023-04-28 16:32:41 UTC; sehyun
+Author: Sehyun Oh [aut, cre]
