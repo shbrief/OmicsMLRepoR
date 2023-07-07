@@ -6,7 +6,8 @@ Authors@R: person("Sehyun", "Oh", email = "shbrief@gmail.com", role = c("aut","c
 Maintainer: Sehyun Oh <shbrief@gmail.com>
 Description: Query the harmonized metadata and data deposted in OmicsMLRepo.
 License: GPL-3
-Depends: R (>= 4.2.0)
+Depends: 
+    R (>= 4.2.0)
 Imports: 
     AnVIL, 
     dplyr, 
@@ -15,12 +16,11 @@ Imports:
     httr, 
     cli, 
     utils, 
-    dbplyr, 
     duckdb,        
     stringr, 
-    BiocFileCache, 
     purrr
-Suggests: arrow
+Suggests: 
+    arrow
 Encoding: UTF-8
 RoxygenNote: 7.2.3
 Collate: 
