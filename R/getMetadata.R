@@ -5,7 +5,7 @@ NULL
 cache <- rlang::env(metadata_table = rlang::env()) #<<<<<<<<<<<<<<<<<<<<<<<<<<<?
 
 DATABASE_URL <- single_line_str( #<<<<<<<<<<<<<<<<<<<<<<< Why they structured this way?
-    "gs://omics_ml_repo/cMD_curated_sampleMetadta.parquet"
+    "gs://omics_ml_repo/cMD_curated_sampleMetadata.parquet"
 )
 
 #' Gets the harmonized metadata as a data frame
