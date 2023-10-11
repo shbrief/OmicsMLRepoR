@@ -104,7 +104,10 @@ get_default_cache_dir <- function() {
 #' @keywords internal
 #'
 sync_remote_file <- function(full_url, output_file, ...) {
-    if (!file.exists(output_file)) {
+    if (file.exists(output_file)) {
+      user_over <- tolower(readline(prompt = "Cached file already exists. Overwrite? (Y/N):"))
+    }
+    if (!file.exists(output_file) | user_over == "y") {
         output_dir <- dirname(output_file)
         dir.create(output_dir,
                    recursive = TRUE,
@@ -116,7 +119,7 @@ sync_remote_file <- function(full_url, output_file, ...) {
             if (grepl("^gs://*", full_url)) {
                 gsutil_cp(full_url, output_file)
             } else {
-                GET(full_url, write_disk(output_file), ...) |> stop_for_status()
+                GET(full_url, write_disk(output_file, overwrite = TRUE), ...) |> stop_for_status()
             },
             error = function(e) {
                 # Clean up if we had an error
