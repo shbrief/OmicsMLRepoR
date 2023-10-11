@@ -104,6 +104,7 @@ get_default_cache_dir <- function() {
 #' @keywords internal
 #'
 sync_remote_file <- function(full_url, output_file, ...) {
+    user_over <- NA
     if (file.exists(output_file)) {
       user_over <- tolower(readline(prompt = "Cached file already exists. Overwrite? (Y/N):"))
     }
