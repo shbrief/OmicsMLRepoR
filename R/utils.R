@@ -31,7 +31,7 @@ url_file_size <- function(urls) {
 #'
 #' @keywords internal
 gs_file_size <- function(gss) {
-    as.integer(gsutil_stat(gss)$`Content-Length`) / 10^9
+    as.integer(gsutil_stat(gss)$`Content-Length`) / 10^6
 }
 
 #' Prints a message indicating the size of a download
@@ -57,7 +57,7 @@ report_file_sizes <- function(urls) {
             round(digits=2)
     }
 
-    "Downloading {length(urls)} file{?s}, totalling {total_size} GB" |>
+    "Downloading {length(urls)} file{?s}, totalling {total_size} MB" |>
         cli_alert_info()
 
     invisible(NULL)
@@ -127,3 +127,17 @@ sync_remote_file <- function(full_url, output_file, ...) {
     }
     invisible(NULL)
 }
+
+
+
+#' Check that a character doesn't match any non-letter
+#'
+#' @param x A character(1).
+#' 
+letters_only <- function(x) !grepl("[^A-Za-z]", x)
+
+#' Check that a character doesn't match any non-number
+#'
+#' @param x A character(1).
+#' 
+numbers_only <- function(x) !grepl("\\D", x)
