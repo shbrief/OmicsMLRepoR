@@ -1,58 +1,10 @@
 ## Functions to expand and compress treatment metadata
 
 #' Character vector of ID columns
-ID_COLS <- c("study_name",
-             "patientId",
-             "sampleId",
-             "curationId")
+ID_COLS <- readLines(system.file("extdata", "id_columns.txt", package = "OmicsMLRepoR"))
 
 #' Character vector of treatment-related columns (current but not complete)
-T_COLS <- c("original_treatment_name",
-             "original_treatment_type",
-             "original_split_treatment_name",
-             "original_split_treatment_type",
-             "original_treatment_name_source",
-             "original_treatment_type_source",
-             "curated_treatment_name",
-             "curated_treatment_type",
-             "curated_treatment_name_ontology_term_id",
-             "curated_treatment_type_ontology_term_id",
-             "original_treatment_dose",
-             "original_treatment_number",
-             "original_treatment_start",
-             "original_treatment_end",
-             "original_treatment_frequency",
-             "original_treatment_duration",
-             "original_split_treatment_dose",
-             "original_split_treatment_number",
-             "original_split_treatment_start",
-             "original_split_treatment_end",
-             "original_split_treatment_frequency",
-             "original_split_treatment_duration",
-             "original_treatment_dose_source",
-             "original_treatment_number_source",
-             "original_treatment_start_source",
-             "original_treatment_end_source",
-             "original_treatment_frequency_source",
-             "original_treatment_duration_source",
-             "curated_treatment_dose_value",
-             "curated_treatment_dose_unit",
-             "curated_treatment_number_value",
-             "curated_treatment_number_unit",
-             "curated_treatment_start_value",
-             "curated_treatment_start_unit",
-             "curated_treatment_end_value",
-             "curated_treatment_end_unit",
-             "curated_treatment_frequency_value",
-             "curated_treatment_frequency_unit",
-             "curated_treatment_duration_value",
-             "curated_treatment_duration_unit",
-             "curated_treatment_dose_unit_ontology_term_id",
-             "curated_treatment_number_unit_ontology_term_id",
-             "curated_treatment_start_unit_ontology_term_id",
-             "curated_treatment_end_unit_ontology_term_id",
-             "curated_treatment_frequency_unit_ontology_term_id",
-             "curated_treatment_duration_unit_ontology_term_id")
+T_COLS <- readLines(system.file("extdata", "treatment_columns.txt", package = "OmicsMLRepoR"))
 
 #' Expands treatment metadata
 #' 
@@ -65,6 +17,12 @@ T_COLS <- c("original_treatment_name",
 #' @return A data frame of metadata expanded so that each individual treatment has its own row
 #' 
 expand_metadata <- function(meta, ecols = T_COLS, delim = "<;>") {
+  # Validate input
+  stopifnot(is.data.frame(meta),
+            is.character(ecols),
+            is.character(delim))
+  
+  # Expand data frame
   separate_longer_delim(data = meta,
                         cols = any_of(ecols),
                         delim = delim)
@@ -82,11 +40,24 @@ expand_metadata <- function(meta, ecols = T_COLS, delim = "<;>") {
 #' @return A data frame where each sample gets a single row
 #' 
 compress_metadata <- function(meta, idcols = ID_COLS, ccols = T_COLS, delim = "<;>") {
+  # Validate input
+  stopifnot(is.data.frame(meta),
+            is.character(idcols),
+            is.character(ccols),
+            is.character(delim))
+  
+  # Print message to user
   cat("Compressing data frame: this may take a few minutes\n")
+  
+  # Get original column order
   col_order <- colnames(meta)
+  
+  # Define which columns to group by and leave un-compressed
   gcols <- idcols[which(idcols %in% col_order)]
   ocols <- setdiff(setdiff(col_order, ccols), idcols)
-  meta %>%
+  
+  # Compress data frame
+  cmeta <- meta %>%
     group_by_at(gcols) %>%
     summarise(
       across(any_of(ccols), ~paste(na.omit(.), collapse = delim)),
@@ -94,4 +65,7 @@ compress_metadata <- function(meta, idcols = ID_COLS, ccols = T_COLS, delim = "<
     ) %>%
     ungroup() %>%
     select(all_of(col_order))
+  
+  # Return as data frame
+  as.data.frame(cmeta)
 }
