@@ -20,7 +20,8 @@ Imports:
     stringr, 
     purrr
 Suggests: 
-    arrow
+    arrow,
+    testthat (>= 3.0.0)
 Encoding: UTF-8
 RoxygenNote: 7.2.3
 Collate: 
@@ -30,3 +31,4 @@ Collate:
 NeedsCompilation: no
 Packaged: 2023-04-28 16:32:41 UTC; sehyun
 Author: Sehyun Oh [aut, cre]
+Config/testthat/edition: 3
