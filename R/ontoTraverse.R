@@ -107,6 +107,7 @@ get_parents <- function(source, termId, plot = TRUE) {
 #' Get the parents of a requested ontology term
 #'
 #' @examples
+#' get_children(source = "hp", termId ="HP:0025031")
 #' 
 get_children <- function(source, termId, plot = TRUE) {
     .get_family(source, termId, property = "children", plot = plot)

@@ -2,6 +2,7 @@
 
 export(getData)
 export(getMetadata)
+export(getOntoDesc)
 export(ontoBrowse)
 export(ontoTraverse)
 import(ontologyIndex)

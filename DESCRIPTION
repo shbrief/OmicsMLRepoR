@@ -32,6 +32,7 @@ Collate:
     'utils.R'
     'getData.R'
     'getMetadata.R'
+    'getOntoDesc.R'
     'ontoBrowse.R'
     'ontoTraverse.R'
 NeedsCompilation: no
