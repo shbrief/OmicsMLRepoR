@@ -1,8 +1,11 @@
 Package: OmicsMLRepoR
 Type: Package
 Title: Queries the OmicsMLRepo data
-Version: 0.1.0
-Authors@R: person("Sehyun", "Oh", email = "shbrief@gmail.com", role = c("aut","cre"))
+Version: 0.2.0
+Date: 2023-12-27
+Authors@R: c(
+  person("Sehyun", "Oh", email = "shbrief@gmail.com", role = c("aut","cre")),
+  person("Kaelyn", "Long", email = "krlong586@gmail.com", role = "aut"))
 Maintainer: Sehyun Oh <shbrief@gmail.com>
 Description: Query the harmonized metadata and data deposted in OmicsMLRepo.
 License: GPL-3
@@ -18,16 +21,22 @@ Imports:
     utils, 
     duckdb,        
     stringr, 
-    purrr
+    purrr,
+    rols,
+    ontologyIndex
 Suggests: 
     arrow,
     testthat (>= 3.0.0)
 Encoding: UTF-8
 RoxygenNote: 7.2.3
 Collate: 
+    'byProperty.R'
     'utils.R'
     'getData.R'
     'getMetadata.R'
+    'getOntoDesc.R'
+    'ontoBrowse.R'
+    'ontoTraverse.R'
 NeedsCompilation: no
 Packaged: 2023-04-28 16:32:41 UTC; sehyun
 Author: Sehyun Oh [aut, cre]

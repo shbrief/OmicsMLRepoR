@@ -2,21 +2,21 @@
 % Please edit documentation in R/getData.R
 \name{getData}
 \alias{getData}
-\title{Get data available through OmicsMLRepo}
+\title{Get OmicsMLRepo data from curated metadata}
 \usage{
 getData(
   metadata,
-  dataType,
+  data_type,
   cache_directory = get_default_cache_dir(),
-  repository = TEMP_LOCAL_DIR
+  repository = OmicsMLRepo_URL
 )
 }
 \arguments{
-\item{metadata}{A data frame containing, at minimum, a `unique_id` column,
-which corresponds to a `study_id:sample_id`. This can be obtained from
-the \code{\link{getMetadata}} function.}
+\item{metadata}{A data frame containing, at minimum, one 'unique_id' column,
+This input is a subset of the table obtained from \code{\link{getMetadata}}.}
 
-\item{dataType}{A character(1) describing a data type.}
+\item{data_type}{A character(1) describing a data type. Unless all the 
+queried samples should have data in this data type, it will give an error.}
 
 \item{cache_directory}{Optional. A character(1). If provided, it should
 indicate a local file path where any remotely accessed files should be
@@ -25,5 +25,5 @@ copied.}
 \item{repository}{}
 }
 \description{
-Get data available through OmicsMLRepo
+Get OmicsMLRepo data from curated metadata
 }
