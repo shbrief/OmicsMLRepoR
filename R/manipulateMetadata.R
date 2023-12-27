@@ -16,6 +16,7 @@ T_COLS <- readLines(system.file("extdata", "treatment_columns.txt", package = "O
 #' 
 #' @return A data frame of metadata expanded so that each individual treatment has its own row
 #' 
+#' @export
 expand_metadata <- function(meta, ecols = T_COLS, delim = "<;>") {
   # Validate input
   stopifnot(is.data.frame(meta),
@@ -23,9 +24,10 @@ expand_metadata <- function(meta, ecols = T_COLS, delim = "<;>") {
             is.character(delim))
   
   # Expand data frame
-  separate_longer_delim(data = meta,
-                        cols = any_of(ecols),
-                        delim = delim)
+  res <- separate_longer_delim(data = meta,
+                               cols = any_of(ecols),
+                               delim = delim)
+  return(res)
 }
 
 #' Compresses expanded treatment columns to original format
@@ -39,6 +41,7 @@ expand_metadata <- function(meta, ecols = T_COLS, delim = "<;>") {
 #'
 #' @return A data frame where each sample gets a single row
 #' 
+#' @export
 compress_metadata <- function(meta, idcols = ID_COLS, ccols = T_COLS, delim = "<;>") {
   # Validate input
   stopifnot(is.data.frame(meta),
@@ -67,5 +70,6 @@ compress_metadata <- function(meta, idcols = ID_COLS, ccols = T_COLS, delim = "<
     select(all_of(col_order))
   
   # Return as data frame
-  as.data.frame(cmeta)
+  res <- as.data.frame(cmeta)
+  return(res)
 }

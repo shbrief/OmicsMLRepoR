@@ -1,7 +1,7 @@
 Package: OmicsMLRepoR
 Type: Package
 Title: Queries the OmicsMLRepo data
-Version: 0.2.0
+Version: 0.3.0
 Date: 2023-12-27
 Authors@R: c(
   person("Sehyun", "Oh", email = "shbrief@gmail.com", role = c("aut","cre")),
@@ -35,6 +35,7 @@ Collate:
     'getData.R'
     'getMetadata.R'
     'getOntoDesc.R'
+    'manipulateMetadata.R'
     'ontoBrowse.R'
     'ontoTraverse.R'
 NeedsCompilation: no
