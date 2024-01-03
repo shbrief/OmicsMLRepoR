@@ -3,7 +3,7 @@
 #' @import rols
 #' @importFrom ontologyPlot onto_plot
 #' 
-#' @param termId Ontology term id started with the ontology prefix and id
+#' @param ontoTermId Ontology term id started with the ontology prefix and id
 #' separated by colon, such as \code{NCIT:C15280}. 
 #' @param source Ontology database id. Currently available options are 
 #' \code{NCIT, CHEBI, HP}.
@@ -17,12 +17,12 @@
 #' a character vector of associated ontology term ids.  
 #' 
 #' @examples
-#' ontoTraverse(termId = "NCIT:C15280", source = "ncit")
-#' ontoTraverse(termId = "CHEBI:5262", source = "chebi")
-#' ontoTraverse(termId = "HP:0011793", source = "hp")
+#' ontoTraverse(ontoTermId = "NCIT:C15280", source = "ncit")
+#' ontoTraverse(ontoTermId = "CHEBI:5262", source = "chebi")
+#' ontoTraverse(ontoTermId = "HP:0011793", source = "hp")
 #' 
 #' @export
-ontoTraverse <- function(termId, 
+ontoTraverse <- function(ontoTermId, 
                          source, 
                          plot = FALSE,
                          includeDefinition = FALSE) {
@@ -31,9 +31,9 @@ ontoTraverse <- function(termId,
     ol <- Ontologies()
     ontology <- ol[[source]]
     
-    trm <- term(ontology, termId)
+    trm <- term(ontology, ontoTermId)
     
-    # Get the full tree of direct ancestors/descendants of `termId` input
+    # Get the full tree of direct ancestors/descendants of `ontoTermId` input
     all_connected_terms <- c(names(termId(parents(trm))), 
                              names(termId(trm)), 
                              names(termId(children(trm))))
@@ -41,8 +41,8 @@ ontoTraverse <- function(termId,
     if (isFALSE(plot)) {
         return(all_connected_terms)
     } else {
-        # Highlight the quried termId in the tree
-        term_ind <- which(all_connected_terms == termId)
+        # Highlight the quried ontoTermId in the tree
+        term_ind <- which(all_connected_terms == ontoTermId)
         fillcolors <- rep("powderblue", length(all_connected_terms))
         fillcolors[term_ind] <- "yellow"
         

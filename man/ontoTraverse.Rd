@@ -4,10 +4,10 @@
 \alias{ontoTraverse}
 \title{Extract both ancestors and descendants of a term from ontology tree}
 \usage{
-ontoTraverse(termId, source, plot = FALSE, includeDefinition = FALSE)
+ontoTraverse(ontoTermId, source, plot = FALSE, includeDefinition = FALSE)
 }
 \arguments{
-\item{termId}{Ontology term id started with the ontology prefix and id
+\item{ontoTermId}{Ontology term id started with the ontology prefix and id
 separated by colon, such as \code{NCIT:C15280}.}
 
 \item{source}{Ontology database id. Currently available options are 
@@ -27,8 +27,8 @@ a character vector of associated ontology term ids.
 Extract both ancestors and descendants of a term from ontology tree
 }
 \examples{
-ontoTraverse(termId = "NCIT:C15280", source = "ncit")
-ontoTraverse(termId = "CHEBI:5262", source = "chebi")
-ontoTraverse(termId = "HP:0011793", source = "hp")
+ontoTraverse(ontoTermId = "NCIT:C15280", source = "ncit")
+ontoTraverse(ontoTermId = "CHEBI:5262", source = "chebi")
+ontoTraverse(ontoTermId = "HP:0011793", source = "hp")
 
 }

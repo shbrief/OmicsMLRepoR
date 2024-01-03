@@ -17,7 +17,7 @@ T_COLS <- readLines(system.file("extdata", "treatment_columns.txt", package = "O
 #' @return A data frame of metadata expanded so that each individual treatment has its own row
 #' 
 #' @export
-expand_metadata <- function(meta, ecols = T_COLS, delim = "<;>") {
+expandMetadata <- function(meta, ecols = T_COLS, delim = "<;>") {
   # Validate input
   stopifnot(is.data.frame(meta),
             is.character(ecols),
@@ -42,7 +42,7 @@ expand_metadata <- function(meta, ecols = T_COLS, delim = "<;>") {
 #' @return A data frame where each sample gets a single row
 #' 
 #' @export
-compress_metadata <- function(meta, idcols = ID_COLS, ccols = T_COLS, delim = "<;>") {
+compressMetadata <- function(meta, idcols = ID_COLS, ccols = T_COLS, delim = "<;>") {
   # Validate input
   stopifnot(is.data.frame(meta),
             is.character(idcols),
