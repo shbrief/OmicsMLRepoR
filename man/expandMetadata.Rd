@@ -4,14 +4,16 @@
 \alias{expandMetadata}
 \title{Expands treatment metadata}
 \usage{
-expandMetadata(meta, ecols = T_COLS, delim = "<;>")
+expandMetadata(meta, ecols = NULL, delim = "<;>")
 }
 \arguments{
 \item{meta}{A data frame of metadata including all treatment-related columns}
 
-\item{ecols}{Optional character vector of columns to expand if presesnt, defaults to all treatment-related columns}
+\item{ecols}{Optional. A character vector of columns to expand if present, 
+defaults to all treatment-related columns}
 
-\item{delim}{Optional delimiter string, defaults to "<;>"}
+\item{delim}{Optional. A character (1) of a delimiter to use before 
+expansion. Default is \code{"<;>"}.}
 }
 \value{
 A data frame of metadata expanded so that each individual treatment has its own row

@@ -1,48 +1,69 @@
-## Functions to expand and compress treatment metadata
-
-#' Character vector of ID columns
-ID_COLS <- readLines(system.file("extdata", "id_columns.txt", package = "OmicsMLRepoR"))
-
-#' Character vector of treatment-related columns (current but not complete)
-T_COLS <- readLines(system.file("extdata", "treatment_columns.txt", package = "OmicsMLRepoR"))
-
 #' Expands treatment metadata
 #' 
 #' @importFrom tidyr separate_longer_delim
 #' 
 #' @param meta A data frame of metadata including all treatment-related columns
-#' @param ecols Optional character vector of columns to expand if presesnt, defaults to all treatment-related columns
-#' @param delim Optional delimiter string, defaults to "<;>"
+#' @param ecols Optional. A character vector of columns to expand if present, 
+#' defaults to all treatment-related columns
+#' @param delim Optional. A character (1) of a delimiter to use before 
+#' expansion. Default is \code{"<;>"}.
 #' 
 #' @return A data frame of metadata expanded so that each individual treatment has its own row
 #' 
 #' @export
-expandMetadata <- function(meta, ecols = T_COLS, delim = "<;>") {
-  # Validate input
-  stopifnot(is.data.frame(meta),
-            is.character(ecols),
-            is.character(delim))
+expandMetadata <- function(meta, 
+                           ecols = NULL, 
+                           delim = "<;>") {
+    
+    # Character vector of treatment-related columns 
+    # Current but not complete <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    if (is.null(ecols)) {
+        dir <- system.file("extdata", package = "OmicsMLRepoR")
+        ecols <- readLines(file.path(dir, "treatment_columns.txt"))
+    }
+    
+    # Validate input
+    stopifnot(is.data.frame(meta),
+              is.character(ecols),
+              is.character(delim))
   
-  # Expand data frame
-  res <- separate_longer_delim(data = meta,
-                               cols = any_of(ecols),
-                               delim = delim)
-  return(res)
+    # Expand data frame
+    res <- separate_longer_delim(data = meta,
+                                 cols = any_of(ecols),
+                                 delim = delim)
+    return(res)
 }
 
 #' Compresses expanded treatment columns to original format
 #' 
 #' @importFrom dplyr group_by summarise ungroup select
 #' 
-#' @param meta A data frame with expanded treatment columns
-#' @param idcols Optional character vector of columns that identify single samples, defaults to standard ID columns
-#' @param ccols Optional character vector of columns to compress if present, defaults to all treatment-related columns
-#' @param delim Optional delimiter string, defaults to "<;>"
+#' @param meta A data frame with expanded treatment columns.
+#' @param idcols Optional. A character vector of columns that identify 
+#' single samples. Defaults to standard ID columns.
+#' @param ccols Optional. A character vector of columns to compress if 
+#' present, defaults to all treatment-related columns.
+#' @param delim Optional. A delimiter string. Default is \code{"<;>"}.
 #'
 #' @return A data frame where each sample gets a single row
 #' 
 #' @export
-compressMetadata <- function(meta, idcols = ID_COLS, ccols = T_COLS, delim = "<;>") {
+compressMetadata <- function(meta, 
+                             idcols = NULL, 
+                             ccols = NULL, 
+                             delim = "<;>") {
+    
+    dir <- system.file("extdata", package = "OmicsMLRepoR")
+    if (is.null(idcols)) {
+        # Character vector of ID columns
+        idcols <- readLines(file.path(dir, "id_columns.txt")) 
+    }
+    
+    if (is.null(ccols)) {
+        # Character vector of treatment-related columns (current but not complete) 
+        ccols <- readLines(file.path(dir, "treatment_columns.txt"))
+    }
+    
   # Validate input
   stopifnot(is.data.frame(meta),
             is.character(idcols),

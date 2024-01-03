@@ -4,16 +4,18 @@
 \alias{compressMetadata}
 \title{Compresses expanded treatment columns to original format}
 \usage{
-compressMetadata(meta, idcols = ID_COLS, ccols = T_COLS, delim = "<;>")
+compressMetadata(meta, idcols = NULL, ccols = NULL, delim = "<;>")
 }
 \arguments{
-\item{meta}{A data frame with expanded treatment columns}
+\item{meta}{A data frame with expanded treatment columns.}
 
-\item{idcols}{Optional character vector of columns that identify single samples, defaults to standard ID columns}
+\item{idcols}{Optional. A character vector of columns that identify 
+single samples. Defaults to standard ID columns.}
 
-\item{ccols}{Optional character vector of columns to compress if present, defaults to all treatment-related columns}
+\item{ccols}{Optional. A character vector of columns to compress if 
+present, defaults to all treatment-related columns.}
 
-\item{delim}{Optional delimiter string, defaults to "<;>"}
+\item{delim}{Optional. A delimiter string. Default is \code{"<;>"}.}
 }
 \value{
 A data frame where each sample gets a single row
