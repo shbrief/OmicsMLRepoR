@@ -19,7 +19,7 @@ expandMetadata <- function(meta,
     # Current but not complete <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     if (is.null(ecols)) {
         dir <- system.file("extdata", package = "OmicsMLRepoR")
-        ecols <- readLines(file.path(dir, "treatment_columns.txt"))
+        ecols <- readLines(file.path(dir, "treatment_columns.csv"))
     }
     
     # Validate input
