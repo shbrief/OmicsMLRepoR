@@ -410,6 +410,43 @@ getBottomDists <- function(onto, nodes) {
   return(node_dists)
 }
 
+displayNodes <- function(nodelist) {
+  ## nodelist = list of lists of ontology IDs, grouped and named by ontology
+  
+  # Initialize dataframe to store term information
+  dmat <- as.data.frame(matrix(nrow = sum(lengths(nodelist)),
+                               ncol = 3,
+                               dimnames = list(c(), c("ontology_term",
+                                                      "ontology_term_id",
+                                                      "original_ontology_term_db"))))
+  
+  # Save individual picked nodes with their respective ontologies
+  expanded_list <- setNames(unlist(nodelist, use.names = FALSE), rep(names(nodelist), lengths(nodelist)))
+  dmat$ontology_term_id <- unname(expanded_list)
+  dmat$original_ontology_term_db <- names(expanded_list)
+  
+  # Loop through picked nodes and get additional information
+  for (i in 1:nrow(dmat)) {
+    curont <- dmat$original_ontology_term_db[i]
+    curid <- dmat$ontology_term_id[i]
+    print(paste0("Retrieving info for picked node ", curid))
+    
+    qry <- OlsSearch(q = curid, exact = TRUE)
+    qry <- olsSearch(qry)
+    qdrf <- as(qry, "data.frame")
+    
+    if (curont %in% qdrf$ontology_prefix) {
+      record <- qdrf[qdrf$ontology_prefix == curont, ][1,]
+    } else if (TRUE %in% qdrf$is_defining_ontology) {
+      record <- qdrf[qdrf$is_defining_ontology == TRUE, ]
+    } else {
+      record <- qdrf[1, ]
+    }
+    dmat$ontology_term[i] <- record$label
+  }
+  return(dmat)
+}
+
 findReps <- function(onto, vecs) {
   ## onto = character string; ontology name
   ## vecs = list of character vectors
@@ -488,7 +525,12 @@ findReps <- function(onto, vecs) {
           ## TODO: Implement choice of high vs. low nodes
           ##if (node_type == "high") {
           
-          highest <- sdists[which(sdists$tdist == min(sdists$tdist)), ]
+          if (all(is.na(sdists$tdist))) {
+            highest <- sdists
+          } else {
+            # max top distance prioritizes lowest
+            highest <- sdists[which(sdists$tdist == max(sdists$tdist, na.rm = TRUE)), ]
+          }
           
           if (nrow(highest) > 1) {
             sdists <- filter(dmat, node %in% highest$node)
@@ -504,7 +546,13 @@ findReps <- function(onto, vecs) {
                 select(-contains("."))
               sdists <- filter(dmat, node %in% highest$node)
             }
-            highest <- sdists[which(sdists$bdist == max(sdists$bdist)), ]
+            
+            if (all(is.na(sdists$bdist))) {
+              highest <- sdists
+            } else {
+              # min bottom distance prioritizes lowest
+              highest <- sdists[which(sdists$bdist == min(sdists$bdist, na.rm = TRUE)), ] 
+            }
           }
           ##max_node <- which(names(csums) == highest$node)
           ##names(max_node) <- highest$node
@@ -535,44 +583,26 @@ findReps <- function(onto, vecs) {
       }
     }
   }
-  return(unique(picked_nodes))
-}
-
-displayNodes <- function(nodelist) {
-  ## nodelist = list of lists of ontology IDs, grouped and named by ontology
   
-  # Initialize dataframe to store term information
-  dmat <- as.data.frame(matrix(nrow = sum(lengths(nodelist)),
-                               ncol = 3,
-                               dimnames = list(c(), c("ontology_term",
-                                                      "ontology_term_id",
-                                                      "original_ontology_term_db"))))
+  nlist <- list(unique(picked_nodes))
+  names(nlist) <- onto
+  nmat <- displayNodes(nlist)
+  nmat$num_original_covered <- NA
+  nmat$num_original <- length(vecs)
   
-  # Save individual picked nodes with their respective ontologies
-  expanded_list <- setNames(unlist(nodelist, use.names = FALSE), rep(names(nodelist), lengths(nodelist)))
-  dmat$ontology_term_id <- unname(expanded_list)
-  dmat$original_ontology_term_db <- names(expanded_list)
-  
-  # Loop through picked nodes and get additional information
-  for (i in 1:nrow(dmat)) {
-    curont <- dmat$original_ontology_term_db[i]
-    curid <- dmat$ontology_term_id[i]
-    print(paste0("Retrieving info for picked node ", curid))
-    
-    qry <- OlsSearch(q = curid, exact = TRUE)
-    qry <- olsSearch(qry)
-    qdrf <- as(qry, "data.frame")
-    
-    if (curont %in% qdrf$ontology_prefix) {
-      record <- qdrf[qdrf$ontology_prefix == curont, ][1,]
-    } else if (TRUE %in% qdrf$is_defining_ontology) {
-      record <- qdrf[qdrf$is_defining_ontology == TRUE, ]
-    } else {
-      record <- qdrf[1, ]
+  for (i in 1:nrow(nmat)) {
+    cur_node <- nmat$ontology_term_id[i]
+    num_covered <- 0
+    for (j in 1:length(vecs)) {
+      if (cur_node %in% vecs[[j]]) {
+        num_covered <- num_covered + 1
+      }
     }
-    dmat$ontology_term[i] <- record$label
+    nmat$num_original_covered[i] <- num_covered
   }
-  return(dmat)
+  
+  #return(unique(picked_nodes))
+  return(nmat)
 }
 
 commonNodes <- function(map) {
@@ -584,7 +614,8 @@ commonNodes <- function(map) {
     onto_nodes <- mapply(function(n, t) getNodes(n, t), names(onto_terms), onto_terms, SIMPLIFY = FALSE)
     #core_nodes <- lapply(onto_nodes, findReps)
     core_nodes <- mapply(function(o, v) findReps(o, v), names(onto_nodes), onto_nodes, SIMPLIFY = FALSE)
-    node_mat <- displayNodes(core_nodes)
+    #node_mat <- displayNodes(core_nodes)
+    node_mat <- bind_rows(core_nodes)
     return(node_mat)
   }, error = function(e) {
     print(e)
