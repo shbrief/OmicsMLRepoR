@@ -1,13 +1,15 @@
 Package: OmicsMLRepoR
 Type: Package
-Title: Queries the OmicsMLRepo data
-Version: 0.3.0
-Date: 2023-12-27
+Title: Queries and analyze OmicsMLRepo data
+Version: 0.4.0
+Date: 2024-1-20
 Authors@R: c(
   person("Sehyun", "Oh", email = "shbrief@gmail.com", role = c("aut","cre")),
   person("Kaelyn", "Long", email = "krlong586@gmail.com", role = "aut"))
 Maintainer: Sehyun Oh <shbrief@gmail.com>
-Description: Query the harmonized metadata and data deposted in OmicsMLRepo.
+Description: This package provides convenient functions to query, manipulate,
+and analyze the harmonized metadata and data created under the OmicsMLRepo
+project.
 License: GPL-3
 Depends: 
     R (>= 4.2.0)
@@ -28,7 +30,7 @@ Suggests:
     arrow,
     testthat (>= 3.0.0)
 Encoding: UTF-8
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.0
 Collate: 
     'byProperty.R'
     'utils.R'
