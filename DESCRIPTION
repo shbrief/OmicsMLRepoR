@@ -1,15 +1,20 @@
 Package: OmicsMLRepoR
 Type: Package
 Title: Queries and analyze OmicsMLRepo data
-Version: 0.4.0
+Version: 0.4.1
 Date: 2024-1-20
-Authors@R: c(
-  person("Sehyun", "Oh", email = "shbrief@gmail.com", role = c("aut","cre")),
-  person("Kaelyn", "Long", email = "krlong586@gmail.com", role = "aut"))
-Maintainer: Sehyun Oh <shbrief@gmail.com>
-Description: This package provides convenient functions to query, manipulate,
-and analyze the harmonized metadata and data created under the OmicsMLRepo
-project.
+Authors@R: 
+    c(person(given = "Sehyun",
+             family = "Oh",
+             role = c("aut", "cre"),
+             email = "shbrief@gmail.com",
+             comment = c(ORCID = "0000-0002-9490-3061")),
+      person(given = "Kaelyn",
+             family = "Long",
+             role = "aut"))
+Description: This package provides functions to browse and query the 
+harmonized metadata for large omics databases. This package also supports 
+data navigation if the metadata incorporates ontology. 
 License: GPL-3
 Depends: 
     R (>= 4.2.0)
