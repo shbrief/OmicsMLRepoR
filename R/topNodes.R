@@ -184,9 +184,6 @@ getNodes <- function(onto, terms) {
 #' @return Dataframe of chosen nodes including information on number of original terms covered
 #' 
 findReps <- function(onto, vecs) {
-  # Print current ontology
-  print(onto)
-  
   # Initialize storage list and vectors
   nvecs <- list()
   picked_nodes <- c()
@@ -325,14 +322,17 @@ findReps <- function(onto, vecs) {
 #' 
 #' @importFrom tidyverse bind_rows
 #' 
-#' @param map ontology term map with columns "curated_ontology_term_id" and "curated_ontology_term_db"
+#' @param ids Character vector of term ids
+#' @param dbs Character vector of corresponding ontology database names
 #' 
 #' @return Dataframe of chosen nodes including information on number of original terms covered
 #' 
-commonNodes <- function(map) {
+commonNodes <- function(ids, dbs) {
+  map <- data.frame(id = ids,
+                    db = dbs)
   tryCatch({
-    onto_frames <- split(map, map$curated_ontology_term_db)
-    onto_terms <- lapply(onto_frames, function(x) x$curated_ontology_term_id)
+    onto_frames <- split(map, map$db)
+    onto_terms <- lapply(onto_frames, function(x) x$id)
     onto_nodes <- mapply(function(n, t) getNodes(n, t), names(onto_terms), onto_terms, SIMPLIFY = FALSE)
     core_nodes <- mapply(function(o, v) findReps(o, v), names(onto_nodes), onto_nodes, SIMPLIFY = FALSE)
     node_mat <- bind_rows(core_nodes)
