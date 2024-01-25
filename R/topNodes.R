@@ -1,15 +1,15 @@
-library(rols)
-library(googlesheets4)
-library(googledrive)
-library(tidyverse)
-library(beepr)
+## Functions to find common ontology nodes
 
-.getNodes <- function(onto, terms) {
-  ## Retrieves all ancestors for supplied terms
-  ##
-  ## onto = character string; ontology name
-  ## terms = character vector of term IDs
-
+#' Retrieves all ancestors for supplied terms
+#' 
+#' @importFrom rols Ontology term ancestors
+#' 
+#' @param onto Character string; name of ontology database
+#' @param terms Character vector of term IDs
+#' 
+#' @return List of character vectors of ancestors named by original node
+#' 
+getNodes <- function(onto, terms) {
   # Load ontology
   ontob <- Ontology(onto)
   
@@ -49,12 +49,16 @@ library(beepr)
   return(all_nodes)
 }
 
+#' Retrieves number of ancestors of given term
+#' 
+#' @importFrom rols Ontology term ancestors
+#' 
+#' @param onto Character string; name of ontology database
+#' @param nodes Character vector of term IDs
+#' 
+#' @return Dataframe of submitted terms and numbers of ancestors
+#'
 .getTopDists <- function(onto, nodes) {
-  ## Retrieves number of ancestors of given term
-  ##
-  ## onto = character string; ontology name
-  ## nodes = character vector of term IDs
-  
   # Load ontology
   ontob <- Ontology(onto)
   
@@ -86,12 +90,16 @@ library(beepr)
   return(node_dists)
 }
 
+#' Retrieves number of descendants of given term
+#' 
+#' @importFrom rols Ontology term descendants
+#' 
+#' @param onto Character string; name of ontology database
+#' @param nodes Character vector of term IDs
+#' 
+#' @return Dataframe of submitted terms and numbers of descendants
+#'
 .getBottomDists <- function(onto, nodes) {
-  ## Retrieves number of descendants of given term
-  ##
-  ## onto = character string; ontology name
-  ## nodes = character vector of term IDs
-  
   # Load ontology
   ontob <- Ontology(onto)
   
@@ -123,22 +131,26 @@ library(beepr)
   return(node_dists)
 }
 
-.displayNodes <- function(nodelist) {
-  ## Retrieves ontology terms and database information for given term ids
-  ##
-  ## nodelist = list of lists of ontology IDs, grouped and named by ontology
-  
+#' Retrieves ontology terms and database information for given term ids
+#'
+#' @importFrom OlsSearch olsSearch
+#' 
+#' @param onto Character string; name of ontology database
+#' @param nodevec Character vector of term IDs
+#' 
+#' @return Dataframe of submitted term IDs, term names, and term databases
+#' 
+.displayNodes <- function(onto, nodevec) {
   # Initialize dataframe to store term information
-  dmat <- as.data.frame(matrix(nrow = sum(lengths(nodelist)),
+  dmat <- as.data.frame(matrix(nrow = sum(lengths(nodevec)),
                                ncol = 3,
                                dimnames = list(c(), c("ontology_term",
                                                       "ontology_term_id",
                                                       "original_ontology_term_db"))))
   
   # Save individual picked nodes with their respective ontologies
-  expanded_list <- setNames(unlist(nodelist, use.names = FALSE), rep(names(nodelist), lengths(nodelist)))
-  dmat$ontology_term_id <- unname(expanded_list)
-  dmat$original_ontology_term_db <- names(expanded_list)
+  dmat$ontology_term_id <- unname(unlist(nodevec))
+  dmat$original_ontology_term_db <- onto
   
   # Loop through picked nodes and get additional information
   for (i in 1:nrow(dmat)) {
@@ -162,12 +174,17 @@ library(beepr)
   return(dmat)
 }
 
-.findReps <- function(onto, vecs) {
-  ## Chooses which ancestors cover all given original terms, prioritizing a low number of chosen nodes
-  ##
-  ## onto = character string; ontology name
-  ## vecs = list of character vectors
-  
+#' Chooses which ancestors cover all given original terms, prioritizing a low number of chosen nodes
+#' 
+#' @importFrom tidyverse filter left_join mutate select
+#' 
+#' @param onto Character string; name of ontology database
+#' @param vecs List of character vectors of ancestors named by original node
+#' 
+#' @return Dataframe of chosen nodes including information on number of original terms covered
+#' 
+findReps <- function(onto, vecs) {
+  # Print current ontology
   print(onto)
   
   # Initialize storage list and vectors
@@ -206,16 +223,6 @@ library(beepr)
                        tdist = NA,
                        bdist = NA)
     
-    ## Logic:
-    #if multiple picked
-    # if empty tdists for picked
-    #  get tdists and store
-    # filter for nodes picked and compare tdists
-    #  if multiple picked
-    #   if empty bdists for picked
-    #    get bdists and store
-    #   filter for nodes picked and compare bdists
-    
     # While there are remaining terms to be represented
     while(!check) {
       if (is.matrix(valsin)) {
@@ -238,9 +245,6 @@ library(beepr)
               select(-contains("."))
             sdists <- filter(dmat, node %in% names(max_node))
           }
-
-          ## TODO: Implement choice of high vs. low nodes
-          ##if (node_type == "high") {
           
           if (all(is.na(sdists$tdist))) {
             highest <- sdists
@@ -271,9 +275,6 @@ library(beepr)
               highest <- sdists[which(sdists$bdist == min(sdists$bdist, na.rm = TRUE)), ] 
             }
           }
-          ##max_node <- which(names(csums) == highest$node)
-          ##names(max_node) <- highest$node
-          ## TODO: find another way to break the tie when neither returns any ancestors or descendants? EFO and maybe SNOMED issue
           max_node <- which(names(csums) == highest$node[order(highest$node)[1]])
           names(max_node) <- highest$node[order(highest$node)[1]]
         }
@@ -301,9 +302,8 @@ library(beepr)
     }
   }
   
-  nlist <- list(unique(picked_nodes))
-  names(nlist) <- onto
-  nmat <- .displayNodes(nlist)
+  nlist <- unique(picked_nodes)
+  nmat <- .displayNodes(onto, nlist)
   nmat$num_original_covered <- NA
   nmat$num_original <- length(vecs)
   
@@ -318,22 +318,23 @@ library(beepr)
     nmat$num_original_covered[i] <- num_covered
   }
   
-  #return(unique(picked_nodes))
   return(nmat)
 }
 
+#' Retrieves top nodes for a given ontology term map
+#' 
+#' @importFrom tidyverse bind_rows
+#' 
+#' @param map ontology term map with columns "curated_ontology_term_id" and "curated_ontology_term_db"
+#' 
+#' @return Dataframe of chosen nodes including information on number of original terms covered
+#' 
 commonNodes <- function(map) {
-  ## Retrieves top nodes for a given ontology term map
-  ##
-  ## map = ontology term map with columns "curated_ontology_term_id" and "curated_ontology_term_db"
-  
   tryCatch({
     onto_frames <- split(map, map$curated_ontology_term_db)
     onto_terms <- lapply(onto_frames, function(x) x$curated_ontology_term_id)
-    onto_nodes <- mapply(function(n, t) .getNodes(n, t), names(onto_terms), onto_terms, SIMPLIFY = FALSE)
-    #core_nodes <- lapply(onto_nodes, .findReps)
-    core_nodes <- mapply(function(o, v) .findReps(o, v), names(onto_nodes), onto_nodes, SIMPLIFY = FALSE)
-    #node_mat <- .displayNodes(core_nodes)
+    onto_nodes <- mapply(function(n, t) getNodes(n, t), names(onto_terms), onto_terms, SIMPLIFY = FALSE)
+    core_nodes <- mapply(function(o, v) findReps(o, v), names(onto_nodes), onto_nodes, SIMPLIFY = FALSE)
     node_mat <- bind_rows(core_nodes)
     return(node_mat)
   }, error = function(e) {
