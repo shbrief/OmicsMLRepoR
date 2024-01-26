@@ -133,7 +133,7 @@ getNodes <- function(onto, terms) {
 
 #' Retrieves ontology terms and database information for given term ids
 #'
-#' @importFrom OlsSearch olsSearch
+#' @importFrom rols OlsSearch olsSearch
 #' 
 #' @param onto Character string; name of ontology database
 #' @param nodevec Character vector of term IDs
@@ -176,7 +176,7 @@ getNodes <- function(onto, terms) {
 
 #' Chooses which ancestors cover all given original terms, prioritizing a low number of chosen nodes
 #' 
-#' @importFrom tidyverse filter left_join mutate select
+#' @importFrom dplyr filter left_join mutate select
 #' 
 #' @param onto Character string; name of ontology database
 #' @param vecs List of character vectors of ancestors named by original node
@@ -320,7 +320,7 @@ findReps <- function(onto, vecs) {
 
 #' Retrieves top nodes for a given ontology term map
 #' 
-#' @importFrom tidyverse bind_rows
+#' @importFrom dplyr bind_rows
 #' 
 #' @param ids Character vector of term ids
 #' @param dbs Character vector of corresponding ontology database names
