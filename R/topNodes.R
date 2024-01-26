@@ -310,17 +310,21 @@ findReps <- function(onto, vecs) {
   
   nlist <- unique(picked_nodes)
   nmat <- .displayNodes(onto, nlist)
+  nmat$original_covered <- NA
   nmat$num_original_covered <- NA
   nmat$num_original <- length(vecs)
   
   for (i in 1:nrow(nmat)) {
     cur_node <- nmat$ontology_term_id[i]
+    is_covered <- c()
     num_covered <- 0
     for (j in 1:length(vecs)) {
       if (cur_node %in% vecs[[j]]) {
+        is_covered <- c(is_covered, names(vecs)[j])
         num_covered <- num_covered + 1
       }
     }
+    nmat$original_covered[i] <- list(is_covered)
     nmat$num_original_covered[i] <- num_covered
   }
   
