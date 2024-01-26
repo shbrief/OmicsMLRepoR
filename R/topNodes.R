@@ -4,11 +4,19 @@
 #' 
 #' @importFrom rols Ontology term ancestors
 #' 
-#' @param onto Character string; name of ontology database
-#' @param terms Character vector of term IDs
+#' @param onto A character vector. Name(s) of ontologies that terms are from.
+#' @param terms A haracter vector of ontology term IDs.
 #' 
-#' @return List of character vectors of ancestors named by original node
+#' @return A named list. Names of elements are original nodes (`terms`). 
+#' Each element is a character vectors containing the ancestors of the 
+#' element name (i.e., original terms provided).
 #' 
+#' @examples
+#' terms <- c("NCIT:C25301", "NCIT:C29844", "NCIT:C29846", "NCIT:C29848")
+#' getNodes(onto = "NCIT", terms = terms)
+#' 
+#' 
+#' @export
 getNodes <- function(onto, terms) {
   # Load ontology
   ontob <- Ontology(onto)
@@ -183,6 +191,7 @@ getNodes <- function(onto, terms) {
 #' 
 #' @return Dataframe of chosen nodes including information on number of original terms covered
 #' 
+#' @export
 findReps <- function(onto, vecs) {
   # Initialize storage list and vectors
   nvecs <- list()
@@ -327,6 +336,7 @@ findReps <- function(onto, vecs) {
 #' 
 #' @return Dataframe of chosen nodes including information on number of original terms covered
 #' 
+#' @export
 commonNodes <- function(ids, dbs) {
   map <- data.frame(id = ids,
                     db = dbs)
