@@ -133,7 +133,7 @@ getNodes <- function(onto, terms) {
 
 #' Retrieves ontology terms and database information for given term ids
 #'
-#' @importFrom OlsSearch olsSearch
+#' @importFrom rols OlsSearch olsSearch
 #' 
 #' @param onto Character string; name of ontology database
 #' @param nodevec Character vector of term IDs
