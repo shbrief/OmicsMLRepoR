@@ -35,6 +35,8 @@ getMaps <- function(directory, map_file_pattern) {
 
 #' Retrieve and save ancestors of ontology terms
 #'
+#' @importFrom OmicsMLRepoR getNodes
+#'
 #' @param ids Character vector of term ids
 #' @param dbs Character vector of corresponding ontology names. Single string also accepted if all terms share a single ontology.
 #' 
@@ -62,34 +64,56 @@ getAncestors <- function(ids, dbs) {
 #' Helper: collect ontologies used for each attribute? Filter results for terms that exist in ancestors (and use to bypass picking?)
 #' Need access to maps?
 
-#' Main function: take query and optional argument for attribute name
+#' Search OLS for ontology terms with plain text input
+#' 
+#' @importFrom rols OlsSearch olsSearch
+#' 
+#' @param search search string
+#' @param ontology optional character vector of ontology names
+#' @param num_results optional number of results to return; default = 20
+#' 
+#' @return Character vector of ontology term ids
+#' 
+ontoSearch <- function(search, ontology = NA, num_results = 20) {
+  if (is.na(ontology)) {
+    qry <- OlsSearch(q = search, rows = num_results)
+  } else {
+    qry <- OlsSearch(q = search, ontology = ontology, rows = num_results)
+  }
+  
+  qry <- olsSearch(qry)
+  qdf <- as(qry, "data.frame")
+  ids <- unique(qdf$obo_id)
+  return(ids)
+}
 
-qry <- OlsSearch(q = "neoplasm") # if ontology specified: qry <- OlsSearch(q = "query", ontology = "ONTO")
-qry <- olsSearch(qry)
-qdf <- as(qry, "data.frame")
+#qry <- OlsSearch(q = "neoplasm") # if ontology specified: qry <- OlsSearch(q = "query", ontology = "ONTO")
+#qry <- olsSearch(qry)
+#qdf <- as(qry, "data.frame")
 
 # NCIT:C3262
-t <- "NCIT:C3262"
-u <- c("NCIT:C3262", "EFO:0000313")
+#t <- "NCIT:C3262"
+#u <- c("NCIT:C3262", "EFO:0000313")
+#v <- unique(qdf$obo_id)
 
-trm <- term("ncit", "NCIT:C3262")
-d <- descendants(trm)
+#trm <- term("ncit", "NCIT:C3262")
+#d <- descendants(trm)
 
-used <- unique(map_list[[4]]$curated_ontology_term_id)
+#used <- unique(map_list[[4]]$curated_ontology_term_id)
 
-result <- used[which(used %in% names(d@x))]
+#result <- used[which(used %in% names(d@x))]
 # get all ancestors from map terms
 # pull out terms where qdf %in% ancestors
 
-csc <- read.csv("/home/kaelyn/Desktop/Work/OmicsMLRepoData/curatedMetagenomicData/data/curated_study_condition.csv")
+#csc <- read.csv("/home/kaelyn/Desktop/Work/OmicsMLRepoData/curatedMetagenomicData/data/curated_study_condition.csv")
 
-rows <- csc[csc$curated_disease_ontology_term_id %in% result,]
-rows <- csc[any(unlist(strsplit(csc$curated_disease_ontology_term_id, ";"))) %in% result,]
+#rows <- csc[csc$curated_disease_ontology_term_id %in% result,]
+#rows <- csc[any(unlist(strsplit(csc$curated_disease_ontology_term_id, ";"))) %in% result,]
 
-tlist <- strsplit(csc$curated_disease_ontology_term_id, ";")
-inlist <- lapply(tlist, function(x) intersect(x, result))
-llist <- inlist[which(lengths(inlist) != 0)]
-lframe <- csc[which(lengths(inlist) != 0),]
+#tlist <- strsplit(csc$curated_disease_ontology_term_id, ";")
+#inlist <- lapply(tlist, function(x) intersect(x, result))
+#llist <- inlist[which(lengths(inlist) != 0)]
+#lframe <- csc[which(lengths(inlist) != 0),]
 
 
 #lapply(onto_nodes$NCIT, function(x) t %in% x)
@@ -99,13 +123,37 @@ lframe <- csc[which(lengths(inlist) != 0),]
 #onto_nodes <- mapply(function(n, t) getNodes(n, t), map$db, map$id, SIMPLIFY = FALSE)
 
 # get all ancestors, first run through half of commonNodes to get 'onto_nodes' object
-onames <- unlist(lapply(onto_nodes, function(x) names(x)), use.names = FALSE)
-oancs <- unlist(onto_nodes, recursive = FALSE, use.names = FALSE)
-names(oancs) <- onames
+#onames <- unlist(lapply(onto_nodes, function(x) names(x)), use.names = FALSE)
+#oancs <- unlist(onto_nodes, recursive = FALSE, use.names = FALSE)
+#names(oancs) <- onames
 
-mresult <- names(which(lapply(oancs, function(x) any(u %in% x)) == TRUE))
+#mresult <- names(which(lapply(oancs, function(x) any(u %in% x)) == TRUE))
 
-tlist <- strsplit(csc$curated_disease_ontology_term_id, ";")
-inlist <- lapply(tlist, function(x) intersect(x, mresult))
-llist <- inlist[which(lengths(inlist) != 0)]
-lframe <- csc[which(lengths(inlist) != 0),]
+#' Find base terms for a single attribute that are descendants of search results
+#' 
+#' @param anc_lists list of term ancestors for a single attribute
+#' @param result_ids list of ids returned by search function
+#'
+#' @return Character vector of ontology term ids
+#'
+findRelated <- function(anc_lists, result_ids) {
+  selected_ids <- names(which(lapply(anc_lists, function(x) any(result_ids %in% x)) == TRUE))
+  return(selected_ids)
+}
+
+#' Filter metadata table by ontology term ids in specific attribute
+#' 
+#' @param metadata metadata table
+#' @param feature column name
+#' @param ids list of ids to filter by
+#' 
+#' @return Metadata table filtered by provided ontology term ids in provided attribute
+#' 
+filterMetadata <- function(metadata, feature, ids) {
+  meta_ids <- strsplit(metadata[,feature], ";")
+  all_selected_ids <- lapply(meta_ids, function(x) intersect(x, ids))
+  #selected_ids <- all_selected_ids[which(lengths(all_selected_ids) != 0)]
+  selected_meta <- metadata[which(lengths(all_selected_ids) != 0),]
+  return(selected_meta)
+}
+
