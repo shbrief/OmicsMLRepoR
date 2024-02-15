@@ -32,6 +32,16 @@ getMaps <- function(directory, map_file_pattern) {
   return(maps)
 }
 
+#' Get ontology database from ontology term id
+#' 
+#' @param ids Character vector of term ids
+#' 
+#' @return Character vector of corresponding ontology names
+#' 
+getDBs <- function(ids) {
+  
+}
+
 #' Retrieve and save ancestors of ontology terms
 #'
 #' @importFrom OmicsMLRepoR getNodes
@@ -108,3 +118,53 @@ filterMetadata <- function(metadata, feature, ids) {
   return(selected_meta)
 }
 
+#' Wrapper to save ancestor info for all curated features within a metadata database (cMD/cBioPortalData)
+#' 
+#' @param map_directory Path to directory containing .csv map files
+#' @param map_file_pattern Regular expression to detect map files; Must contain a capturing group to retrieve feature names from map filenames
+#' @param id_column_name Name of ontology term id column; Must be the same across all maps
+#' @param target_directory Path to directory to save info to
+#'  
+saveInfo <- function(map_directory, map_file_pattern, id_column_name, target_directory) {
+  # retrieve maps from directory
+  all_maps <- getMaps(map_directory, map_file_pattern)
+  
+  # transform maps
+  all_ids <- lapply(all_maps, function(x) unique(unlist(strsplit(x[, id_column_name], split = ";"))))
+  
+  # get ancestors for each map
+  all_ancs <- lapply(all_maps, function())
+}
+
+#' Wrapper to easily search metadata with plain text
+#' 
+#' @param search search string
+#' @param metadata metadata table
+#' @param feature column name
+#' 
+#' @return Metadata table filtered by provided ontology term ids in provided attribute
+#' 
+searchMetadata <- function(search, metadata, feature) {
+  # get ontology search results
+  anc_terms <- ontoSearch(search)
+  
+  # get stored info on selected feature
+  feature_info <- NA # location of .rds for feature
+  
+  # get feature terms that are descendants of search results
+  terms_to_find <- findRelated(feature_info, anc_terms)
+  
+  # filter metadata table
+  filtered_meta <- filterMetadata(metadata, feature, terms_to_find)
+  return(filtered_meta)
+}
+
+
+#' save ancestors for features
+#'
+#' @param anc_list list of ancestors named by original term
+#' @param feature feature name
+#' 
+saveAncs <- function(anc_list, feature) {
+  
+}
