@@ -37,7 +37,7 @@ getNodes <- function(onto, terms) {
       
     }, error = function(e) {
       print(e)
-      print("Original term assigned as node, proceeding to next term")
+      print("Original term assigned as sole ancestor, proceeding to next term")
       node_names <<- terms[i]
     })
     
