@@ -22,19 +22,7 @@ getMaps <- function(directory, map_file_pattern) {
   return(maps)
 }
 
-#' Get ontology database from ontology term id
-#' 
-#' @param ids Character vector of term ids
-#' 
-#' @return Character vector of corresponding ontology names
-#' 
-getDBs <- function(ids) {
-  
-}
-
 #' Retrieve and save ancestors of ontology terms
-#'
-#' @importFrom OmicsMLRepoR getNodes
 #'
 #' @param ids Character vector of term ids
 #' @param dbs Character vector of corresponding ontology names. Single string also accepted if all terms share a single ontology.
