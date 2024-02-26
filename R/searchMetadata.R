@@ -1,4 +1,4 @@
-## Functions to retrieve used terms from raw user input
+## Functions to search metadata using raw user input
 
 #' Retrieve ontology term maps from a directory with .csv files
 #' 
