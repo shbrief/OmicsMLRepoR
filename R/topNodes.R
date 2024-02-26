@@ -5,7 +5,7 @@
 #' @importFrom rols Ontology term ancestors
 #' 
 #' @param onto A character vector. Name(s) of ontologies that terms are from.
-#' @param terms A haracter vector of ontology term IDs.
+#' @param terms A character vector of ontology term IDs.
 #' 
 #' @return A named list. Names of elements are original nodes (`terms`). 
 #' Each element is a character vectors containing the ancestors of the 
@@ -61,7 +61,7 @@ getNodes <- function(onto, terms) {
 #' 
 #' @importFrom rols Ontology term ancestors
 #' 
-#' @param onto Character string; name of ontology database
+#' @param onto Character string; name of ontology
 #' @param nodes Character vector of term IDs
 #' 
 #' @return Dataframe of submitted terms and numbers of ancestors
@@ -102,7 +102,7 @@ getNodes <- function(onto, terms) {
 #' 
 #' @importFrom rols Ontology term descendants
 #' 
-#' @param onto Character string; name of ontology database
+#' @param onto Character string; name of ontology
 #' @param nodes Character vector of term IDs
 #' 
 #' @return Dataframe of submitted terms and numbers of descendants
@@ -143,10 +143,10 @@ getNodes <- function(onto, terms) {
 #'
 #' @importFrom rols OlsSearch olsSearch
 #' 
-#' @param onto Character string; name of ontology database
+#' @param onto Character string; name of ontology
 #' @param nodevec Character vector of term IDs
 #' 
-#' @return Dataframe of submitted term IDs, term names, and term databases
+#' @return Dataframe of submitted term IDs, term names, and term ontologies
 #' 
 .displayNodes <- function(onto, nodevec) {
   # Initialize dataframe to store term information
@@ -154,15 +154,15 @@ getNodes <- function(onto, terms) {
                                ncol = 3,
                                dimnames = list(c(), c("ontology_term",
                                                       "ontology_term_id",
-                                                      "original_ontology_term_db"))))
+                                                      "original_term_ontology"))))
   
   # Save individual picked nodes with their respective ontologies
   dmat$ontology_term_id <- unname(unlist(nodevec))
-  dmat$original_ontology_term_db <- onto
+  dmat$original_term_ontology <- onto
   
   # Loop through picked nodes and get additional information
   for (i in 1:nrow(dmat)) {
-    curont <- dmat$original_ontology_term_db[i]
+    curont <- dmat$original_term_ontology[i]
     curid <- dmat$ontology_term_id[i]
     print(paste0("Retrieving info for picked node ", curid))
     
@@ -186,7 +186,7 @@ getNodes <- function(onto, terms) {
 #' 
 #' @importFrom dplyr filter left_join mutate select
 #' 
-#' @param onto Character string; name of ontology database
+#' @param onto Character string; name of ontology
 #' @param vecs List of character vectors of ancestors named by original node
 #' 
 #' @return Dataframe of chosen nodes including information on number of original terms covered
@@ -336,7 +336,7 @@ findReps <- function(onto, vecs) {
 #' @importFrom dplyr bind_rows
 #' 
 #' @param ids Character vector of term ids
-#' @param dbs Character vector of corresponding ontology database names
+#' @param dbs Character vector of corresponding ontology names. Single string also accepted if all terms share a single ontology.
 #' 
 #' @return Dataframe of chosen nodes including information on number of original terms covered
 #' 
