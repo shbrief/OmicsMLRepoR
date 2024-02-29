@@ -48,8 +48,9 @@ getAncestors <- function(ids, dbs) {
             onto_terms, SIMPLIFY=FALSE)
         onames <- unlist(lapply(onto_nodes, function(x) names(x)),
             use.names=FALSE)
-        oancs <- mapply(function(n, a) c(n, a), onames, oancs, SIMPLIFY=FALSE)
-        return(oancs)
+        oancs <- unlist(onto_nodes, recursive = FALSE, use.names = FALSE)
+        oall <- mapply(function(n, a) c(n, a), onames, oancs, SIMPLIFY=FALSE)
+        return(oall)
     }, error=function(e) {
         print(e)
     })
@@ -115,6 +116,14 @@ findRelated <- function(anc_lists, result_ids) {
 #' 
 #' @return Metadata table filtered by provided ontology term ids
 #'         in provided attribute
+#'         
+#' @examples
+#' df <- read.csv(system.file("extdata",
+#'                            "sample_metadata.csv",
+#'                            package="OmicsMLRepoR"))
+#' filterMetadata(df,
+#'                "curated_disease_ontology_term_id",
+#'                c("NCIT:C2855", "EFO:0000228"))
 #' 
 filterMetadata <- function(metadata, feature, ids) {
     meta_ids <- strsplit(metadata[, feature], ";")
@@ -137,7 +146,20 @@ filterMetadata <- function(metadata, feature, ids) {
 #' @param db_column_name Name of ontology name column;
 #'                       Must be the same across all maps;
 #'                       Defaults to 'curated_ontology_term_db'
-#'    
+#' 
+#' @examples
+#' dir <- system.file("extdata", package="OmicsMLRepoR")
+#' file <- file.path(system.file("extdata", package="OmicsMLRepoR"),
+#'                   "example.csv")
+#' 
+#' # default map structure
+#' saveInfo(map_directory=dir, target_file=file, "sample_map_.*\\.csv")
+#' 
+#' # custom map structure
+#' saveInfo(map_directory=dir, target_file=file, "sample_map_.*\\.csv",
+#'          id_column_name="curated_ontology_term_id",
+#'          db_column_name="curated_ontology_term_db")
+#' 
 saveInfo <- function(map_directory, target_file,
     map_file_pattern, id_column_name="curated_ontology_term_id",
     db_column_name="curated_ontology_term_db") {
@@ -167,7 +189,7 @@ saveInfo <- function(map_directory, target_file,
 #' @param search Character search string
 #' @param metadata Metadata table
 #' @param anc_file Character string indicating ancestor file to access;
-#'                 Either 'cMD' or 'cBioPortalData'
+#'                 Should be 'cMD', 'cBioPortalData', or 'sample'
 #' @param feature String; Column name to filter by
 #' @param exact Optional Boolean; Defaults to FALSE;
 #'              Whether to restrict the OLS search to exact matches
@@ -179,7 +201,27 @@ saveInfo <- function(map_directory, target_file,
 #' @return Metadata table filtered by provided
 #'         ontology term ids in provided attribute
 #' 
-searchMetadata <- function(search, metadata, feature, exact=FALSE,
+#' @examples
+#' df <- read.csv(system.file("extdata",
+#'                            "sample_metadata.csv",
+#'                            package="OmicsMLRepoR"))
+#' # simple search
+#' searchMetadata(search="neoplasm",
+#'                metadata=df,
+#'                anc_file="sample",
+#'                feature="curated_disease_ontology_term_id")
+#'                
+#' # controlled search
+#' searchMetadata(search="neoplasm",
+#'                metadata=df,
+#'                anc_file="sample",
+#'                feature="curated_disease_ontology_term_id",
+#'                exact=TRUE,
+#'                onto="NCIT",
+#'                num_results=10)
+#' 
+
+searchMetadata <- function(search, metadata, anc_file, feature, exact=FALSE,
     onto=NA, num_results=20) {
     ## get ontology search results
     anc_terms <- ontoSearch(search, exact=exact, ontology=onto,
@@ -188,13 +230,13 @@ searchMetadata <- function(search, metadata, feature, exact=FALSE,
     ## get stored info on selected feature
     dir <- system.file("extdata", package="OmicsMLRepoR")
     f_name <- paste0(anc_file, "_ancestors.csv")
-    feature_info <- readLines(file.path(dir, "cMD_ancestors.csv"))
+    feature_info <- read.csv(file.path(dir, f_name))
     anc_list <- lapply(feature_info$ancestors, function(x) unlist(strsplit(x,
         split=";")))
     names(anc_list) <- feature_info$terms
 
     ## get feature terms that are descendants of search results
-    terms_to_find <- findRelated(feature_info, anc_terms)
+    terms_to_find <- findRelated(anc_list, anc_terms)
 
     ## filter metadata table
     filtered_meta <- filterMetadata(metadata, feature, terms_to_find)
