@@ -1,0 +1,11 @@
+## Construction of sample_ancestors.csv for testing searchMetadata.R functions
+
+# sample_ancestors
+ancs <- data.frame(terms = c("EFO:0000228", "NCIT:C2855", "NCIT:C2985"),
+                   ancestors = c("EFO:0000228;MONDO:0024276;EFO:0006858;EFO:0000616;MONDO:0023370;MONDO:0045024;EFO:0000408;BFO:0000016;BFO:0000020;EFO:0000313;MONDO:0004992",
+                                 "NCIT:C2855;NCIT:C3709;NCIT:C4741;NCIT:C3262;NCIT:C2991",
+                                 "NCIT:C2985;NCIT:C171128;NCIT:C27067;NCIT:C26842;NCIT:C2990;NCIT:C27551;NCIT:C2991;NCIT:C3009;NCIT:C53505;NCIT:C53531;NCIT:C53529;NCIT:C53655;NCIT:C27565;NCIT:C97089;NCIT:C3235;NCIT:C53547"))
+write.csv(ancs,
+          file.path(system.file("extdata", package = "OmicsMLRepoR"),
+                    "sample_ancestors.csv"),
+          row.names = FALSE)
