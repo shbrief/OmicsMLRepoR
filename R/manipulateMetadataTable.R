@@ -1,21 +1,42 @@
 #' Expands metadata with multiple values belong to a same attribute
+#'
+#' Different from the `getWideMetaTb` function, this function accepts multiple
+#' target columns (`targetCols`). The difference comes from that the target
+#' columns of this function are related, i.e., have the same number of 
+#' elements separated by the `delim`, and the multiple values for each column
+#' belongs to the same column/attribute/field, i.e., no additional column
+#' name is required/provided.
 #' 
-#' @importFrom tidyr separate_longer_delim
 #' 
 #' @param meta A data frame. Metadata table containing all treatment-related 
 #' columns
 #' @param targetCols Optional. A character vector of column names to expand if 
 #' present. Default is the name of all cBioPortal treatment-related columns.
 #' @param delim Optional. A character (1) of a delimiter used to separate 
-#' multiple values in the metadata table. Default is \code{"<;>"}.
+#' multiple values in the metadata table. Default is `<;>`.
 #' 
 #' @return A data frame of metadata expanded so that each individual treatment 
 #' has its own row.
 #' 
+#' @examples
+#' dir <- system.file("extdata", package = "OmicsMLRepoR")
+#' meta <- read.csv(file.path(dir, "mini_cbio.csv"), header = TRUE)
+#' lmeta <- getLongMetaTb(meta)
+#' dim(meta) # 200 x 158 table
+#' dim(lmeta) # 216 x 158 table
+#' 
+#' short_tb <- data.frame(ind = c("A", "B", "C", "D", "E"),
+#'                        aval = c("cat;dog", "chicken", "horse", "frog;pig", 
+#'                                 "snake"),
+#'                        cval = c(1, NA, 3, 4, 5),
+#'                        bval = c("red;blue", "yellow", "NA", "green;NA", 
+#'                                 "brown"))
+#' getLongMetaTb(short_tb, c("aval", "bval"), delim = ";")
+#' 
 #' @export
-longMetadata <- function(meta, 
-                         targetCols = NULL, 
-                         delim = "<;>") {
+getLongMetaTb <- function(meta, 
+                          targetCols = NULL, 
+                          delim = "<;>") {
     
     # Character vector of treatment-related columns 
     # Current but not complete <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -33,13 +54,12 @@ longMetadata <- function(meta,
     res <- separate_longer_delim(data = meta,
                                  cols = any_of(targetCols),
                                  delim = delim)
+    res[res == "NA"] <- NA
     return(res)
 }
 
 
 #' Compresses expanded metadata columns to one row per sample
-#' 
-#' @importFrom dplyr group_by reframe ungroup select
 #' 
 #' @param meta A data frame with expanded treatment columns.
 #' @param idCols Optional. A character vector of columns that identify 
@@ -47,15 +67,30 @@ longMetadata <- function(meta,
 #' standard ID columns.
 #' @param targetCols Optional. A character vector of columns to compress if 
 #' present. Default is names of all cBioPortal treatment-related columns.
-#' @param delim Optional. A delimiter string. Default is \code{"<;>"}.
+#' @param delim Optional. A delimiter string. Default is `<;>`.
 #'
 #' @return A data frame where each sample gets a single row
 #' 
+#' @examples
+#' dir <- system.file("extdata", package = "OmicsMLRepoR")
+#' meta <- read.csv(file.path(dir, "mini_cbio.csv"), header = TRUE)
+#' lmeta <- getLongMetaTb(meta)
+#' res <- getShortMetaTb(lmeta)
+#' dim(res) # 200 x 158 table
+#' 
+#' long_tb <- data.frame(ind = c("A", "A", "B", "C", "D", "D", "E"),
+#'                       aval = c("cat", "dog", "chicken", "horse", 
+#'                                "frog", "pig", "snake"),
+#'                       cval = c(1, 1, NA, 3, 4, 4, 5),
+#'                       bval = c("red", "blue", "yellow", NA, "green", 
+#'                                NA, "brown"))
+#' getShortMetaTb(long_tb, idCols = "ind", targetCols = c("aval", "bval"))
+#' 
 #' @export
-shortMetadata <- function(meta, 
-                          idCols = NULL, 
-                          targetCols = NULL, 
-                          delim = "<;>") {
+getShortMetaTb <- function(meta, 
+                           idCols = NULL, 
+                           targetCols = NULL, 
+                           delim = "<;>") {
     
     dir <- system.file("extdata", package = "OmicsMLRepoR")
     if (is.null(idCols)) {
@@ -84,6 +119,9 @@ shortMetadata <- function(meta,
     gcols <- idCols[which(idCols %in% col_order)]
     ocols <- setdiff(setdiff(col_order, targetCols), idCols)
     
+    # Convert `NA` values to character
+    meta[is.na(meta)] <- "NA"
+    
     # Compress data frame
     cmeta <- meta %>%
         group_by_at(gcols) %>%
@@ -94,37 +132,57 @@ shortMetadata <- function(meta,
         ungroup() %>%
         select(all_of(col_order))
     
+    # Convert character `NA` as logical
+    cmeta[cmeta == "NA"] <- NA
+    
     # Return as data frame
-    res <- as.data.frame(cmeta)
+    res <- tibble::as_tibble(cmeta)
     return(res)
 }
 
 
 #' Collapse values from multiple columns into one
 #' 
-#' @importFrom dplyr group_by reframe ungroup select
+#' @import tidyr
 #' 
 #' @param meta A data frame.
+#' @param newCol A character (1). Name of the new column to store collapsed
+#' values.
 #' @param targetCols A character vector. Names of the columns to be collapsed
 #' into one column.
-#' @param newCol A character (1). Name of the new column to store collapsed
-#' values. 
-#' @param sep A character(1). Separator to use between values. Default is `<;>`.
-#' @param delim A character (1). Delimiter to concatenate column name and its
-#' value. Default is double colons, `::`.
-#' @param remove If `TRUE`, remove input columns from output data frame.
+#' @param sep A character (1). Delimiter used to concatenate column name 
+#' and its value. Default is double colons, `:`.
+#' @param delim A character(1). Separator to use between values/columns. 
+#' Default is `;`.
+#' @param remove With the default, `TRUE`, this function will remove input 
+#' columns from output data frame.
+#' @param na.rm With the default, `TRUE`, missing values will be removed 
+#' prior to uniting each value. 
 #'
 #' @return A data frame where target columns (\code{targetCols}) are collapsed
 #' into a single column. The original column name and its value are 
-#' concatenated with double colons (`::`).
+#' concatenated with the `sep` input and the column:value pairs are separated
+#' by the `delim` input. Target columns will be merged in the alphabetical 
+#' order of their names.
+#' 
+#' @examples
+#' wide_tb <- data.frame(fruit = c("apple", "banana", "pear", "watermelon", 
+#'                                 "grape"), 
+#'                       shape = c("round", "long", NA, "round", NA),
+#'                       color = c("red", "yellow", NA, "green", "purple"),
+#'                       size = c("medium", "medium", NA, "large", "small"))
+#' getNarrowMetaTb(wide_tb, newCol = "feature", 
+#'                 targetCols = c("color", "shape", "size"), 
+#'                 sep = ":", delim = ";")
 #' 
 #' @export
-narrowMetadata <- function(meta, 
-                           targetCols = NULL, 
-                           newCol = NULL,
-                           sep = "<;;>",
-                           delim = "::",
-                           remove = TRUE) {
+getNarrowMetaTb <- function(meta, 
+                            newCol = NULL,
+                            targetCols = NULL,
+                            sep = ":",
+                            delim = ";",
+                            remove = TRUE,
+                            na.rm = TRUE) {
 
     if (is.null(targetCols)) {
         msg <- "Provide the name of columns to combine."
@@ -136,76 +194,140 @@ narrowMetadata <- function(meta,
         stop(msg)
     }
 
-    cols <- targetCols[targetCols %in% colnames(meta)]
+    target_exist <- targetCols %in% colnames(meta)
+    if (sum(target_exist) == 0) {
+        msg <- "None of the requested target column(s) exist in the metadata table."
+        stop(msg)
+    }
+    
+    cols <- targetCols[target_exist]
     modifiedMeta <- meta
+    
     for (col in cols) {
         modifiedMeta[[col]] <- paste(col, 
                                      as.character(modifiedMeta[[col]]), 
-                                     sep = delim)
+                                     sep = sep)
     }
     
-    united <- unite(modifiedMeta, col = {{newCol}}, sep = sep) ## embracing operator to inject
+    ## Help `na.rm = TRUE` formatting: updated characterized NA back to logical NA
+    if (isTRUE(na.rm)) {
+        modifiedMeta <- apply(modifiedMeta, 2, 
+                              function(x) gsub(".*:NA", NA, x)) %>% 
+            as.data.frame
+    }
     
-    if (isTRUE(remove)) {
-        ind <- which(colnames(meta) %in% cols)
-        res <- cbind(meta[-ind], united)
-    } else {
-        res <- cbin(meta, united)
+    ## Unite target columns
+    united <- unite(modifiedMeta, 
+                    col = {{newCol}}, # embracing operator to inject
+                    sort(targetCols), # alphabetical order of the columns
+                    sep = delim,
+                    remove = remove,
+                    na.rm = na.rm)
+    
+    ## Help `na.rm = TRUE` formatting: update returned empty string to NA
+    if (isTRUE(na.rm)) {
+        united[united == ""] <- NA
     }
         
     # Return as a tibble
-    res <- tibble::as_tibble(res)
+    res <- tibble::as_tibble(united)
     return(res)
 }
 
 #' Create individual columns for different attributes stored in one column
 #' 
-#' @importFrom dplyr group_by reframe ungroup select
+#' The values stored in one column should include their potential column
+#' names to use this function. 
 #' 
 #' @param meta A data frame.
-#' @param targetCols A character vector. Names of the column(s) whose contents
+#' @param targetCols A character. Names of the column whose contents
 #' are exposed as individual columns. Multiple attributes should be separated
 #' by the `sep` and the column name and its value should be separated by the
 #' provided `delim`.
-#' @param sep A character(1). Separator used between values. Default is `<;>`.
-#' @param delim A character (1). Delimiter used to concatenate column name 
-#' and its value. Default is double colons, `::`.
+#' @param sep A character (1). Delimiter used to concatenate column name 
+#' and its value. Default is double colons, `:`.
+#' @param delim A character(1). Separator used between values. Default `;`.
 #' @param remove If `TRUE`, remove input columns from output data frame.
 #'
-#' @return A data frame where different attributes collapsed into the target 
-#' column(s) (\code{targetCols}) are exposed as individual columns.
+#' @return A data frame where the contents under `targetCol` is split into
+#' individual columns in an alphabetical order. Data type of the expanded 
+#' columns is all character.
+#' 
+#' @examples
+#' ## Narrow-table example
+#' narrow_tb <- data.frame(fruit = c("apple", "banana", "pear", "watermelon", 
+#'                                   "grape"), 
+#'                         feature = c("color:red;shape:round;size:medium", 
+#'                                     "color:yellow;shape:long;size:medium",
+#'                                     "color:brown;shape:NA;size:NA",
+#'                                     "color:green;shape:round;size:large",
+#'                                     "color:purple;shape:NA;size:small"))
+#' getWideMetaTb(narrow_tb, targetCol = "feature", sep = ":", delim = ";")
+#' 
+#' ## Narrow-table example with missing columns
+#' narrow_tb2 <- data.frame(fruit = c("apple", "banana", "pear", 
+#'                                    "watermelon", "grape"), 
+#'                         feature = c("color:red;shape:round;size:medium", 
+#'                                     "color:yellow;shape:long;size:medium",
+#'                                     NA,
+#'                                     "color:green;size:large",
+#'                                     "color:purple;shape:NA;size:small"))
+#' getWideMetaTb(narrow_tb2, targetCol = "feature", sep = ":", delim = ";")
 #' 
 #' @export
-wideMetadata <- function(meta, 
-                         targetCols = NULL, 
-                         sep = "<;;>",
-                         delim = "::",
-                         remove = TRUE) {
+getWideMetaTb <- function(meta, 
+                          targetCol = NULL, 
+                          sep = ":",
+                          delim = ";",
+                          remove = TRUE) {
     
-    if (is.null(targetCols)) {
+    if (is.null(targetCol)) {
         msg <- "Provide the name of columns to be expanded."
         stop(msg)
     }
     
-    cols <- targetCols[targetCols %in% colnames(meta)]
-    modifiedMeta <- meta
-    
-    for (col in cols) {
-        modifiedMeta[[col]] <- paste(col, 
-                                     as.character(modifiedMeta[[col]]), 
-                                     sep = delim)
+    if (!targetCol %in% colnames(meta)) {
+        msg <- "The target column doesn't exist in the metadata table."
+        stop(msg)
     }
     
-    united <- unite(modifiedMeta, col = {{newCol}}, sep = sep) ## embracing operator to inject
+    cols <- targetCol[targetCol %in% colnames(meta)]
     
-    if (isTRUE(remove)) {
-        ind <- which(colnames(meta) %in% cols)
-        res <- cbind(meta[-ind], united)
-    } else {
-        res <- cbin(meta, united)
+    embeddedColNames <- meta[[targetCol]] %>%
+        strsplit(., split = paste0(sep, "|", delim)) %>%
+        lapply(., function(x) {x[c(TRUE, FALSE)]}) 
+    
+    # The number of elements in each row
+    embeddedColNums <- sapply(embeddedColNames, length) 
+    # Alphabetical ordering of all the unique columns
+    newColNames <- unique(unlist(embeddedColNames)) %>% na.omit %>% sort 
+    base <- paste0(newColNames, sep, "NA") %>%
+        paste0(., collapse = delim)
+    
+    # Rows need to be filled with NAs
+    rowToFillInd <- which(sapply(embeddedColNames, 
+                                 function(x) any(!newColNames %in% x)))
+    
+    # Add NA-placeholder for non-exisinting columns 
+    for (ind in rowToFillInd) {
+        updatedVal <- merge_vectors(base, 
+                                    update = meta[[ind, targetCol]], 
+                                    sep = sep, delim = delim)
+        meta[ind, targetCol] <- updatedVal
     }
+
+    res <- meta %>%
+        separate_wider_delim(targetCol,
+                             delim = delim,
+                             names = newColNames,
+                             cols_remove = remove)
     
-    # Return as a tibble
-    res <- tibble::as_tibble(res)
+    ## Remove column names in values
+    for (newColName in newColNames) {
+        res[newColName] <- gsub(paste0(newColName, sep), 
+                                "", res[[newColName]], fixed = TRUE)
+    } 
+    res[res == "NA"] <- NA
+    
     return(res)
 }

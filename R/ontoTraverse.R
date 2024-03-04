@@ -31,7 +31,7 @@ ontoTraverse <- function(ontoTermId,
     ol <- Ontologies()
     ontology <- ol[[source]]
     
-    trm <- term(ontology, ontoTermId)
+    trm <- Term(ontology, ontoTermId)
     
     # Get the full tree of direct ancestors/descendants of `ontoTermId` input
     all_connected_terms <- c(names(termId(parents(trm))), 

@@ -1,12 +1,12 @@
-## Function to get ontology term mappings through the OxO API
-
-#' Returns mappings between input terms and a target ontology
+#' Mapping input ontology terms and a target ontology through the OxO API
 #' 
 #' @importFrom httr2 request req_headers resp_body_json req_perform
 #' 
 #' @param term_ids A character vector of term ids to retrieve mappings for
-#' @param target_ontology A string specifying the ontology to map to
-#' @param mapping_distance Optional mapping distance as an integer 1-3. Defaults to 1
+#' @param target_ontology A character (1). The target ontology library to 
+#' map the `term_ids` to. 
+#' @param mapping_distance Optional. Mapping distance as an integer, 1 
+#' (default), 2, or 3. 
 #'
 #' @return A list of of data frames with mapping results for each input term
 #'
@@ -35,7 +35,9 @@ oxoMap <- function(term_ids, target_ontology, mapping_distance = 1) {
   
   # Parse response
   resp_json <- resp_body_json(resp)
-  resp_list <- lapply(resp_json$`_embedded`$searchResults, function(x) as.data.frame(do.call(rbind, x$mappingResponseList)))
+  resp_list <- lapply(resp_json$`_embedded`$searchResults, 
+                      function(x) as.data.frame(do.call(rbind, 
+                                                        x$mappingResponseList)))
   names(resp_list) <- term_ids
   
   # Return as list of data frames

@@ -1,0 +1,5 @@
+"curation_id","curated_sex","curated_sex_ontology_term_id","curated_disease","curated_disease_ontology_term_id"
+"study1:sample1","Female","NCIT:C16576","Diabetes Mellitus","NCIT:C2985"
+"study1:sample2","Female","NCIT:C16576","Diabetes Mellitus","NCIT:C2985"
+"study2:sample1","Male","NCIT:C20197","adenocarcinoma","EFO:0000228"
+"study2:sample2","Male","NCIT:C20197","Adenoma","NCIT:C2855"
