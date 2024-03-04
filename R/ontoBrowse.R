@@ -1,18 +1,18 @@
 # Extract similar or identical ontology terms from different ontology databases
-# 
+#
 # @importFrom methods as
 # @importFrom dplyr filter
 # @importFrom tibble as_tibble
-# 
-# @param term Character(1). The ontology term or term id to look up. 
+#
+# @param term Character(1). The ontology term or term id to look up.
 # @param rows Integer(1). The number of rows to be returned.
-# 
+#
 # @examples
 # .getOntoInfo("NCIT:C4872", 5)
 # .getOntoInfo("Skin Infection", 5)
-# 
+#
 .getOntoInfo <- function(term, rows) {
-    qry <- OlsSearch(q = toupper(term), rows = rows)
+    qry <- OlsSearch(q = term, rows = rows)
     qry <- olsSearch(qry)
     qdrf <- as(qry, "data.frame")
     qdrf <- qdrf[!duplicated(qdrf$obo_id) | is.na(qdrf$obo_id),] # remove multiplicates
