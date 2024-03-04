@@ -2,7 +2,7 @@
 
 #' Retrieves all ancestors for supplied terms
 #' 
-#' @importFrom rols Ontology term ancestors
+#' @import rols
 #' 
 #' @param onto A character vector. Name(s) of ontologies that terms are from.
 #' @param terms A character vector of ontology term IDs.
@@ -33,7 +33,7 @@ getNodes <- function(onto, terms) {
     
     tryCatch({
       # Get term information and ancestors from ontology
-      cur_trm <- term(ontob, terms[i])
+      cur_trm <- Term(ontob, terms[i])
       ancs <- ancestors(cur_trm)
       
       # Filter out ancestors labeled as ontology root
@@ -59,10 +59,10 @@ getNodes <- function(onto, terms) {
 
 #' Retrieves number of ancestors of given term
 #' 
-#' @importFrom rols Ontology term ancestors
+#' @import rols
 #' 
-#' @param onto Character string; name of ontology
-#' @param nodes Character vector of term IDs
+#' @param onto A character vector. Name(s) of ontologies that terms are from.
+#' @param nodes A character vector of ontology term IDs.
 #' 
 #' @return Dataframe of submitted terms and numbers of ancestors
 #'
@@ -80,7 +80,7 @@ getNodes <- function(onto, terms) {
     
     tryCatch({
       # Get term and number of ancestors from ontology
-      cur_trm <- term(ontob, nodes[i])
+      cur_trm <- Term(ontob, nodes[i])
       ancs <- ancestors(cur_trm)
       
       # Save term and number of ancestors
@@ -100,10 +100,10 @@ getNodes <- function(onto, terms) {
 
 #' Retrieves number of descendants of given term
 #' 
-#' @importFrom rols Ontology term descendants
+#' @import rols
 #' 
-#' @param onto Character string; name of ontology
-#' @param nodes Character vector of term IDs
+#' @param onto A character vector. Name(s) of ontologies that terms are from.
+#' @param nodes A character vector of ontology term IDs.
 #' 
 #' @return Dataframe of submitted terms and numbers of descendants
 #'
@@ -121,7 +121,7 @@ getNodes <- function(onto, terms) {
     
     tryCatch({
       # Get term and number of descendants from ontology
-      cur_trm <- term(ontob, nodes[i])
+      cur_trm <- Term(ontob, nodes[i])
       descs <- descendants(cur_trm)
       
       # Save term and number of descendants
@@ -141,23 +141,23 @@ getNodes <- function(onto, terms) {
 
 #' Retrieves ontology terms and database information for given term ids
 #'
-#' @importFrom rols OlsSearch olsSearch
+#' @import rols
 #' 
-#' @param onto Character string; name of ontology
-#' @param nodevec Character vector of term IDs
+#' @param onto A character vector. Name(s) of ontologies that terms are from.
+#' @param node A character vector of ontology term IDs.
 #' 
 #' @return Dataframe of submitted term IDs, term names, and term ontologies
 #' 
-.displayNodes <- function(onto, nodevec) {
+.displayNodes <- function(onto, node) {
   # Initialize dataframe to store term information
-  dmat <- as.data.frame(matrix(nrow = sum(lengths(nodevec)),
+  dmat <- as.data.frame(matrix(nrow = sum(lengths(node)),
                                ncol = 3,
                                dimnames = list(c(), c("ontology_term",
                                                       "ontology_term_id",
                                                       "original_term_ontology"))))
   
   # Save individual picked nodes with their respective ontologies
-  dmat$ontology_term_id <- unname(unlist(nodevec))
+  dmat$ontology_term_id <- unname(unlist(node))
   dmat$original_term_ontology <- onto
   
   # Loop through picked nodes and get additional information
@@ -182,14 +182,16 @@ getNodes <- function(onto, terms) {
   return(dmat)
 }
 
-#' Chooses which ancestors cover all given original terms, prioritizing a low number of chosen nodes
+#' Chooses which ancestors cover all given original terms, prioritizing a low 
+#' number of chosen nodes
 #' 
 #' @importFrom dplyr filter left_join mutate select
 #' 
 #' @param onto Character string; name of ontology
 #' @param vecs List of character vectors of ancestors named by original node
 #' 
-#' @return Dataframe of chosen nodes including information on number of original terms covered
+#' @return Dataframe of chosen nodes including information on number of 
+#' original terms covered
 #' 
 #' @export
 findReps <- function(onto, vecs) {
@@ -336,9 +338,11 @@ findReps <- function(onto, vecs) {
 #' @importFrom dplyr bind_rows
 #' 
 #' @param ids Character vector of term ids
-#' @param dbs Character vector of corresponding ontology names. Single string also accepted if all terms share a single ontology.
+#' @param dbs Character vector of corresponding ontology names. Single 
+#' string also accepted if all terms share a single ontology.
 #' 
-#' @return Dataframe of chosen nodes including information on number of original terms covered
+#' @return A Dataframe of chosen nodes including information on number of 
+#' original terms covered
 #' 
 #' @export
 commonNodes <- function(ids, dbs) {
