@@ -20,17 +20,17 @@
 #' 
 #' @examples
 #' dir <- system.file("extdata", package = "OmicsMLRepoR")
-#' meta <- read.csv(file.path(dir, "mini_cbio.csv"), header = TRUE)
+#' meta <- read.csv(file.path(dir, "mini_cbio2.csv"), header = TRUE)
 #' lmeta <- getLongMetaTb(meta)
-#' dim(meta) # 200 x 158 table
-#' dim(lmeta) # 216 x 158 table
+#' dim(meta) 
+#' dim(lmeta) 
 #' 
-#' short_tb <- data.frame(ind = c("A", "B", "C", "D", "E"),
-#'                        aval = c("cat;dog", "chicken", "horse", "frog;pig", 
-#'                                 "snake"),
-#'                        cval = c(1, NA, 3, 4, 5),
-#'                        bval = c("red;blue", "yellow", "NA", "green;NA", 
-#'                                 "brown"))
+#' short_tb <- data.frame(
+#'     ind = c("A", "B", "C", "D", "E"),
+#'     aval = c("cat;dog", "chicken", "horse", "frog;pig", "snake"),
+#'     cval = c(1, NA, 3, 4, 5),
+#'     bval = c("red;blue", "yellow", "NA", "green;NA", "brown"))
+#'     
 #' getLongMetaTb(short_tb, c("aval", "bval"), delim = ";")
 #' 
 #' @export
@@ -38,19 +38,19 @@ getLongMetaTb <- function(meta,
                           targetCols = NULL, 
                           delim = "<;>") {
     
-    # Character vector of treatment-related columns 
-    # Current but not complete <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    ## Character vector of treatment-related columns 
+    ## Current but not complete <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     if (is.null(targetCols)) {
         dir <- system.file("extdata", package = "OmicsMLRepoR")
         targetCols <- readLines(file.path(dir, "treatment_columns.txt"))
     }
     
-    # Validate input
+    ## Validate input
     stopifnot(is.data.frame(meta),
               is.character(targetCols),
               is.character(delim))
   
-    # Expand data frame
+    ## Expand data frame
     res <- separate_longer_delim(data = meta,
                                  cols = any_of(targetCols),
                                  delim = delim)
@@ -60,6 +60,8 @@ getLongMetaTb <- function(meta,
 
 
 #' Compresses expanded metadata columns to one row per sample
+#' 
+#' @importFrom dplyr reframe across ungroup group_by_at
 #' 
 #' @param meta A data frame with expanded treatment columns.
 #' @param idCols Optional. A character vector of columns that identify 
@@ -73,7 +75,7 @@ getLongMetaTb <- function(meta,
 #' 
 #' @examples
 #' dir <- system.file("extdata", package = "OmicsMLRepoR")
-#' meta <- read.csv(file.path(dir, "mini_cbio.csv"), header = TRUE)
+#' meta <- read.csv(file.path(dir, "mini_cbio2.csv"), header = TRUE)
 #' lmeta <- getLongMetaTb(meta)
 #' res <- getShortMetaTb(lmeta)
 #' dim(res) # 200 x 158 table
@@ -94,35 +96,36 @@ getShortMetaTb <- function(meta,
     
     dir <- system.file("extdata", package = "OmicsMLRepoR")
     if (is.null(idCols)) {
-        # Character vector of ID columns
+        ## Character vector of ID columns
         idCols <- readLines(file.path(dir, "id_columns.txt")) 
     }
     
     if (is.null(targetCols)) {
-        # Character vector of treatment-related columns (current but not complete) 
+        ## Character vector of treatment-related columns 
+        ## (current but not complete) 
         targetCols <- readLines(file.path(dir, "treatment_columns.txt"))
     }
     
-    # Validate input
+    ## Validate input
     stopifnot(is.data.frame(meta),
               is.character(idCols),
               is.character(targetCols),
               is.character(delim))
     
-    # Print message to user
+    ## Print message to user
     cat("Compressing data frame: this may take a few minutes\n")
     
-    # Get original column order
+    ## Get original column order
     col_order <- colnames(meta)
     
-    # Define which columns to group by and leave un-compressed
+    ## Define which columns to group by and leave un-compressed
     gcols <- idCols[which(idCols %in% col_order)]
     ocols <- setdiff(setdiff(col_order, targetCols), idCols)
     
-    # Convert `NA` values to character
+    ## Convert `NA` values to character
     meta[is.na(meta)] <- "NA"
     
-    # Compress data frame
+    ## Compress data frame
     cmeta <- meta %>%
         group_by_at(gcols) %>%
         reframe(
@@ -132,10 +135,10 @@ getShortMetaTb <- function(meta,
         ungroup() %>%
         select(all_of(col_order))
     
-    # Convert character `NA` as logical
+    ## Convert character `NA` as logical
     cmeta[cmeta == "NA"] <- NA
     
-    # Return as data frame
+    ## Return as data frame
     res <- tibble::as_tibble(cmeta)
     return(res)
 }
@@ -171,7 +174,8 @@ getShortMetaTb <- function(meta,
 #'                       shape = c("round", "long", NA, "round", NA),
 #'                       color = c("red", "yellow", NA, "green", "purple"),
 #'                       size = c("medium", "medium", NA, "large", "small"))
-#' getNarrowMetaTb(wide_tb, newCol = "feature", 
+#' getNarrowMetaTb(wide_tb, 
+#'                 newCol = "feature", 
 #'                 targetCols = c("color", "shape", "size"), 
 #'                 sep = ":", delim = ";")
 #' 
@@ -229,7 +233,7 @@ getNarrowMetaTb <- function(meta,
         united[united == ""] <- NA
     }
         
-    # Return as a tibble
+    ## Return as a tibble
     res <- tibble::as_tibble(united)
     return(res)
 }
@@ -239,11 +243,13 @@ getNarrowMetaTb <- function(meta,
 #' The values stored in one column should include their potential column
 #' names to use this function. 
 #' 
+#' @importFrom stats na.omit
+#' 
 #' @param meta A data frame.
-#' @param targetCols A character. Names of the column whose contents
-#' are exposed as individual columns. Multiple attributes should be separated
-#' by the `sep` and the column name and its value should be separated by the
-#' provided `delim`.
+#' @param targetCol A character. Names of the column whose contents are 
+#' exposed as individual columns. Multiple attributes should be separated
+#' by the `sep` and the column name and its value should be separated by 
+#' the provided `delim`.
 #' @param sep A character (1). Delimiter used to concatenate column name 
 #' and its value. Default is double colons, `:`.
 #' @param delim A character(1). Separator used between values. Default `;`.
@@ -294,21 +300,22 @@ getWideMetaTb <- function(meta,
     cols <- targetCol[targetCol %in% colnames(meta)]
     
     embeddedColNames <- meta[[targetCol]] %>%
-        strsplit(., split = paste0(sep, "|", delim)) %>%
-        lapply(., function(x) {x[c(TRUE, FALSE)]}) 
+        strsplit(split = paste0(sep, "|", delim)) %>%
+        lapply(function(x) {x[c(TRUE, FALSE)]}) 
     
-    # The number of elements in each row
+    ## The number of elements in each row
     embeddedColNums <- sapply(embeddedColNames, length) 
-    # Alphabetical ordering of all the unique columns
+    
+    ## Alphabetical ordering of all the unique columns
     newColNames <- unique(unlist(embeddedColNames)) %>% na.omit %>% sort 
     base <- paste0(newColNames, sep, "NA") %>%
-        paste0(., collapse = delim)
+        paste0(collapse = delim)
     
-    # Rows need to be filled with NAs
+    ## Rows need to be filled with NAs
     rowToFillInd <- which(sapply(embeddedColNames, 
                                  function(x) any(!newColNames %in% x)))
     
-    # Add NA-placeholder for non-exisinting columns 
+    ## Add NA-placeholder for non-exisinting columns 
     for (ind in rowToFillInd) {
         updatedVal <- merge_vectors(base, 
                                     update = meta[[ind, targetCol]], 
