@@ -2,187 +2,196 @@
 
 #' Retrieves all ancestors for supplied terms
 #' 
-#' @importFrom rols Ontology term ancestors
+#' @import rols
 #' 
-#' @param onto Character string; name of ontology
-#' @param terms Character vector of term IDs
+#' @param onto A character vector. Name(s) of ontologies that terms are from.
+#' @param terms A character vector of ontology term IDs.
 #' 
-#' @return List of character vectors of ancestors named by original node
+#' @return A named list. Names of elements are original nodes (`terms`). 
+#' Each element is a character vectors containing the ancestors of the 
+#' element name (i.e., original terms provided).
 #' 
+#' @examples
+#' terms <- c("NCIT:C25301", "NCIT:C29844", "NCIT:C29846", "NCIT:C29848")
+#' getNodes(onto = "NCIT", terms = terms)
+#' 
+#' 
+#' @export
 getNodes <- function(onto, terms) {
-    ## Load ontology
-    ontob <- Ontology(onto)
-
-    ## Get unique terms
-    terms <- unique(terms)
-
-    ## Initialize list to store retrieve nodes
-    all_nodes <- list()
-
-    ## Loop through supplied terms
-    for (i in 1:length(terms)) {
-        print(paste0("Getting possible nodes for ", terms[i]))
-
-        tryCatch({
-            ## Get term information and ancestors from ontology
-            cur_trm <- term(ontob, terms[i])
-            ancs <- ancestors(cur_trm)
-
-            ## Filter out ancestors labeled as ontology root
-            not_root <- Filter(function(x) attr(x, "is_root") == FALSE, ancs@x)
-
-            ## Save ancestors
-            node_names <- names(not_root)
-            node_names <- list(node_names[node_names != "NULL"])
-
-        }, error = function(e) {
-            print(e)
-            print("Original term assigned as sole ancestor, proceeding to next term")
-            node_names <<- terms[i]
-        })
-
-        ## Save ancestors under original term
-        all_nodes <- c(all_nodes, node_names)
-        names(all_nodes)[i] <- terms[i]
-    }
-
-    return(all_nodes)
+  # Load ontology
+  ontob <- Ontology(onto)
+  
+  # Get unique terms
+  terms <- unique(terms)
+  
+  # Initialize list to store retrieve nodes
+  all_nodes <- list()
+  
+  # Loop through supplied terms
+  for (i in 1:length(terms)) {
+    print(paste0("Getting possible nodes for ", terms[i]))
+    
+    tryCatch({
+      # Get term information and ancestors from ontology
+      cur_trm <- Term(ontob, terms[i])
+      ancs <- ancestors(cur_trm)
+      
+      # Filter out ancestors labeled as ontology root
+      not_root <- Filter(function(x) attr(x, "is_root") == FALSE, ancs@x)
+      
+      # Save ancestors
+      node_names <- names(not_root)
+      node_names <- list(node_names[node_names != "NULL"])
+      
+    }, error = function(e) {
+      print(e)
+      print("Original term assigned as node, proceeding to next term")
+      node_names <<- terms[i]
+    })
+    
+    # Save ancestors under original term
+    all_nodes <- c(all_nodes, node_names)
+    names(all_nodes)[i] <- terms[i]
+  }
+  
+  return(all_nodes)
 }
 
 #' Retrieves number of ancestors of given term
 #' 
-#' @importFrom rols Ontology term ancestors
+#' @import rols
 #' 
-#' @param onto Character string; name of ontology
-#' @param nodes Character vector of term IDs
+#' @param onto A character vector. Name(s) of ontologies that terms are from.
+#' @param nodes A character vector of ontology term IDs.
 #' 
 #' @return Dataframe of submitted terms and numbers of ancestors
 #'
 .getTopDists <- function(onto, nodes) {
-    ## Load ontology
-    ontob <- Ontology(onto)
-
-    ## Initialize dataframe to hold terms and distances
-    node_dists <- data.frame(node = rep(NA, length(nodes)), tdist = rep(NA,
-        length(nodes)))
-
-    ## Loop through supplied terms
-    for (i in 1:length(nodes)) {
-        print(paste0("Getting distance from top: ", nodes[i]))
-
-        tryCatch({
-            ## Get term and number of ancestors from ontology
-            cur_trm <- term(ontob, nodes[i])
-            ancs <- ancestors(cur_trm)
-
-            ## Save term and number of ancestors
-            node_dists$node[i] <- nodes[i]
-            node_dists$tdist[i] <- length(ancs)
-
-        }, error = function(e) {
-            print(e)
-            print("Error: dists recorded as NA, proceeding to next term")
-            node_dists$node[i] <<- nodes[i]
-            node_dists$tdist[i] <<- NA
-        })
-    }
-
-    return(node_dists)
+  # Load ontology
+  ontob <- Ontology(onto)
+  
+  # Initialize dataframe to hold terms and distances
+  node_dists <- data.frame(node = rep(NA, length(nodes)),
+                           tdist = rep(NA, length(nodes)))
+  
+  # Loop through supplied terms
+  for (i in 1:length(nodes)) {
+    print(paste0("Getting distance from top: ", nodes[i]))
+    
+    tryCatch({
+      # Get term and number of ancestors from ontology
+      cur_trm <- Term(ontob, nodes[i])
+      ancs <- ancestors(cur_trm)
+      
+      # Save term and number of ancestors
+      node_dists$node[i] <- nodes[i]
+      node_dists$tdist[i] <- length(ancs)
+      
+    }, error = function(e) {
+      print(e)
+      print("Error: dists recorded as NA, proceeding to next term")
+      node_dists$node[i] <<- nodes[i]
+      node_dists$tdist[i] <<- NA
+    })
+  }
+  
+  return(node_dists)
 }
 
 #' Retrieves number of descendants of given term
 #' 
-#' @importFrom rols Ontology term descendants
+#' @import rols
 #' 
-#' @param onto Character string; name of ontology
-#' @param nodes Character vector of term IDs
+#' @param onto A character vector. Name(s) of ontologies that terms are from.
+#' @param nodes A character vector of ontology term IDs.
 #' 
 #' @return Dataframe of submitted terms and numbers of descendants
 #'
 .getBottomDists <- function(onto, nodes) {
-    ## Load ontology
-    ontob <- Ontology(onto)
-
-    ## Initialize dataframe to hold terms and distances
-    node_dists <- data.frame(node = rep(NA, length(nodes)), bdist = rep(NA,
-        length(nodes)))
-
-    ## Loop through supplied terms
-    for (i in 1:length(nodes)) {
-        print(paste0("Getting distance from bottom: ", nodes[i]))
-
-        tryCatch({
-            ## Get term and number of descendants from ontology
-            cur_trm <- term(ontob, nodes[i])
-            descs <- descendants(cur_trm)
-
-            ## Save term and number of descendants
-            node_dists$node[i] <- nodes[i]
-            node_dists$bdist[i] <- length(descs)
-
-        }, error = function(e) {
-            print(e)
-            print("Error: dists recorded as NA, proceeding to next term")
-            node_dists$node[i] <<- nodes[i]
-            node_dists$bdist[i] <<- NA
-        })
-    }
-
-    return(node_dists)
+  # Load ontology
+  ontob <- Ontology(onto)
+  
+  # Initialize dataframe to hold terms and distances
+  node_dists <- data.frame(node = rep(NA, length(nodes)),
+                           bdist = rep(NA, length(nodes)))
+  
+  # Loop through supplied terms
+  for (i in 1:length(nodes)) {
+    print(paste0("Getting distance from bottom: ", nodes[i]))
+    
+    tryCatch({
+      # Get term and number of descendants from ontology
+      cur_trm <- Term(ontob, nodes[i])
+      descs <- descendants(cur_trm)
+      
+      # Save term and number of descendants
+      node_dists$node[i] <- nodes[i]
+      node_dists$bdist[i] <- length(descs)
+      
+    }, error = function(e) {
+      print(e)
+      print("Error: dists recorded as NA, proceeding to next term")
+      node_dists$node[i] <<- nodes[i]
+      node_dists$bdist[i] <<- NA
+    })
+  }
+  
+  return(node_dists)
 }
 
 #' Retrieves ontology terms and database information for given term ids
 #'
-#' @importFrom rols OlsSearch olsSearch
+#' @import rols
 #' 
-#' @param onto Character string; name of ontology
-#' @param nodevec Character vector of term IDs
+#' @param onto A character vector. Name(s) of ontologies that terms are from.
+#' @param node A character vector of ontology term IDs.
 #' 
 #' @return Dataframe of submitted term IDs, term names, and term ontologies
 #' 
-.displayNodes <- function(onto, nodevec) {
-    ## Initialize dataframe to store term information
-    dmat <- as.data.frame(matrix(nrow = sum(lengths(nodevec)), ncol = 3,
-        dimnames = list(c(), c("ontology_term", "ontology_term_id",
-            "original_term_ontology"))))
-
-    ## Save individual picked nodes with their respective ontologies
-    dmat$ontology_term_id <- unname(unlist(nodevec))
-    dmat$original_term_ontology <- onto
-
-    ## Loop through picked nodes and get additional information
-    for (i in 1:nrow(dmat)) {
-        curont <- dmat$original_term_ontology[i]
-        curid <- dmat$ontology_term_id[i]
-        print(paste0("Retrieving info for picked node ", curid))
-
-        qry <- OlsSearch(q = curid, exact = TRUE)
-        qry <- olsSearch(qry)
-        qdrf <- as(qry, "data.frame")
-
-        if (curont %in% qdrf$ontology_prefix) {
-            record <- qdrf[qdrf$ontology_prefix == curont, ][1, ]
-        } else if (TRUE %in% qdrf$is_defining_ontology) {
-            record <- qdrf[qdrf$is_defining_ontology == TRUE, ]
-        } else {
-            record <- qdrf[1, ]
-        }
-        dmat$ontology_term[i] <- record$label
+.displayNodes <- function(onto, node) {
+  # Initialize dataframe to store term information
+  dmat <- as.data.frame(matrix(nrow = sum(lengths(node)),
+                               ncol = 3,
+                               dimnames = list(c(), c("ontology_term",
+                                                      "ontology_term_id",
+                                                      "original_term_ontology"))))
+  
+  # Save individual picked nodes with their respective ontologies
+  dmat$ontology_term_id <- unname(unlist(node))
+  dmat$original_term_ontology <- onto
+  
+  # Loop through picked nodes and get additional information
+  for (i in 1:nrow(dmat)) {
+    curont <- dmat$original_term_ontology[i]
+    curid <- dmat$ontology_term_id[i]
+    print(paste0("Retrieving info for picked node ", curid))
+    
+    qry <- OlsSearch(q = curid, exact = TRUE)
+    qry <- olsSearch(qry)
+    qdrf <- as(qry, "data.frame")
+    
+    if (curont %in% qdrf$ontology_prefix) {
+      record <- qdrf[qdrf$ontology_prefix == curont, ][1,]
+    } else if (TRUE %in% qdrf$is_defining_ontology) {
+      record <- qdrf[qdrf$is_defining_ontology == TRUE, ]
+    } else {
+      record <- qdrf[1, ]
     }
     return(dmat)
 }
 
-#' Chooses which ancestors cover all given original terms,
-#' prioritizing a low number of chosen nodes
+#' Chooses which ancestors cover all given original terms, prioritizing a low 
+#' number of chosen nodes
 #' 
-#' @importFrom tidyverse filter left_join mutate select
+#' @importFrom dplyr filter left_join mutate select
 #' 
 #' @param onto Character string; name of ontology
 #' @param vecs List of character vectors of ancestors named by original node
 #' 
-#' @return Dataframe of chosen nodes including
-#'         information on number of original terms covered
+#' @return Dataframe of chosen nodes including information on number of 
+#' original terms covered
 #' 
+#' @export
 findReps <- function(onto, vecs) {
     ## Initialize storage list and vectors
     nvecs <- list()
@@ -342,15 +351,16 @@ findReps <- function(onto, vecs) {
 
 #' Retrieves top nodes for a given ontology term map
 #' 
-#' @importFrom tidyverse bind_rows
+#' @importFrom dplyr bind_rows
 #' 
 #' @param ids Character vector of term ids
-#' @param dbs Character vector of corresponding ontology names.
-#'            Single string also accepted if all terms share a single ontology.
+#' @param dbs Character vector of corresponding ontology names. Single 
+#' string also accepted if all terms share a single ontology.
 #' 
-#' @return Dataframe of chosen nodes
-#'         including information on number of original terms covered
+#' @return A Dataframe of chosen nodes including information on number of 
+#' original terms covered
 #' 
+#' @export
 commonNodes <- function(ids, dbs) {
     map <- data.frame(id = ids, db = dbs)
     tryCatch({

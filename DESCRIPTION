@@ -1,10 +1,18 @@
 Package: OmicsMLRepoR
 Type: Package
-Title: Queries the OmicsMLRepo data
-Version: 0.1.0
-Authors@R: person("Sehyun", "Oh", email = "shbrief@gmail.com", role = c("aut","cre"))
-Maintainer: Sehyun Oh <shbrief@gmail.com>
-Description: Query the harmonized metadata and data deposted in OmicsMLRepo.
+Title: Queries and analyze OmicsMLRepo data
+Version: 0.4.2
+Date: 2024-3-3
+Authors@R: 
+    c(person(given = "Sehyun",
+             family = "Oh",
+             role = c("aut", "cre"),
+             email = "shbrief@gmail.com",
+             comment = c(ORCID = "0000-0002-9490-3061")),
+      person(given = "Kaelyn",
+             family = "Long",
+             role = "aut"))
+Description: This package provides functions to browse and query the harmonized metadata for large omics databases. This package also supports data navigation if the metadata incorporates ontology. 
 License: GPL-3
 Depends: 
     R (>= 4.2.0)
@@ -16,18 +24,28 @@ Imports:
     httr, 
     cli, 
     utils, 
-    duckdb,        
     stringr, 
-    purrr
+    purrr,
+    rols,
+    tidyr,
+    ontologyIndex
 Suggests: 
     arrow,
     testthat (>= 3.0.0)
 Encoding: UTF-8
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Collate: 
+    'byProperty.R'
     'utils.R'
     'getData.R'
     'getMetadata.R'
+    'getOntoDesc.R'
+    'manipulateMetadataTable.R'
+    'ontoBrowse.R'
+    'ontoTraverse.R'
+    'oxoMap.R'
+    'searchMetadata.R'
+    'topNodes.R'
 NeedsCompilation: no
 Packaged: 2023-04-28 16:32:41 UTC; sehyun
 Author: Sehyun Oh [aut, cre]
