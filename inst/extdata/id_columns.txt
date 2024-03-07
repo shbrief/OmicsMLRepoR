@@ -1,4 +1,6 @@
 study_name
+studyId
 patientId
 sampleId
 curationId
+curation_id
