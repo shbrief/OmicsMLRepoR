@@ -179,7 +179,7 @@ getNodes <- function(onto, terms) {
     }
     dmat$ontology_term[i] <- record$label
   }
-  return(dmat)
+    return(dmat)
 }
 
 #' Chooses which ancestors cover all given original terms, prioritizing a low 
@@ -193,144 +193,170 @@ getNodes <- function(onto, terms) {
 #' @return Dataframe of chosen nodes including information on number of 
 #' original terms covered
 #' 
+#' @examples
+#' onto <- "NCIT"
+#' vecs <- list("NCIT:C983" = c("NCIT:C2846", "NCIT:C471", "NCIT:C1909",
+#' "NCIT:C29711", "NCIT:C78276"), "NCIT:C61612" = c("NCIT:C1892", "NCIT:C1909",
+#' "NCIT:C98234", "NCIT:C29711", "NCIT:C78276"))
+#' findReps(onto = onto, vecs = vecs)
+#' 
+#' 
 #' @export
 findReps <- function(onto, vecs) {
-  # Initialize storage list and vectors
-  nvecs <- list()
-  picked_nodes <- c()
-  to_remove <- c()
-  
-  # Save terms with no ancestors as their own top nodes
-  for (i in 1:length(vecs)) {
-    if (length(vecs[[i]]) == 0) {
-      picked_nodes <- c(picked_nodes, names(vecs)[i])
-      to_remove <- c(to_remove, i)
-    }
-    nvecs <- c(nvecs, list(vecs[[i]]))
-    names(nvecs)[i] <- names(vecs)[i]
-  }
-  
-  if (length(to_remove > 0)) {
-    vecs <- nvecs[-to_remove]    
-    
-  } else {
-    vecs <- nvecs
-  }
-  
-  if (length(vecs) > 0) {
-    # Create matrix to represent membership in each term's list of ancestors
-    vals <- unique(do.call(c, vecs))
-    valsin <- as.matrix(sapply(vecs, function(x) as.integer(vals %in% x)))
-    rownames(valsin) <- vals
-    
-    # Indicate if all child terms have been represented by chosen top nodes
-    check <- FALSE
-    
-    # Initialize data frame to store required distance values
-    dmat <- data.frame(node = vals,
-                       tdist = NA,
-                       bdist = NA)
-    
-    # While there are remaining terms to be represented
-    while(!check) {
-      if (is.matrix(valsin)) {
-        # Get node that represents the most terms
-        csums <- rowSums(valsin)
-        max_node <- which(csums == max(csums))
-        
-        # Break ties through distance from top, then from bottom
-        if (length(max_node) > 1) {
-          sdists <- filter(dmat, node %in% names(max_node))
-          need_top <- sdists %>%
-            filter(is.na(tdist)) %>%
-            select(-bdist)
-          
-          # Get distance from top if not already saved
-          if (nrow(need_top) > 0) {
-            need_top$tdist <- .getTopDists(onto, need_top$node)$tdist
-            dmat <- left_join(dmat, need_top, "node") %>%
-              mutate(tdist = coalesce(tdist.y, tdist.x)) %>%
-              select(-contains("."))
-            sdists <- filter(dmat, node %in% names(max_node))
-          }
-          
-          if (all(is.na(sdists$tdist))) {
-            highest <- sdists
-          } else {
-            # max top distance prioritizes lowest
-            highest <- sdists[which(sdists$tdist == max(sdists$tdist, na.rm = TRUE)), ]
-          }
-          
-          if (nrow(highest) > 1) {
-            sdists <- filter(dmat, node %in% highest$node)
-            need_bottom <- sdists %>%
-              filter(is.na(bdist)) %>%
-              select(-tdist)
-            
-            # Get distance from bottom if not already saved
-            if (nrow(need_bottom) > 0) {
-              need_bottom$bdist <- .getBottomDists(onto, need_bottom$node)$bdist
-              dmat <- left_join(dmat, need_bottom, "node") %>%
-                mutate(bdist = coalesce(bdist.y, bdist.x)) %>%
-                select(-contains("."))
-              sdists <- filter(dmat, node %in% highest$node)
-            }
-            
-            if (all(is.na(sdists$bdist))) {
-              highest <- sdists
-            } else {
-              # min bottom distance prioritizes lowest
-              highest <- sdists[which(sdists$bdist == min(sdists$bdist, na.rm = TRUE)), ] 
-            }
-          }
-          max_node <- which(names(csums) == highest$node[order(highest$node)[1]])
-          names(max_node) <- highest$node[order(highest$node)[1]]
+    ## Initialize storage list and vectors
+    nvecs <- list()
+    picked_nodes <- c()
+    to_remove <- c()
+
+    ## Save terms with no ancestors as their own top nodes
+    for (i in 1:length(vecs)) {
+        if (length(vecs[[i]]) == 0) {
+            picked_nodes <- c(picked_nodes, names(vecs)[i])
+            to_remove <- c(to_remove, i)
         }
-        
-        # Save picked node
-        node_name <- names(max_node)
-        picked_nodes <- c(picked_nodes, node_name)
-        
-        # Check which terms are represented
-        node_row <- valsin[max_node, ]
-        covered <- which(node_row == 1)
-        
-        # Check if all terms are represented and update indicator
-        check <- all(node_row == 1)
-        
-        # Remove represented terms and chosen node from membership matrix
-        valsin <- valsin[-max_node, -covered]
-        
-      } else {
-        # If there is only one possible node, save and exit
-        first_node <- names(which(valsin == 1)[1])
-        picked_nodes <- c(picked_nodes, first_node)
-        check <- TRUE
-      }
+        nvecs <- c(nvecs, list(vecs[[i]]))
+        names(nvecs)[i] <- names(vecs)[i]
     }
-  }
-  
-  nlist <- unique(picked_nodes)
-  nmat <- .displayNodes(onto, nlist)
-  nmat$original_covered <- NA
-  nmat$num_original_covered <- NA
-  nmat$num_original <- length(vecs)
-  
-  for (i in 1:nrow(nmat)) {
-    cur_node <- nmat$ontology_term_id[i]
-    is_covered <- c()
-    num_covered <- 0
-    for (j in 1:length(vecs)) {
-      if (cur_node %in% vecs[[j]]) {
-        is_covered <- c(is_covered, names(vecs)[j])
-        num_covered <- num_covered + 1
-      }
+
+    if (length(to_remove > 0)) {
+        vecs <- nvecs[-to_remove]
+
+    } else {
+        vecs <- nvecs
     }
-    nmat$original_covered[i] <- list(is_covered)
-    nmat$num_original_covered[i] <- num_covered
-  }
-  
-  return(nmat)
+
+    if (length(vecs) > 0) {
+        ## Create matrix to represent membership in each term's list of
+        ## ancestors
+        vals <- unique(do.call(c, vecs))
+        valsin <- as.matrix(sapply(vecs, function(x) as.integer(vals %in%
+            x)))
+        rownames(valsin) <- vals
+
+        ## Indicate if all child terms have been represented by chosen top
+        ## nodes
+        check <- FALSE
+
+        ## Initialize data frame to store required distance values
+        dmat <- data.frame(node = vals, tdist = NA,
+            bdist = NA)
+
+        ## While there are remaining terms to be represented
+        while (!check) {
+            if (is.matrix(valsin)) {
+                ## Get node that represents the most terms
+                csums <- rowSums(valsin)
+                max_node <- which(csums == max(csums))
+
+                ## Break ties through distance from top, then from bottom
+                if (length(max_node) > 1) {
+                  sdists <- filter(dmat, node %in% names(max_node))
+                  need_top <- sdists %>%
+                    filter(is.na(tdist)) %>%
+                    select(-bdist)
+
+                  ## Get distance from top if not already saved
+                  if (nrow(need_top) > 0) {
+                    need_top$tdist <- .getTopDists(onto,
+                      need_top$node)$tdist
+                    dmat <- left_join(dmat, need_top,
+                      "node") %>%
+                      mutate(tdist = coalesce(tdist.y,
+                        tdist.x)) %>%
+                      select(-contains("."))
+                    sdists <- filter(dmat, node %in%
+                      names(max_node))
+                  }
+
+                  if (all(is.na(sdists$tdist))) {
+                    highest <- sdists
+                  } else {
+                    ## max top distance prioritizes lowest
+                    highest <- sdists[which(sdists$tdist ==
+                      max(sdists$tdist, na.rm = TRUE)),
+                      ]
+                  }
+
+                  if (nrow(highest) > 1) {
+                    sdists <- filter(dmat, node %in%
+                      highest$node)
+                    need_bottom <- sdists %>%
+                      filter(is.na(bdist)) %>%
+                      select(-tdist)
+
+                    ## Get distance from bottom if not already saved
+                    if (nrow(need_bottom) > 0) {
+                      need_bottom$bdist <- .getBottomDists(onto,
+                        need_bottom$node)$bdist
+                      dmat <- left_join(dmat, need_bottom,
+                        "node") %>%
+                        mutate(bdist = coalesce(bdist.y,
+                          bdist.x)) %>%
+                        select(-contains("."))
+                      sdists <- filter(dmat, node %in%
+                        highest$node)
+                    }
+
+                    if (all(is.na(sdists$bdist))) {
+                      highest <- sdists
+                    } else {
+                      ## min bottom distance prioritizes lowest
+                      highest <- sdists[which(sdists$bdist ==
+                        min(sdists$bdist, na.rm = TRUE)),
+                        ]
+                    }
+                  }
+                  max_node <- which(names(csums) ==
+                    highest$node[order(highest$node)[1]])
+                  names(max_node) <- highest$node[order(highest$node)[1]]
+                }
+
+                ## Save picked node
+                node_name <- names(max_node)
+                picked_nodes <- c(picked_nodes, node_name)
+
+                ## Check which terms are represented
+                node_row <- valsin[max_node, ]
+                covered <- which(node_row == 1)
+
+                ## Check if all terms are represented and update indicator
+                check <- all(node_row == 1)
+
+                ## Remove represented terms and chosen node from membership
+                ## matrix
+                valsin <- valsin[-max_node, -covered]
+
+            } else {
+                ## If there is only one possible node, save and exit
+                first_node <- names(which(valsin ==
+                  1)[1])
+                picked_nodes <- c(picked_nodes, first_node)
+                check <- TRUE
+            }
+        }
+    }
+
+    nlist <- unique(picked_nodes)
+    nmat <- .displayNodes(onto, nlist)
+    nmat$original_covered <- NA
+    nmat$num_original_covered <- NA
+    nmat$num_original <- length(vecs)
+
+    for (i in 1:nrow(nmat)) {
+        cur_node <- nmat$ontology_term_id[i]
+        is_covered <- c()
+        num_covered <- 0
+        for (j in 1:length(vecs)) {
+            if (cur_node %in% vecs[[j]]) {
+                is_covered <- c(is_covered, names(vecs)[j])
+                num_covered <- num_covered + 1
+            }
+        }
+        nmat$original_covered[i] <- list(is_covered)
+        nmat$num_original_covered[i] <- num_covered
+    }
+
+    return(nmat)
 }
 
 #' Retrieves top nodes for a given ontology term map
@@ -344,18 +370,25 @@ findReps <- function(onto, vecs) {
 #' @return A Dataframe of chosen nodes including information on number of 
 #' original terms covered
 #' 
+#' @examples
+#' ids <- c("NCIT:C983", "NCIT:C61612")
+#' dbs <- c("NCIT", "NCIT")
+#' commonNodes(ids = ids, dbs = dbs)
+#' 
+#' 
 #' @export
 commonNodes <- function(ids, dbs) {
-  map <- data.frame(id = ids,
-                    db = dbs)
-  tryCatch({
-    onto_frames <- split(map, map$db)
-    onto_terms <- lapply(onto_frames, function(x) x$id)
-    onto_nodes <- mapply(function(n, t) getNodes(n, t), names(onto_terms), onto_terms, SIMPLIFY = FALSE)
-    core_nodes <- mapply(function(o, v) findReps(o, v), names(onto_nodes), onto_nodes, SIMPLIFY = FALSE)
-    node_mat <- bind_rows(core_nodes)
-    return(node_mat)
-  }, error = function(e) {
-    print(e)
-  })
+    map <- data.frame(id = ids, db = dbs)
+    tryCatch({
+        onto_frames <- split(map, map$db)
+        onto_terms <- lapply(onto_frames, function(x) x$id)
+        onto_nodes <- mapply(function(n, t) getNodes(n, t), names(onto_terms),
+            onto_terms, SIMPLIFY = FALSE)
+        core_nodes <- mapply(function(o, v) findReps(o, v), names(onto_nodes),
+            onto_nodes, SIMPLIFY = FALSE)
+        node_mat <- bind_rows(core_nodes)
+        return(node_mat)
+    }, error = function(e) {
+        print(e)
+    })
 }
