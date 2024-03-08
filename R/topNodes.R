@@ -177,6 +177,8 @@ getNodes <- function(onto, terms) {
     } else {
       record <- qdrf[1, ]
     }
+    dmat$ontology_term[i] <- record$label
+  }
     return(dmat)
 }
 
@@ -190,6 +192,14 @@ getNodes <- function(onto, terms) {
 #' 
 #' @return Dataframe of chosen nodes including information on number of 
 #' original terms covered
+#' 
+#' @examples
+#' onto <- "NCIT"
+#' vecs <- list("NCIT:C983" = c("NCIT:C2846", "NCIT:C471", "NCIT:C1909",
+#' "NCIT:C29711", "NCIT:C78276"), "NCIT:C61612" = c("NCIT:C1892", "NCIT:C1909",
+#' "NCIT:C98234", "NCIT:C29711", "NCIT:C78276"))
+#' findReps(onto = onto, vecs = vecs)
+#' 
 #' 
 #' @export
 findReps <- function(onto, vecs) {
@@ -359,6 +369,12 @@ findReps <- function(onto, vecs) {
 #' 
 #' @return A Dataframe of chosen nodes including information on number of 
 #' original terms covered
+#' 
+#' @examples
+#' ids <- c("NCIT:C983", "NCIT:C61612")
+#' dbs <- c("NCIT", "NCIT")
+#' commonNodes(ids = ids, dbs = dbs)
+#' 
 #' 
 #' @export
 commonNodes <- function(ids, dbs) {
