@@ -10,7 +10,8 @@ single_line_str(text)
 \item{text}{Any character vector}
 }
 \value{
-The same character vector with newlines and subsequent whitespaces removed
+The same character vector with newlines and subsequent 
+whites-paces removed
 }
 \description{
 Formats a multi-line string as it it were on one line

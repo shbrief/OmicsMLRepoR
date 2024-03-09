@@ -30,17 +30,17 @@ name is required/provided.
 }
 \examples{
 dir <- system.file("extdata", package = "OmicsMLRepoR")
-meta <- read.csv(file.path(dir, "mini_cbio.csv"), header = TRUE)
+meta <- read.csv(file.path(dir, "mini_cbio2.csv"), header = TRUE)
 lmeta <- getLongMetaTb(meta)
-dim(meta) # 200 x 158 table
-dim(lmeta) # 216 x 158 table
+dim(meta) 
+dim(lmeta) 
 
-short_tb <- data.frame(ind = c("A", "B", "C", "D", "E"),
-                       aval = c("cat;dog", "chicken", "horse", "frog;pig", 
-                                "snake"),
-                       cval = c(1, NA, 3, 4, 5),
-                       bval = c("red;blue", "yellow", "NA", "green;NA", 
-                                "brown"))
+short_tb <- data.frame(
+    ind = c("A", "B", "C", "D", "E"),
+    aval = c("cat;dog", "chicken", "horse", "frog;pig", "snake"),
+    cval = c(1, NA, 3, 4, 5),
+    bval = c("red;blue", "yellow", "NA", "green;NA", "brown"))
+    
 getLongMetaTb(short_tb, c("aval", "bval"), delim = ";")
 
 }

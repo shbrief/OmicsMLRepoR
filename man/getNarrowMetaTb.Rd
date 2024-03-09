@@ -51,7 +51,8 @@ wide_tb <- data.frame(fruit = c("apple", "banana", "pear", "watermelon",
                       shape = c("round", "long", NA, "round", NA),
                       color = c("red", "yellow", NA, "green", "purple"),
                       size = c("medium", "medium", NA, "large", "small"))
-getNarrowMetaTb(wide_tb, newCol = "feature", 
+getNarrowMetaTb(wide_tb, 
+                newCol = "feature", 
                 targetCols = c("color", "shape", "size"), 
                 sep = ":", delim = ";")
 

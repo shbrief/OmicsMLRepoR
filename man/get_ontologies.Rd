@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{get_ontologies}
 \alias{get_ontologies}
-\title{Extract ontology from the ontology term id}
+\title{Extract ontology from the ontology term ids}
 \usage{
 get_ontologies(terms, delim = ":")
 }
@@ -13,7 +13,7 @@ get_ontologies(terms, delim = ":")
 Default is `:`.}
 }
 \description{
-Extract ontology from the ontology term id
+Extract ontology from the ontology term ids
 }
 \examples{
 terms <- c("HP:0001824", "MONDO:0010200", "NCIT:C122328")

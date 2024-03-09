@@ -185,7 +185,7 @@ getNodes <- function(onto, terms) {
 #' Chooses which ancestors cover all given original terms, prioritizing a low 
 #' number of chosen nodes
 #' 
-#' @importFrom dplyr filter left_join mutate select
+#' @importFrom dplyr filter left_join mutate select coalesce
 #' 
 #' @param onto Character string; name of ontology
 #' @param vecs List of character vectors of ancestors named by original node

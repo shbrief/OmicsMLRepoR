@@ -20,3 +20,12 @@ original terms covered
 Chooses which ancestors cover all given original terms, prioritizing a low 
 number of chosen nodes
 }
+\examples{
+onto <- "NCIT"
+vecs <- list("NCIT:C983" = c("NCIT:C2846", "NCIT:C471", "NCIT:C1909",
+"NCIT:C29711", "NCIT:C78276"), "NCIT:C61612" = c("NCIT:C1892", "NCIT:C1909",
+"NCIT:C98234", "NCIT:C29711", "NCIT:C78276"))
+findReps(onto = onto, vecs = vecs)
+
+
+}

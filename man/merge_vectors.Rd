@@ -19,8 +19,13 @@ Default is `:`}
 \item{delim}{A character string to separate the column:value pairs. 
 Default is `;`}
 }
+\value{
+A character updated the target string (`update`) to follow the
+reference string (`base`).
+}
 \description{
-Custom function to merge vectors
+This function is designed for a group of, collapsible metadata attributes
+(e.g., 'biomarker' for curatedMetagenomicData).
 }
 \examples{
 x <- "color:NA;shape:NA;size:NA"

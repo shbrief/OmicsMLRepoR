@@ -9,17 +9,17 @@ getWideMetaTb(meta, targetCol = NULL, sep = ":", delim = ";", remove = TRUE)
 \arguments{
 \item{meta}{A data frame.}
 
+\item{targetCol}{A character. Names of the column whose contents are 
+exposed as individual columns. Multiple attributes should be separated
+by the `sep` and the column name and its value should be separated by 
+the provided `delim`.}
+
 \item{sep}{A character (1). Delimiter used to concatenate column name 
 and its value. Default is double colons, `:`.}
 
 \item{delim}{A character(1). Separator used between values. Default `;`.}
 
 \item{remove}{If `TRUE`, remove input columns from output data frame.}
-
-\item{targetCols}{A character. Names of the column whose contents
-are exposed as individual columns. Multiple attributes should be separated
-by the `sep` and the column name and its value should be separated by the
-provided `delim`.}
 }
 \value{
 A data frame where the contents under `targetCol` is split into

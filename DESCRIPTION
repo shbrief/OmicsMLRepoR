@@ -17,35 +17,26 @@ License: GPL-3
 Depends: 
     R (>= 4.2.0)
 Imports: 
-    AnVIL, 
     dplyr, 
-    DBI, 
-    tools, 
-    httr, 
-    cli, 
-    utils, 
     stringr, 
-    purrr,
     rols,
     tidyr,
-    ontologyIndex
+    httr2,
+    methods,
+    stats,
+    tibble
 Suggests: 
     arrow,
     testthat (>= 3.0.0)
 Encoding: UTF-8
 RoxygenNote: 7.3.1
 Collate: 
-    'byProperty.R'
-    'utils.R'
-    'getData.R'
-    'getMetadata.R'
-    'getOntoDesc.R'
+    'getOntoInfo.R'
     'manipulateMetadataTable.R'
-    'ontoBrowse.R'
     'ontoTraverse.R'
-    'oxoMap.R'
     'searchMetadata.R'
     'topNodes.R'
+    'utils.R'
 NeedsCompilation: no
 Packaged: 2023-04-28 16:32:41 UTC; sehyun
 Author: Sehyun Oh [aut, cre]

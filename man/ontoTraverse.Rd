@@ -4,14 +4,11 @@
 \alias{ontoTraverse}
 \title{Extract both ancestors and descendants of a term from ontology tree}
 \usage{
-ontoTraverse(ontoTermId, source, plot = FALSE, includeDefinition = FALSE)
+ontoTraverse(ontoTermId, includeDefinition = FALSE)
 }
 \arguments{
 \item{ontoTermId}{Ontology term id started with the ontology prefix and id
 separated by colon, such as \code{NCIT:C15280}.}
-
-\item{source}{Ontology database id. Currently available options are 
-\code{NCIT, CHEBI, HP}.}
 
 \item{plot}{Under the default (\code{FALSE}), this function returns a 
 character vector of associate ontology terms. If it is set to \code{TRUE}, 
@@ -27,8 +24,8 @@ a character vector of associated ontology term ids.
 Extract both ancestors and descendants of a term from ontology tree
 }
 \examples{
-ontoTraverse(ontoTermId = "NCIT:C15280", source = "ncit")
-ontoTraverse(ontoTermId = "CHEBI:5262", source = "chebi")
-ontoTraverse(ontoTermId = "HP:0011793", source = "hp")
+ontoTraverse(ontoTermId = "NCIT:C15280")
+ontoTraverse(ontoTermId = "CHEBI:5262")
+ontoTraverse(ontoTermId = "HP:0011793")
 
 }

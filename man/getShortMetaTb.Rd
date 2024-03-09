@@ -26,7 +26,7 @@ Compresses expanded metadata columns to one row per sample
 }
 \examples{
 dir <- system.file("extdata", package = "OmicsMLRepoR")
-meta <- read.csv(file.path(dir, "mini_cbio.csv"), header = TRUE)
+meta <- read.csv(file.path(dir, "mini_cbio2.csv"), header = TRUE)
 lmeta <- getLongMetaTb(meta)
 res <- getShortMetaTb(lmeta)
 dim(res) # 200 x 158 table

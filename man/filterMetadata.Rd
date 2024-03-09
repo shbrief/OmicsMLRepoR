@@ -4,14 +4,14 @@
 \alias{filterMetadata}
 \title{Filter metadata table by ontology term ids in specific attribute}
 \usage{
-filterMetadata(metaTb, feature, ids)
+filterMetadata(metaTb, query, feature)
 }
 \arguments{
 \item{metaTb}{Metadata table}
 
-\item{feature}{A character vector (1). Column name to filter by}
+\item{query}{A character vector containing obo_ids to query}
 
-\item{ids}{List of ids to filter by}
+\item{feature}{A character (1). Column name to filter by.}
 }
 \value{
 Metadata table filtered by provided ontology term ids in 
@@ -23,8 +23,7 @@ Filter metadata table by ontology term ids in specific attribute
 \examples{
 dir <- system.file("extdata", package="OmicsMLRepoR")
 df <- read.csv(file.path(dir, "sample_metadata.csv"))
-filterMetadata(df,
-               "curated_disease",
-               c("NCIT:C2855", "EFO:0000228"))
-               
+filterMetadata(df, c("NCIT:C2855", "EFO:0000228"), "curated_disease")
+filterMetadata(df, c("diabetes", "EFO:0000228"), "curated_disease")
+
 }

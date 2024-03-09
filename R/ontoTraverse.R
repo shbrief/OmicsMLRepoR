@@ -1,55 +1,83 @@
-#' Extract both ancestors and descendants of a term from ontology tree
+#' Extract both ancestors and descendants of an ontology term 
 #' 
 #' @import rols
-#' @importFrom ontologyPlot onto_plot
 #' 
-#' @param ontoTermId Ontology term id started with the ontology prefix and id
-#' separated by colon, such as \code{NCIT:C15280}. 
-#' @param source Ontology database id. Currently available options are 
-#' \code{NCIT, CHEBI, HP}.
-#' @param plot Under the default (\code{FALSE}), this function returns a 
-#' character vector of associate ontology terms. If it is set to \code{TRUE}, 
-#' it will plot the ontology tree of the returned term. (Currently, not 
-#' supported.) 
+#' @param term Ontology term id ('obo_id'), such as \code{NCIT:C15280}. 
+#' @param returnDescription Default is `FALSE`. If it is set to `TRUE`, the
+#' returned value includes description of the term and other information.
 #' 
-#' @return Ontology plot including queried term and its associated ancestors
-#' and descendants terms. With the \code{plot=FALSE} argument, it will return
-#' a character vector of associated ontology term ids.  
+#' @return A character vector of ancestors, self, and descendants ontology
+#' term ids. If `returnDescription = TRUE`, it returns a tibble containig
+#' details (including description) of the related ontology term ids.
 #' 
 #' @examples
-#' ontoTraverse(ontoTermId = "NCIT:C15280", source = "ncit")
-#' ontoTraverse(ontoTermId = "CHEBI:5262", source = "chebi")
-#' ontoTraverse(ontoTermId = "HP:0011793", source = "hp")
+#' ontoTraverse(term = "NCIT:C15280")
+#' ontoTraverse(term = "CHEBI:5262")
+#' ontoTraverse(term = "HP:0011793")
 #' 
 #' @export
-ontoTraverse <- function(ontoTermId, 
-                         source, 
-                         plot = FALSE,
-                         includeDefinition = FALSE) {
+ontoTraverse <- function(term, returnDescription = FALSE) {
     
-    # Load ontology
+    ## Load ontology
     ol <- Ontologies()
+    source <- get_ontologies(term) %>% tolower()
     ontology <- ol[[source]]
+    trm <- Term(ontology, term)
     
-    trm <- Term(ontology, ontoTermId)
+    ## Get the full tree of direct ancestors/descendants of `term` input
+    all_terms <- c(termId(trm)) # self
+    if (length(parents(trm)) != 0) { # instead of `is.na` to silence the warning
+        parent_terms <- termId(parents(trm))
+        all_terms <- c(all_terms, names(parent_terms))} 
+    if (length(children(trm)) != 0) {
+        children_terms <- termId(children(trm))
+        all_terms <- c(all_terms, names(children_terms))}
     
-    # Get the full tree of direct ancestors/descendants of `ontoTermId` input
-    all_connected_terms <- c(names(termId(parents(trm))), 
-                             names(termId(trm)), 
-                             names(termId(children(trm))))
+    ## Include definition
+    if (isTRUE(returnDescription)) {
+        res <- getOntoInfo(all_terms)
+    } else {res <- all_terms}
     
-    if (isFALSE(plot)) {
-        return(all_connected_terms)
-    } else {
-        # Highlight the quried ontoTermId in the tree
-        term_ind <- which(all_connected_terms == ontoTermId)
-        fillcolors <- rep("powderblue", length(all_connected_terms))
-        fillcolors[term_ind] <- "yellow"
-        
-        # Plotting
-        plot_all <- ontologyPlot::onto_plot(ontology, 
-                                            terms = all_connected_terms,
-                                            fillcolor = fillcolors)
-        return(plot_all)
-    }
+    return(res)
+}
+
+#' Plot ontology tree
+#' 
+#' @import rols
+#' @import dplyr
+#' @importFrom data.tree FromDataFrameNetwork
+#' @importFrom jsonlite fromJSON
+#' 
+#' @example ontoTreePlot("NCIT:C2852")
+#' 
+ontoTreePlot <- function(term) {
+    
+    sample_id <- term
+    sample_db <- get_ontologies(term)
+    
+    ## load term object and retrieve link to JSON tree
+    ontob <- Ontology(sample_db)
+    cur_trm <- Term(ontob, sample_id)
+    jstree <- cur_trm@links$jstree$href
+    
+    ## transform JSON into dataframe
+    tree_frame <- jsonlite::fromJSON(jstree)
+    
+    ## transform dataframe into usable edgelist
+    map <- tree_frame %>%
+        rowwise() %>%
+        mutate(term = unlist(strsplit(iri, split = "/"))[5]) %>%
+        select(id, term)
+    
+    edgelist <- tree_frame %>%
+        select(parent, id) %>%
+        rename(from = parent,
+               to = id) %>%
+        filter(from != "#") %>%
+        mutate(from = plyr::mapvalues(from, map$id, map$term, warn_missing = FALSE)) %>%
+        mutate(to = plyr::mapvalues(to, map$id, map$term, warn_missing = FALSE))
+    
+    ## plot tree with data.tree package; other packages will also work with the edgelist
+    tree <- data.tree::FromDataFrameNetwork(edgelist)
+    plot(tree)
 }

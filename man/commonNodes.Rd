@@ -19,3 +19,10 @@ original terms covered
 \description{
 Retrieves top nodes for a given ontology term map
 }
+\examples{
+ids <- c("NCIT:C983", "NCIT:C61612")
+dbs <- c("NCIT", "NCIT")
+commonNodes(ids = ids, dbs = dbs)
+
+
+}
