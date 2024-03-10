@@ -1,8 +1,8 @@
 Package: OmicsMLRepoR
 Type: Package
 Title: Queries and analyze OmicsMLRepo data
-Version: 0.4.2
-Date: 2024-3-3
+Version: 0.4.3
+Date: 2024-3-10
 Authors@R: 
     c(person(given = "Sehyun",
              family = "Oh",
@@ -24,19 +24,16 @@ Imports:
     httr2,
     methods,
     stats,
-    tibble
+    tibble,
+    data.tree,
+    jsonlite,
+    plyr,
+    DiagrammeR
 Suggests: 
     arrow,
     testthat (>= 3.0.0)
 Encoding: UTF-8
 RoxygenNote: 7.3.1
-Collate: 
-    'getOntoInfo.R'
-    'manipulateMetadataTable.R'
-    'ontoTraverse.R'
-    'searchMetadata.R'
-    'topNodes.R'
-    'utils.R'
 NeedsCompilation: no
 Packaged: 2023-04-28 16:32:41 UTC; sehyun
 Author: Sehyun Oh [aut, cre]
