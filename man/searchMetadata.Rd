@@ -17,7 +17,8 @@ searchMetadata(
 \arguments{
 \item{term}{A character (1) containing the search query.}
 
-\item{metaTb}{Metadata table}
+\item{metaTb}{A data frame. Metadata table containing `feature` where you
+want to search the queried `term`.}
 
 \item{targetDB}{A character (1) indicating ancestor file to access. 
 Available options are `cMD` (curatedMetagenomicData) and `cBioPortalData`.}
@@ -35,8 +36,9 @@ provided `term`. Default is the empty character, to search all ontologies.}
 Default is 20L. Maximum number of values returned by the server is 1000.}
 }
 \value{
-Subset of the input metadata table (`metaTb`) filtered by provided 
-ontology term ids (`onto`) under the feature attribute (`feature`).
+A data frame which is the subset of the input metadata table 
+(`metaTb`) filtered by the provided ontology term ids (`onto`) under 
+the feature attribute (`feature`).
 }
 \description{
 Wrapper to easily search metadata with plain text

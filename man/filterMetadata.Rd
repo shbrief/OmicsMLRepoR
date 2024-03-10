@@ -2,7 +2,7 @@
 % Please edit documentation in R/searchMetadata.R
 \name{filterMetadata}
 \alias{filterMetadata}
-\title{Filter metadata table by ontology term ids in specific attribute}
+\title{Filter metadata table by ontology term ids}
 \usage{
 filterMetadata(metaTb, query, feature)
 }
@@ -18,7 +18,7 @@ Metadata table filtered by provided ontology term ids in
 provided attribute
 }
 \description{
-Filter metadata table by ontology term ids in specific attribute
+Filter metadata table by ontology term ids
 }
 \examples{
 dir <- system.file("extdata", package="OmicsMLRepoR")
