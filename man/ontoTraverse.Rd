@@ -2,30 +2,27 @@
 % Please edit documentation in R/ontoTraverse.R
 \name{ontoTraverse}
 \alias{ontoTraverse}
-\title{Extract both ancestors and descendants of a term from ontology tree}
+\title{Extract both ancestors and descendants of an ontology term}
 \usage{
-ontoTraverse(ontoTermId, includeDefinition = FALSE)
+ontoTraverse(term, returnDescription = FALSE)
 }
 \arguments{
-\item{ontoTermId}{Ontology term id started with the ontology prefix and id
-separated by colon, such as \code{NCIT:C15280}.}
+\item{term}{Ontology term id ('obo_id'), such as \code{NCIT:C15280}.}
 
-\item{plot}{Under the default (\code{FALSE}), this function returns a 
-character vector of associate ontology terms. If it is set to \code{TRUE}, 
-it will plot the ontology tree of the returned term. (Currently, not 
-supported.)}
+\item{returnDescription}{Default is `FALSE`. If it is set to `TRUE`, the
+returned value includes description of the term and other information.}
 }
 \value{
-Ontology plot including queried term and its associated ancestors
-and descendants terms. With the \code{plot=FALSE} argument, it will return
-a character vector of associated ontology term ids.
+A character vector of ancestors, self, and descendants ontology
+term ids. If `returnDescription = TRUE`, it returns a tibble containig
+details (including description) of the related ontology term ids.
 }
 \description{
-Extract both ancestors and descendants of a term from ontology tree
+Extract both ancestors and descendants of an ontology term
 }
 \examples{
-ontoTraverse(ontoTermId = "NCIT:C15280")
-ontoTraverse(ontoTermId = "CHEBI:5262")
-ontoTraverse(ontoTermId = "HP:0011793")
+ontoTraverse(term = "NCIT:C15280")
+ontoTraverse(term = "CHEBI:5262")
+ontoTraverse(term = "HP:0011793")
 
 }
