@@ -1,6 +1,6 @@
 ##### getLongMetaTb and getShortMetaTb -----------
 dir <- system.file("extdata", package = "OmicsMLRepoR")
-meta <- read.csv(file.path(dir, "mini_cbio2.csv"), header = TRUE)
+meta <- read.csv(file.path(dir, "mini_cbio.csv"), header = TRUE)
 
 short_tb <- data.frame(
     ind = c("A", "B", "C", "D", "E"),
