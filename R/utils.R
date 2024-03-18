@@ -71,8 +71,8 @@ get_ontologies <- function(terms, delim = ":") {
 merge_vectors <- function(base, update, sep = ":", delim = ";") {
     
     ## Split the vectors into key-value pairs
-    base_pairs <- strsplit(strsplit(base, ";")[[1]], ":")
-    update_pairs <- strsplit(strsplit(update, ";")[[1]], ":")
+    base_pairs <- strsplit(strsplit(base, delim)[[1]], sep)
+    update_pairs <- strsplit(strsplit(update, delim)[[1]], sep)
     
     ## Create a dictionary from base pairs
     base_dict <- setNames(sapply(base_pairs, 
