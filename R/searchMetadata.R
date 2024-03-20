@@ -55,10 +55,10 @@ findDistantRelatives <- function(pool, target) {
     
 #' Filter metadata table by ontology term ids 
 #' 
-#' 
 #' @param metaTb Metadata table
 #' @param query A character vector containing obo_ids to query
 #' @param feature A character (1). Column name to filter by.
+#' @param delim A character(1) used to separate multiple values. Default `<;>`.
 #' 
 #' @return Metadata table filtered by provided ontology term ids in 
 #' provided attribute
@@ -70,9 +70,9 @@ findDistantRelatives <- function(pool, target) {
 #' filterMetadata(df, c("diabetes", "EFO:0000228"), "curated_disease")
 #' 
 #' @export
-filterMetadata <- function(metaTb, query, feature) {
+filterMetadata <- function(metaTb, query, feature, delim = "<;>") {
     
-    meta_ids <- strsplit(metaTb[,feature], ";") # for multiple values in a single cell
+    meta_ids <- strsplit(metaTb[[feature]], delim) # for multiple values in a single cell
     targets <- .getAllTargetForms(query) # both terms and ids 
     
     selected_ids <- lapply(meta_ids, function(x) intersect(x, targets))
@@ -103,12 +103,11 @@ filterMetadata <- function(metaTb, query, feature) {
 #' the feature attribute (`feature`). 
 #' 
 #' @examples
-#' dir <- system.file("extdata", package = "OmicsMLRepoR")
-#' metaTb <- read.csv(file.path(dir, "cMD_curated_metadata_all.csv"), header = TRUE)
+#' metaTb <- getMetadata("cMD")
 #' searchMetadata(term = "cancer", 
 #'                metaTb = metaTb, 
 #'                targetDB = "cMD", 
-#'                feature = "curated_disease")
+#'                feature = "disease")
 #' 
 #' @export
 searchMetadata <- function(term,
@@ -117,7 +116,8 @@ searchMetadata <- function(term,
                            feature = NULL, # <<<<<<<<<<<<<< Do we need to specify this?
                            exact = FALSE,
                            onto = "",
-                           rows = 20) {
+                           rows = 20,
+                           delim = "<;>") {
 
     ## Sanity check that all the `feature(s)` exists in the metadata table
     if (!is.null(feature)) {
@@ -147,9 +147,7 @@ searchMetadata <- function(term,
     
     ## Identify the curated attribute(s) containing the queried terms
     tb <- allAncestors %>% filter(ontology_term_id %in% terms_to_find)
-    targetFeatures <- unique(tb$attributes) %>% 
-        paste0("curated_", .)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< REMOVE for release
-
+    targetFeatures <- unique(tb$attributes)
     
     ## Stop if there is no match
     if (!is.null(feature)) {
@@ -176,14 +174,16 @@ searchMetadata <- function(term,
         filtered_meta <- lapply(targetFeatures, function(x) {
             filterMetadata(metaTb = metaTb, 
                            query = terms_to_find, 
-                           feature = x)})
+                           feature = x,
+                           delim = delim)})
         curation_ids <- lapply(filtered_meta, function(x) {x$curation_id}) %>%
             unlist %>% unique
         res <- metaTb %>% filter(curation_id %in% curation_ids)
     } else if (length(targetFeatures) == 1) {
         res <- filterMetadata(metaTb = metaTb, 
                               query = terms_to_find, 
-                              feature = targetFeatures)
+                              feature = targetFeatures,
+                              delim = delim)
     }
     
     msg <- paste("The term identified under the", 

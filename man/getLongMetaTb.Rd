@@ -30,7 +30,7 @@ name is required/provided.
 }
 \examples{
 dir <- system.file("extdata", package = "OmicsMLRepoR")
-meta <- read.csv(file.path(dir, "mini_cbio2.csv"), header = TRUE)
+meta <- read.csv(file.path(dir, "mini_cbio.csv"), header = TRUE)
 lmeta <- getLongMetaTb(meta)
 dim(meta) 
 dim(lmeta) 

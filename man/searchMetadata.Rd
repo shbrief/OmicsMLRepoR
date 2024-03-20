@@ -44,11 +44,10 @@ the feature attribute (`feature`).
 Wrapper to easily search metadata with plain text
 }
 \examples{
-dir <- system.file("extdata", package = "OmicsMLRepoR")
-metaTb <- read.csv(file.path(dir, "cMD_curated_metadata_all.csv"), header = TRUE)
+metaTb <- OmicsMLRepoR::getMetadata("cMD")
 searchMetadata(term = "cancer", 
                metaTb = metaTb, 
                targetDB = "cMD", 
-               feature = "curated_disease")
+               feature = "disease")
 
 }
