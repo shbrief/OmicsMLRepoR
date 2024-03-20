@@ -315,7 +315,7 @@ getWideMetaTb <- function(meta,
     rowToFillInd <- which(sapply(embeddedColNames, 
                                  function(x) any(!newColNames %in% x)))
     
-    ## Add NA-placeholder for non-exisinting columns 
+    ## Add NA-placeholder for non-existing columns 
     for (ind in rowToFillInd) {
         updatedVal <- merge_vectors(base, 
                                     update = meta[[ind, targetCol]], 

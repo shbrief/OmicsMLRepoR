@@ -7,7 +7,7 @@
 #'
 #' @keywords internal
 single_line_str <- function(text) {
-    str_remove_all(text, r"(\n\s*)")
+    stringr::str_remove_all(text, r"(\n\s*)")
 }
 
 
