@@ -1,8 +1,8 @@
 Package: OmicsMLRepoR
 Type: Package
 Title: Queries and analyze OmicsMLRepo data
-Version: 0.4.3
-Date: 2024-3-10
+Version: 0.4.4
+Date: 2024-3-20
 Authors@R: 
     c(person(given = "Sehyun",
              family = "Oh",
@@ -21,13 +21,14 @@ Imports:
     stringr, 
     rols,
     tidyr,
-    httr2,
     methods,
     stats,
     tibble,
     data.tree,
     jsonlite,
     plyr,
+    BiocFileCache,
+    readr,
     DiagrammeR
 Suggests: 
     arrow,
