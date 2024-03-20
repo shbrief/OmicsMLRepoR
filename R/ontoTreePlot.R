@@ -29,6 +29,7 @@ ontoTreePlot <- function(term) {
     map <- tree_frame %>%
         rowwise() %>%
         mutate(term = unlist(strsplit(iri, split = "/"))[5]) %>%
+        mutate(term = gsub("_", ":", term)) %>%
         select(id, term)
     
     edgelist <- tree_frame %>%
@@ -42,4 +43,6 @@ ontoTreePlot <- function(term) {
     ## plot tree with data.tree package; other packages will also work with the edgelist
     tree <- data.tree::FromDataFrameNetwork(edgelist)
     plot(tree)
+    
+    ##
 }
