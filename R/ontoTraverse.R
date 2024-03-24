@@ -7,7 +7,7 @@
 #' returned value includes description of the term and other information.
 #' 
 #' @return A character vector of ancestors, self, and descendants ontology
-#' term ids. If `returnDescription = TRUE`, it returns a tibble containig
+#' term ids. If `returnDescription = TRUE`, it returns a tibble containing
 #' details (including description) of the related ontology term ids.
 #' 
 #' @examples
@@ -35,8 +35,12 @@ ontoTraverse <- function(term, returnDescription = FALSE) {
     
     ## Include definition
     if (isTRUE(returnDescription)) {
-        res <- getOntoInfo(all_terms)
-    } else {res <- all_terms}
+        res <- lapply(all_terms, function(x) {
+            getOntoInfo(x, ontology = get_ontologies(x), exact = TRUE)
+        }) %>% Reduce(rbind, .)
+    } else {
+        res <- all_terms
+    }
     
     return(res)
 }

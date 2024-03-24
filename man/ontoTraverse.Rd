@@ -14,7 +14,7 @@ returned value includes description of the term and other information.}
 }
 \value{
 A character vector of ancestors, self, and descendants ontology
-term ids. If `returnDescription = TRUE`, it returns a tibble containig
+term ids. If `returnDescription = TRUE`, it returns a tibble containing
 details (including description) of the related ontology term ids.
 }
 \description{
