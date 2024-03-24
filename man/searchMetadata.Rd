@@ -11,7 +11,8 @@ searchMetadata(
   feature = NULL,
   exact = FALSE,
   onto = "",
-  rows = 20
+  rows = 20,
+  delim = "<;>"
 )
 }
 \arguments{
@@ -44,7 +45,7 @@ the feature attribute (`feature`).
 Wrapper to easily search metadata with plain text
 }
 \examples{
-metaTb <- OmicsMLRepoR::getMetadata("cMD")
+metaTb <- getMetadata("cMD")
 searchMetadata(term = "cancer", 
                metaTb = metaTb, 
                targetDB = "cMD", 
