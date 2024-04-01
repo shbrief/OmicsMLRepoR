@@ -104,10 +104,8 @@ filterMetadata <- function(metaTb, query, feature, delim = "<;>") {
 #' 
 #' @examples
 #' metaTb <- getMetadata("cMD")
-#' searchMetadata(term = "cancer", 
-#'                metaTb = metaTb, 
-#'                targetDB = "cMD", 
-#'                feature = "disease")
+#' searchMetadata("Digestive System Precancerous Condition", metaTb, "cMD")
+#' searchMetadata("Intestinal Disorder", metaTb, "cMD", "disease")
 #' 
 #' @export
 searchMetadata <- function(term,
