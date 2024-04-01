@@ -208,9 +208,10 @@ getNarrowMetaTb <- function(meta,
     modifiedMeta <- meta
     
     for (col in cols) {
-        modifiedMeta[[col]] <- paste(col, 
-                                     as.character(modifiedMeta[[col]]), 
-                                     sep = sep)
+        col_ind <- grep(col, colnames(modifiedMeta))
+        modifiedMeta[[col_ind]] <- paste(col,
+                                         as.character(modifiedMeta[[col_ind]]),
+                                         sep = sep)
     }
     
     ## Help `na.rm = TRUE` formatting: updated characterized NA back to logical NA
