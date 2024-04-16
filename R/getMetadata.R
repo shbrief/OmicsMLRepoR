@@ -1,27 +1,35 @@
-s2p_get_cache <- function(cache = tools::R_user_dir("OmicsMLRepo",
-                                                    "cache")) {
-    BiocFileCache::BiocFileCache(cache=cache)
+s2p_get_cache <- function() {
+    cache <- tools::R_user_dir("OmicsMLRepo", "cache") # create a directory for cached data
+    BiocFileCache::BiocFileCache(cache = cache) # directory path of cache 
 }
 
 #' @importFrom BiocFileCache bfcneedsupdate bfcdownload bfcadd bfcquery bfcrpath
 #'
-s2p_cached_url <- function(url, rname = url, ask_on_update=FALSE,
+s2p_cached_url <- function(url, 
+                           rname = url, 
+                           ask_on_update = FALSE,
                            ...) {
-    bfc = s2p_get_cache()
-    bfcres = bfcquery(bfc,rname,'rname')
+    bfc <- s2p_get_cache()
+    bfcres <- bfcquery(x = bfc, 
+                       query = rname, # regular expression pattern(s) to match
+                       field = "rname") # column names in resource to query
+    # %>% subset(select = -expires)
     
-    rid = bfcres$rid
-    # Not found
-    fileage = 0
-    if(!length(rid)) {
-        rid = names(bfcadd(bfc, rname, url))
+    rid <- bfcres$rid # auto-generated resource id
+    
+    ## Cached file not found
+    if (!length(rid)) {
+        rid <- names(bfcadd(x = bfc, rname = rname, fpath = url))
     }
-    # if needs update, do the download
-    if(bfcneedsupdate(bfc, rid)) {
-        bfcdownload(bfc, rid, ask=FALSE, ...)
-        print("downloading")
+    
+    ## If needs update, do the download
+    if (bfcneedsupdate(bfc, rid)) {
+        bfcdownload(bfc, rid, ask = FALSE, ...)
+        print("Downloading")
     }
-    bfcrpath(bfc, rids = rid)
+    
+    res <- bfcrpath(bfc, rids = rid)
+    return(res)
 }
 
 

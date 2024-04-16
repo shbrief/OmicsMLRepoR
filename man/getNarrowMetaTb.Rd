@@ -11,7 +11,8 @@ getNarrowMetaTb(
   sep = ":",
   delim = ";",
   remove = TRUE,
-  na.rm = TRUE
+  na.rm = TRUE,
+  sort = TRUE
 )
 }
 \arguments{
@@ -34,6 +35,9 @@ columns from output data frame.}
 
 \item{na.rm}{With the default, `TRUE`, missing values will be removed 
 prior to uniting each value.}
+
+\item{sort}{With the default, `TRUE`, the united columns will be ordered
+alphabetically.}
 }
 \value{
 A data frame where target columns (\code{targetCols}) are collapsed

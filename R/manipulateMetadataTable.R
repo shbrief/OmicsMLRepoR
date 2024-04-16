@@ -161,6 +161,8 @@ getShortMetaTb <- function(meta,
 #' columns from output data frame.
 #' @param na.rm With the default, `TRUE`, missing values will be removed 
 #' prior to uniting each value. 
+#' @param sort With the default, `TRUE`, the united columns will be ordered
+#' alphabetically.
 #'
 #' @return A data frame where target columns (\code{targetCols}) are collapsed
 #' into a single column. The original column name and its value are 
@@ -186,7 +188,8 @@ getNarrowMetaTb <- function(meta,
                             sep = ":",
                             delim = ";",
                             remove = TRUE,
-                            na.rm = TRUE) {
+                            na.rm = TRUE,
+                            sort = TRUE) {
 
     if (is.null(targetCols)) {
         msg <- "Provide the name of columns to combine."
@@ -215,16 +218,18 @@ getNarrowMetaTb <- function(meta,
     }
     
     ## Help `na.rm = TRUE` formatting: updated characterized NA back to logical NA
+    na_str <- paste0(".*", sep, "NA")
     if (isTRUE(na.rm)) {
         modifiedMeta <- apply(modifiedMeta, 2, 
-                              function(x) gsub(".*:NA", NA, x)) %>% 
+                              function(x) gsub(na_str, NA, x)) %>% 
             as.data.frame
     }
     
     ## Unite target columns
+    if (isTRUE(sort)) {targetCols <- sort(targetCols)} # alphabetical order of the columns
     united <- unite(modifiedMeta, 
                     col = {{newCol}}, # embracing operator to inject
-                    sort(targetCols), # alphabetical order of the columns
+                    targetCols, 
                     sep = delim,
                     remove = remove,
                     na.rm = na.rm)

@@ -46,9 +46,7 @@ Wrapper to easily search metadata with plain text
 }
 \examples{
 metaTb <- getMetadata("cMD")
-searchMetadata(term = "cancer", 
-               metaTb = metaTb, 
-               targetDB = "cMD", 
-               feature = "disease")
+searchMetadata("Digestive System Precancerous Condition", metaTb, "cMD")
+searchMetadata("Intestinal Disorder", metaTb, "cMD", "disease")
 
 }
