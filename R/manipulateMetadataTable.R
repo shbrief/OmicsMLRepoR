@@ -7,6 +7,7 @@
 #' belongs to the same column/attribute/field, i.e., no additional column
 #' name is required/provided.
 #' 
+#' @importFrom tidyr separate_longer_delim 
 #' 
 #' @param meta A data frame. Metadata table containing all treatment-related 
 #' columns
@@ -51,9 +52,9 @@ getLongMetaTb <- function(meta,
               is.character(delim))
   
     ## Expand data frame
-    res <- separate_longer_delim(data = meta,
-                                 cols = any_of(targetCols),
-                                 delim = delim)
+    res <- tidyr::separate_longer_delim(data = meta,
+                                        cols = any_of(targetCols),
+                                        delim = delim)
     res[res == "NA"] <- NA
     return(res)
 }

@@ -6,7 +6,10 @@
 #' @importFrom data.tree FromDataFrameNetwork
 #' @importFrom jsonlite fromJSON
 #' 
-#' @param term A charater (1). Ontology term id (obo_id)
+#' @param term A character (1). Ontology term id (obo_id)
+#' 
+#' @reteurn A ontology tree plot. All the terms used in the output plot are 
+#' ancestors of the queried term, so the queried term is the tip.
 #' 
 #' @examples 
 #' ontoTreePlot("NCIT:C2852")

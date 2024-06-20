@@ -6,7 +6,7 @@
 #' @importFrom dplyr filter
 #' @importFrom tibble as_tibble
 #'
-#' @param query A character vector containing the search query, either a term
+#' @param query A character (1) containing the search query, either a term
 #' label or term id.
 #' @param ontology A character vector defining the ontology to be queried. 
 #' Default is the empty character, to search all ontologies.
