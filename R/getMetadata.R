@@ -13,8 +13,7 @@ s2p_cached_url <- function(url,
     bfcres <- bfcquery(x = bfc, 
                        query = rname, # regular expression pattern(s) to match
                        field = "rname") # column names in resource to query
-    # %>% subset(select = -expires)
-    
+
     rid <- bfcres$rid # auto-generated resource id
     
     ## Cached file not found
@@ -23,9 +22,10 @@ s2p_cached_url <- function(url,
     }
     
     ## If needs update, do the download
-    if (bfcneedsupdate(bfc, rid)) {
-        bfcdownload(bfc, rid, ask = FALSE, ...)
-        print("Downloading")
+    if (!bfcneedsupdate(bfc, rid)) {
+        # bfcdownload(bfc, rid, ask = ask_on_update, ...)
+        bfcupdate(bfc, rid, ask = ask_on_update, ...)
+        print("Updating")
     }
     
     res <- bfcrpath(bfc, rids = rid)
