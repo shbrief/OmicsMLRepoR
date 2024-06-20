@@ -7,7 +7,7 @@
 ontoTreePlot(term)
 }
 \arguments{
-\item{term}{A charater (1). Ontology term id (obo_id)}
+\item{term}{A character (1). Ontology term id (obo_id)}
 }
 \description{
 Plot ontology tree
