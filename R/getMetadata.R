@@ -3,8 +3,8 @@ s2p_get_cache <- function() {
     BiocFileCache::BiocFileCache(cache = cache) # directory path of cache 
 }
 
-#' @importFrom BiocFileCache bfcneedsupdate bfcdownload bfcadd bfcquery bfcrpath
-#'
+#' @import BiocFileCache
+#' 
 s2p_cached_url <- function(url, 
                            rname = url, 
                            ask_on_update = FALSE,
@@ -22,9 +22,8 @@ s2p_cached_url <- function(url,
     }
     
     ## If needs update, do the download
-    if (!bfcneedsupdate(bfc, rid)) {
-        # bfcdownload(bfc, rid, ask = ask_on_update, ...)
-        bfcupdate(bfc, rid, ask = ask_on_update, ...)
+    if (bfcneedsupdate(bfc, rid)) {
+        bfcdownload(bfc, rid, ask = ask_on_update)
         print("Updating")
     }
     
@@ -43,7 +42,7 @@ s2p_cached_url <- function(url,
 #' there are two available options.
 #' \itemize{
 #'     \item \code{cMD} : metadata for curatedMetagenomicData
-#'     \item \code{cBioPortal} : metadata for cBioPortal
+#'     \item \code{cBioPortalData} : metadata for cBioPortalData
 #' }
 #' @param load Default is \code{TRUE}. If it's set to \code{FALSE}, the 
 #' metadata table is downloaded to cache but not loaded into memory.
@@ -54,9 +53,10 @@ s2p_cached_url <- function(url,
 #' cmd <- getMetadata("cMD")
 #'
 #' @export
-getMetadata <- function(database = c("cMD", "cBioPortal"), 
+getMetadata <- function(database = NULL, 
                         load = TRUE) {
     
+    if (is.null(database)) {stop("Provide the database name.")}
     bucket_name <- "omics_ml_repo"
     request_meta <- paste0(database, "_curated_metadata_release.csv")
     fpath <- file.path("https://storage.googleapis.com",
@@ -65,6 +65,7 @@ getMetadata <- function(database = c("cMD", "cBioPortal"),
     fpath <- s2p_cached_url(fpath)
     if (isTRUE(load)) {
         model <- readr::read_csv(fpath)
+        attributes(model)$database <- database
         return(model)
     } else {return(fpath)}
 }
