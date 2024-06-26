@@ -1,6 +1,10 @@
-#' Analog of Tidyverse 'filter' function that uses ontology search results
+#' Keep rows that match a condition and 
+#' 
+#' Analog of Tidyverse 'filter' function that includes ontology synonyms and 
+#' ids
 #' 
 #' @importFrom rlang enquo
+#' @importFrom dplyr filter
 #' 
 #' @param .data A data frame
 #' @param col A character (1). Column name to filter by.
@@ -9,7 +13,7 @@
 #' @param delim A character (1) used to separate multiple values. Default ';'.
 #' 
 #' @return Data frame filtered by provided queries along with their ontology
-#' synonyms/ids in the specified column
+#' synonyms/ids in the specified column. Not case-sensitive.
 #' 
 #' @examples
 #' dir <- system.file("extdata", package="OmicsMLRepoR")
@@ -17,17 +21,19 @@
 #' onto_filter(df, curated_disease, c("diabetes", "adenoma"))
 #' 
 onto_filter <- function(.data, col, query, delim = ";") {
+    
     ## Search OLS
     targets <- tolower(c(query, .getAllTargetForms(query)))
     
     ## Filter data
     .data %>%
         rowwise() %>%
-        filter(any(tolower(unlist(strsplit(!!enquo(col), split = delim))) %in% targets))
+        dplyr::filter(any(tolower(unlist(strsplit(!!enquo(col), split = delim)))
+                          %in% targets))
 }
 
-#' Analog of Tidyverse 'filter' function that uses ontology search results and
-#' saved ontology ancestors
+
+#' Analog of Tidyverse 'filter' function that includes ontology 
 #' 
 #' @importFrom rlang enquo as_name sym
 #' 
@@ -43,11 +49,12 @@ onto_filter <- function(.data, col, query, delim = ";") {
 #' specified column
 #' 
 #' @examples
-#' dir <- system.file("extdata", package="OmicsMLRepoR")
-#' df <- read.csv(file.path(dir, "sample_metadata.csv"))
-#' curated_filter(df, curated_disease, c("pancreatic disease", "cancer"), "cMD")
-
-curated_filter <- function(.data, col, query, db, delim = ";") {
+#' meta <- getMetadata("cMD")
+#' tree_filter(meta, disease, c("pancreatic disease", "cancer"), "cMD")
+#' 
+#' @export
+tree_filter <- function(.data, col, query, db, delim = ";") {
+    
     ## Check that curated feature is present
     feat_name <- as_name(enquo(col))
     id_col <- paste0(feat_name, "_ontology_term_id")
