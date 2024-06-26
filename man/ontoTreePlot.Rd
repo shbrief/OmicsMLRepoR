@@ -9,6 +9,10 @@ ontoTreePlot(term)
 \arguments{
 \item{term}{A character (1). Ontology term id (obo_id)}
 }
+\value{
+A ontology tree plot. All the terms used in the output plot are 
+ancestors of the queried term, so the queried term is the tip.
+}
 \description{
 Plot ontology tree
 }
