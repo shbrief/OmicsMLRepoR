@@ -58,7 +58,7 @@ findDistantRelatives <- function(pool, target) {
 #' @param metaTb Metadata table
 #' @param query A character vector containing obo_ids to query
 #' @param feature A character (1). Column name to filter by.
-#' @param delim A character(1) used to separate multiple values. Default `<;>`.
+#' @param delim A character(1) used to separate multiple values. Default `;`.
 #' 
 #' @return Metadata table filtered by provided ontology term ids in 
 #' provided attribute
@@ -70,7 +70,7 @@ findDistantRelatives <- function(pool, target) {
 #' filterMetadata(df, c("diabetes", "EFO:0000228"), "curated_disease")
 #' 
 #' @export
-filterMetadata <- function(metaTb, query, feature, delim = "<;>") {
+filterMetadata <- function(metaTb, query, feature, delim = ";") {
     
     meta_ids <- strsplit(metaTb[[feature]], delim) # for multiple values in a single cell
     targets <- .getAllTargetForms(query) # both terms and ids 
@@ -87,8 +87,6 @@ filterMetadata <- function(metaTb, query, feature, delim = "<;>") {
 #' @param term A character (1) containing the search query.
 #' @param metaTb A data frame. Metadata table containing `feature` where you
 #' want to search the queried `term`.
-#' @param targetDB A character (1) indicating ancestor file to access. 
-#' Available options are `cMD` (curatedMetagenomicData) and `cBioPortalData`.
 #' @param feature A character vector (1). Column name to filter by. Under the
 #' default (`NULL`), all the columns using ontology terms are browsed.
 #' @param exact A logical (1) defining if OLS search is restricted to exact
@@ -97,6 +95,11 @@ filterMetadata <- function(metaTb, query, feature, delim = "<;>") {
 #' provided `term`. Default is the empty character, to search all ontologies.
 #' @param rows An integer (1) defining the number of query returns. 
 #' Default is 20L. Maximum number of values returned by the server is 1000.
+#' @param targetDB A character (1) indicating ancestor file to access. 
+#' Available options are `cMD` (curatedMetagenomicData) and `cBioPortalData`.
+#' If the `metaTb` contains the `package` column, it will automatically provide
+#' the correct input for this argument. 
+#' @param delim A character(1) used to separate multiple values. Default `;`.
 #' 
 #' @return A data frame which is the subset of the input metadata table 
 #' (`metaTb`) filtered by the provided ontology term ids (`onto`) under 
@@ -104,18 +107,18 @@ filterMetadata <- function(metaTb, query, feature, delim = "<;>") {
 #' 
 #' @examples
 #' metaTb <- getMetadata("cMD")
-#' searchMetadata("Digestive System Precancerous Condition", metaTb, "cMD")
-#' searchMetadata("Intestinal Disorder", metaTb, "cMD", "disease")
+#' searchMetadata("Digestive System Precancerous Condition", metaTb)
+#' searchMetadata("Intestinal Disorder", metaTb, "disease")
 #' 
 #' @export
 searchMetadata <- function(term,
-                           metaTb, #<<<<<<<<<<<<<<<<<<<< Potentially collapse with `targetDB` argument
-                           targetDB,
+                           metaTb, 
                            feature = NULL, # <<<<<<<<<<<<<< Do we need to specify this?
                            exact = FALSE,
                            onto = "",
                            rows = 20,
-                           delim = "<;>") {
+                           targetDB = NULL,
+                           delim = ";") { # <<<<<<<<<<<<<< Make it available from data dictionary?
 
     ## Sanity check that all the `feature(s)` exists in the metadata table
     if (!is.null(feature)) {
@@ -131,6 +134,20 @@ searchMetadata <- function(term,
     target_terms <- unique(c(anc_terms_exact$obo_id,
                              anc_terms$obo_id))[seq_len(rows)]
     
+    ## Get the source package
+    pkg <- unique(metaTb$package)
+    if (is.null(pkg)) {
+        msg <- "`targetDB` input is missing"
+        stop(msg)
+    } else if (pkg == "curatedMetagenomicData") {
+        targetDB <- "cMD"
+    } else if (pkg == "cBioPortalData") {
+        targetDB <- "cBioPortalData"
+    } else {
+        msg <- "This metadata table is not supported by OmicsMLRepoR."
+        stop(msg)
+    }
+    
     ## Load all the ancestor terms for ontology terms in the database
     dir <- system.file("extdata", package = "OmicsMLRepoR")
     fname <- paste0(targetDB, "_ancestors.csv")
@@ -141,7 +158,7 @@ searchMetadata <- function(term,
     names(unlistedAncestors) <- allAncestors$ontology_term_id
 
     ## Find the terms that are descendants of queried term itself and related
-    terms_to_find <- findDistantRelatives(unlistedAncestors, anc_terms$obo_id)
+    terms_to_find <- findDistantRelatives(unlistedAncestors, target_terms)
     
     ## Identify the curated attribute(s) containing the queried terms
     tb <- allAncestors %>% filter(ontology_term_id %in% terms_to_find)
@@ -157,7 +174,7 @@ searchMetadata <- function(term,
             msg <- "The requested term is not found in the feature(s)."
             stop(msg)
         }
-    } else if (is.null(feature)) {
+    } else {
         ## Term is not found in any metadata columns
         if (length(targetFeatures) == 0) {
             msg <- "The requested term is not found in the metadata table."
@@ -184,8 +201,8 @@ searchMetadata <- function(term,
                               delim = delim)
     }
     
-    msg <- paste("The term identified under the", 
-                 paste(targetFeatures, collapse = "/"), "column.")
+    msg <- paste("The columns that the quried term was identified:", 
+                 paste(targetFeatures, collapse = ", "))
     message(msg)
     
     res <- as_tibble(res)
