@@ -7,12 +7,12 @@
 searchMetadata(
   term,
   metaTb,
-  targetDB,
   feature = NULL,
   exact = FALSE,
   onto = "",
   rows = 20,
-  delim = "<;>"
+  targetDB = NULL,
+  delim = ";"
 )
 }
 \arguments{
@@ -20,9 +20,6 @@ searchMetadata(
 
 \item{metaTb}{A data frame. Metadata table containing `feature` where you
 want to search the queried `term`.}
-
-\item{targetDB}{A character (1) indicating ancestor file to access. 
-Available options are `cMD` (curatedMetagenomicData) and `cBioPortalData`.}
 
 \item{feature}{A character vector (1). Column name to filter by. Under the
 default (`NULL`), all the columns using ontology terms are browsed.}
@@ -35,6 +32,13 @@ provided `term`. Default is the empty character, to search all ontologies.}
 
 \item{rows}{An integer (1) defining the number of query returns. 
 Default is 20L. Maximum number of values returned by the server is 1000.}
+
+\item{targetDB}{A character (1) indicating ancestor file to access. 
+Available options are `cMD` (curatedMetagenomicData) and `cBioPortalData`.
+If the `metaTb` contains the `package` column, it will automatically provide
+the correct input for this argument.}
+
+\item{delim}{A character(1) used to separate multiple values. Default `;`.}
 }
 \value{
 A data frame which is the subset of the input metadata table 
@@ -46,7 +50,7 @@ Wrapper to easily search metadata with plain text
 }
 \examples{
 metaTb <- getMetadata("cMD")
-searchMetadata("Digestive System Precancerous Condition", metaTb, "cMD")
-searchMetadata("Intestinal Disorder", metaTb, "cMD", "disease")
+searchMetadata("Digestive System Precancerous Condition", metaTb)
+searchMetadata("Intestinal Disorder", metaTb, "disease")
 
 }

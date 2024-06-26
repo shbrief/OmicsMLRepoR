@@ -8,7 +8,7 @@ findDistantRelatives(pool, target)
 }
 \arguments{
 \item{pool}{A named list of the ancestors for a given ontology term. The 
-given ontology term is also include din the list and serves as a name of
+given ontology term is also included in the list and serves as a name of
 the element.}
 
 \item{target}{A character vector of ontology ids.}

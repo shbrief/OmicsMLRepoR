@@ -4,7 +4,7 @@
 \alias{filterMetadata}
 \title{Filter metadata table by ontology term ids}
 \usage{
-filterMetadata(metaTb, query, feature, delim = "<;>")
+filterMetadata(metaTb, query, feature, delim = ";")
 }
 \arguments{
 \item{metaTb}{Metadata table}
@@ -13,7 +13,7 @@ filterMetadata(metaTb, query, feature, delim = "<;>")
 
 \item{feature}{A character (1). Column name to filter by.}
 
-\item{delim}{A character(1) used to separate multiple values. Default `<;>`.}
+\item{delim}{A character(1) used to separate multiple values. Default `;`.}
 }
 \value{
 Metadata table filtered by provided ontology term ids in 

@@ -4,14 +4,14 @@
 \alias{getMetadata}
 \title{Download a curated metadata table}
 \usage{
-getMetadata(database = c("cMD", "cBioPortal"), load = TRUE)
+getMetadata(database = NULL, load = TRUE)
 }
 \arguments{
 \item{database}{Name of the database to get the metadata from. Currently, 
 there are two available options.
 \itemize{
     \item \code{cMD} : metadata for curatedMetagenomicData
-    \item \code{cBioPortal} : metadata for cBioPortal
+    \item \code{cBioPortalData} : metadata for cBioPortalData
 }}
 
 \item{load}{Default is \code{TRUE}. If it's set to \code{FALSE}, the 
