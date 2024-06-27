@@ -1,8 +1,8 @@
 Package: OmicsMLRepoR
 Type: Package
 Title: Queries and analyze OmicsMLRepo data
-Version: 0.4.4
-Date: 2024-3-20
+Version: 0.4.5
+Date: 2024-6-26
 Authors@R: 
     c(person(given = "Sehyun",
              family = "Oh",
@@ -11,9 +11,9 @@ Authors@R:
              comment = c(ORCID = "0000-0002-9490-3061")),
       person(given = "Kaelyn",
              family = "Long",
+             email = "krlong586@gmail.com",
              role = "aut"))
 Description: This package provides functions to browse and query the harmonized metadata for large omics databases. This package also supports data navigation if the metadata incorporates ontology. 
-License: GPL-3
 Depends: 
     R (>= 4.2.0)
 Imports: 
@@ -29,13 +29,21 @@ Imports:
     plyr,
     BiocFileCache,
     readr,
-    DiagrammeR
+    DiagrammeR,
+    rlang
 Suggests: 
     arrow,
+    knitr,
+    BiocStyle,
     testthat (>= 3.0.0)
+License: Artistic-2.0
+biocViews: 
+  Software,
+  Infrastructure,
+  ReproducibleResearch
 Encoding: UTF-8
+LazyData: true
 RoxygenNote: 7.3.1
-NeedsCompilation: no
-Packaged: 2023-04-28 16:32:41 UTC; sehyun
-Author: Sehyun Oh [aut, cre]
-Config/testthat/edition: 3
+VignetteBuilder: knitr
+URL: https://github.com/shbrief/OmicsMLRepoR
+BugReports: https://github.com/shbrief/OmicsMLRepoR/issues
