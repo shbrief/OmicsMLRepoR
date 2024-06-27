@@ -28,6 +28,6 @@ Analog of Tidyverse 'filter' function that includes ontology
 }
 \examples{
 meta <- getMetadata("cMD")
-tree_filter(meta, curated_disease, c("pancreatic disease", "cancer"), "cMD")
+tree_filter(meta, disease, c("pancreatic disease", "cancer"), "cMD")
 
 }
