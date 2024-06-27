@@ -139,7 +139,7 @@ searchMetadata <- function(term,
     if (is.null(pkg)) {
         msg <- "`targetDB` input is missing"
         stop(msg)
-    } else if (pkg == "curatedMetagenomicData") {
+    } else if (pkg == "cMD") {
         targetDB <- "cMD"
     } else if (pkg == "cBioPortalData") {
         targetDB <- "cBioPortalData"
