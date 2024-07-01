@@ -1,23 +1,23 @@
-#' Formats a multi-line string as it it were on one line
-#'
-#' @importFrom stringr str_remove_all
-#' @param text Any character vector
-#' @return The same character vector with newlines and subsequent 
-#' whites-paces removed
-#'
-#' @keywords internal
+# Formats a multi-line string as it it were on one line
+#
+# @importFrom stringr str_remove_all
+# @param text Any character vector
+# @return The same character vector with newlines and subsequent 
+# whites-paces removed
+#
+# @keywords internal
 single_line_str <- function(text) {
     stringr::str_remove_all(text, r"(\n\s*)")
 }
 
 
-#' Check that a character doesn't match any non-letter
-#' @param x A character(1).
+# Check that a character doesn't match any non-letter
+# @param x A character(1).
 letters_only <- function(x) !grepl("[^A-Za-z]", x)
 
 
-#' Check that a character doesn't match any non-number
-#' @param x A character(1).
+# Check that a character doesn't match any non-number
+# @param x A character(1).
 numbers_only <- function(x) !grepl("\\D", x)
 
 
@@ -45,29 +45,30 @@ get_ontologies <- function(terms, delim = ":") {
 }
 
 
-#' Custom function to merge vectors 
-#' 
-#' This function is designed for a group of, collapsible metadata attributes
-#' (e.g., 'biomarker' for curatedMetagenomicData).
-#' 
-#' @param base A character. A space-holder version of the key:value 
-#' concatenates (e.g., `column1:NA;column2:NA;column3:NA`)
-#' @param update A character. The target string to be compared and filled with 
-#' `base` if there is missing pairs. (e.g., `column1:value1;column3:value3`) 
-#' @param sep A character string to separate the column name and value. 
-#' Default is `:`
-#' @param delim A character string to separate the column:value pairs. 
-#' Default is `;`
-#' 
-#' @return A character updated the target string (`update`) to follow the
-#' reference string (`base`).
-#' 
-#' @examples
-#' x <- "color:NA;shape:NA;size:NA"
-#' y <- "color:green;size:large"
-#' merge_vectors(x, y)
-#' 
-#' @export
+# Custom function to merge vectors 
+# 
+# This function is designed for a group of, collapsible metadata attributes
+# (e.g., 'biomarker' for curatedMetagenomicData).
+# 
+# @importFrom stats setNames
+# 
+# @param base A character. A space-holder version of the key:value 
+# concatenates (e.g., `column1:NA;column2:NA;column3:NA`)
+# @param update A character. The target string to be compared and filled with 
+# `base` if there is missing pairs. (e.g., `column1:value1;column3:value3`) 
+# @param sep A character string to separate the column name and value. 
+# Default is `:`
+# @param delim A character string to separate the column:value pairs. 
+# Default is `;`
+# 
+# @return A character updated the target string (`update`) to follow the
+# reference string (`base`).
+# 
+# @examples
+# x <- "color:NA;shape:NA;size:NA"
+# y <- "color:green;size:large"
+# merge_vectors(x, y)
+# 
 merge_vectors <- function(base, update, sep = ":", delim = ";") {
     
     ## Split the vectors into key-value pairs
@@ -90,5 +91,57 @@ merge_vectors <- function(base, update, sep = ":", delim = ";") {
     ## Recreate the merged vector
     merged_vector <- paste(names(base_dict), base_dict, sep = sep)  
     res <- paste0(merged_vector, collapse = delim)
+    return(res)
+}
+
+
+## Get target database information
+.getTargetDB <- function(meta) {
+    targetDB <- unique(meta$package)
+    if (is.null(targetDB)) {message("`meta` table doesn't include `targetDB` information.")}
+    return(targetDB)
+}
+
+
+# Get delimiter
+# @importFrom utils read.csv
+
+.getDelimiter <- function(meta, targetCols, delim) {
+    
+    targetDB <- .getTargetDB(meta)
+    
+    ## Extract the delimiter
+    if (is.null(delim) & is.null(targetDB)) {
+        stop("Provide the `delim` input")
+    } else if (is.null(delim)) {
+        ## Load data dictionary
+        dir <- system.file("extdata", package = "OmicsMLRepoR")
+        fname <- paste0(targetDB, "_data_dictionary.csv")
+        dd <- read.csv(file.path(dir, fname), header = TRUE)
+        
+        ## Get the delimiter(s)
+        colInd <- which(dd$col.name %in% targetCols)
+        delim <- dd$delimiter[colInd] %>% unique %>% .[!is.na(.)]
+    }
+    
+    if (is.na(delim)) {stop("The targetCols do not have multiple values.")}
+    if (!length(delim)) {stop("The targetCols using different delimiter. Process one at a time.")}
+    
+    return(delim)
+}
+
+## Convert "NA" to `NA`
+.charToLogicNA <- function(tb) {
+    timeVar <- sapply(tb, lubridate::is.POSIXct)
+    if (any(timeVar)) {
+        ## Handle `POSIXct` separately
+        timeInd <- which(timeVar)
+        tb_sub <- tb[,-timeInd]
+        tb_sub[tb_sub == "NA"] <- NA
+        res <- cbind(tb_sub, tb[timeInd])
+    } else {
+        tb[tb == "NA"] <- NA
+        res <- tb
+    }
     return(res)
 }

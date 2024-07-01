@@ -4,7 +4,7 @@
 \alias{getWideMetaTb}
 \title{Create individual columns for different attributes stored in one column}
 \usage{
-getWideMetaTb(meta, targetCol = NULL, sep = ":", delim = ";", remove = TRUE)
+getWideMetaTb(meta, targetCol = NULL, sep = ":", delim = "<;>", remove = TRUE)
 }
 \arguments{
 \item{meta}{A data frame.}
@@ -17,7 +17,7 @@ the provided `delim`.}
 \item{sep}{A character (1). Delimiter used to concatenate column name 
 and its value. Default is double colons, `:`.}
 
-\item{delim}{A character(1). Separator used between values. Default `;`.}
+\item{delim}{A character(1). Separator used between values. Default `<;>`.}
 
 \item{remove}{If `TRUE`, remove input columns from output data frame.}
 }

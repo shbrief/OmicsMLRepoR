@@ -1,26 +1,81 @@
-#' Keep rows that match a condition and 
+#' Collect both labels and obo_ids related to the query term
 #' 
-#' Analog of Tidyverse 'filter' function that includes ontology synonyms and 
-#' ids
+#' This function can take multiple obo_id and labels, and return both 
+#' labels/obo_ids exactly matching with the `query`.
 #' 
-#' @importFrom rlang enquo
-#' @importFrom dplyr filter
+#' @param query A character vector of terms or term ids. For example, 
+#' `c("NCIT:C35025", "HP:0003003", "colon cancer")`.
 #' 
-#' @param .data A data frame
-#' @param col A character (1). Column name to filter by.
-#' @param query A character vector containing words or ids to be used in the
-#' ontology search
-#' @param delim A character (1) used to separate multiple values. Default ';'.
+#' @return A character vector of all the related terms' label and obo_id.
 #' 
-#' @return Data frame filtered by provided queries along with their ontology
-#' synonyms/ids in the specified column. Not case-sensitive.
-#' 
-#' @examples
-#' dir <- system.file("extdata", package="OmicsMLRepoR")
-#' df <- read.csv(file.path(dir, "sample_metadata.csv"))
-#' onto_filter(df, curated_disease, c("diabetes", "adenoma"))
-#' 
-onto_filter <- function(.data, col, query, delim = ";") {
+.getAllTargetForms <- function(query) {
+    
+    resAll <- lapply(query, getOntoInfo) %>%
+        bind_rows(.id = colnames(.))
+    res <- unique(c(resAll$label, resAll$obo_id))
+    return(res)
+}
+
+
+# Find distant relatives
+# 
+# This function takes a list of ontology terms and their ancestors, where
+# the lowest descent serves as a name of the element, as a `pool`. Names 
+# of all the elements that have the `target` term in their ancestor list 
+# (i.e., sharing the ancestors) are returned. 
+# 
+# This functionality is the base of searching metadata leveraging ontology, 
+# because a specific term can be used to query all the related, decendant
+# terms used in the metadata.
+# 
+# @param pool A named list of the ancestors for a given ontology term. The 
+# given ontology term is also included in the list and serves as a name of
+# the element.
+# @param target A character vector of ontology ids.
+#'
+# @return A character vector of ontology term ids having any of `target` 
+# terms as their ancestor.
+#'
+# @examples
+# ancestors <- list(
+#     "NCIT:C5490"=c("NCIT:C5490","NCIT:C4910","NCIT:C2955","NCIT:C4978"),
+#     "NCIT:C177680"=c("NCIT:C177680","NCIT:C4910","NCIT:C2955","NCIT:C4978"),
+#     "NCIT:C2955"=c("NCIT:C2955","NCIT:C4978","NCIT:C3141"))
+# targets <- "NCIT:C4910"
+# .findDistantRelatives(pool = ancestors, target = targets)
+# 
+.findDistantRelatives <- function(pool, target) {
+    match <- lapply(pool, 
+                    function(x) length(intersect(x, target)) != 0) %>% unlist
+    res <- names(pool)[which(match)] %>% unique
+    return(res)
+}
+
+
+# Keep rows that include the queried terms and identical/similar to them 
+# 
+# Similar to \code{\link[dplyr]{filter}} function, while its filtering 
+# includes ontology terms and ids identical or similar to the query term 
+# across different ontologies collected through OLS search.
+# 
+# @importFrom rlang enquo
+# @importFrom dplyr filter
+# 
+# @param .data A data frame
+# @param col A character (1). Column name to filter by.
+# @param query A character vector containing words or ids to be used in the
+# ontology search
+# @param delim A character (1) used to separate multiple values. 
+# 
+# @return Data frame filtered by provided queries along with their ontology
+# synonyms/ids in the specified column. Not case-sensitive.
+# 
+# @examples
+# dir <- system.file("extdata", package="OmicsMLRepoR")
+# df <- read.csv(file.path(dir, "sample_metadata.csv"))
+# onto_filter(df, curated_disease, c("diabetes", "adenoma"))
+# 
+onto_filter <- function(.data, col, query, delim = NULL) {
     
     ## Search OLS
     targets <- tolower(c(query, .getAllTargetForms(query)))
@@ -33,7 +88,12 @@ onto_filter <- function(.data, col, query, delim = ";") {
 }
 
 
-#' Analog of Tidyverse 'filter' function that includes ontology 
+#' Keep rows that include the queried terms and their descendants  
+#' 
+#' Similar to \code{\link[dplyr]{filter}} function, while its filtering 
+#' includes descendants and synonyms of the query term in addition to ontology 
+#' terms and ids identical or similar to the query term across different 
+#' ontologies collected through OLS search. 
 #' 
 #' @importFrom rlang enquo as_name sym
 #' 
@@ -41,19 +101,19 @@ onto_filter <- function(.data, col, query, delim = ";") {
 #' @param col A character (1). Column name to filter by.
 #' @param query A character vector containing words or ids to be used in the
 #' ontology search
-#' @param db A character (1) indicating ancestor file to access. Available
-#' options are 'cMD' (curatedMetagenomicData) and 'cBioPortalData'.
-#' @param delim A character (1) used to separate multiple values. Default ';'.
+#' @param delim A character (1) used to separate multiple values. If your
+#' `.data` input is obtained from \code{getMetadata} function, this input is
+#' automatically configured.
 #' 
 #' @return Data frame filtered by provided queries along with child terms in the
 #' specified column
 #' 
 #' @examples
 #' meta <- getMetadata("cMD")
-#' tree_filter(meta, disease, c("pancreatic disease", "cancer"), "cMD")
+#' tree_filter(meta, disease, c("pancreatic disease", "cancer"))
 #' 
 #' @export
-tree_filter <- function(.data, col, query, db, delim = ";") {
+tree_filter <- function(.data, col, query, delim = NULL) {
     
     ## Check that curated feature is present
     feat_name <- as_name(enquo(col))
@@ -67,6 +127,10 @@ tree_filter <- function(.data, col, query, db, delim = ";") {
         stop(msg)
     }
     
+    ## Get delimiter
+    targetDB <- .getTargetDB(.data)
+    delim <- .getDelimiter(.data, feat_name, delim) 
+      
     ## Search OLS
     resAll <- lapply(query, getOntoInfo) %>%
         bind_rows(.id = colnames(.))
@@ -74,7 +138,7 @@ tree_filter <- function(.data, col, query, db, delim = ";") {
     
     ## Load ancestors for the appropriate database
     dir <- system.file("extdata", package = "OmicsMLRepoR")
-    fname <- paste0(db, "_ancestors.csv")
+    fname <- paste0(targetDB, "_ancestors.csv")
     allAncestors <- read.csv(file.path(dir, fname), header = TRUE)
     
     unlistedAncestors <- lapply(allAncestors$ancestors, 
@@ -82,11 +146,12 @@ tree_filter <- function(.data, col, query, db, delim = ";") {
     names(unlistedAncestors) <- allAncestors$ontology_term_id
     
     ## Retrieve ids to filter by
-    related_terms <- findDistantRelatives(unlistedAncestors, res_ids)
+    related_terms <- .findDistantRelatives(unlistedAncestors, res_ids)
     terms_to_find <- unique(c(related_terms, res_ids))
     
     ## Filter data
     .data %>%
         rowwise() %>%
-        filter(any(unlist(strsplit(!!sym(id_col), split = delim)) %in% terms_to_find))
+        filter(any(unlist(strsplit(!!sym(id_col), split = delim)) %in% 
+                       terms_to_find))
 }

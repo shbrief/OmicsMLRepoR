@@ -4,7 +4,7 @@
 \alias{getLongMetaTb}
 \title{Expands metadata with multiple values belong to a same attribute}
 \usage{
-getLongMetaTb(meta, targetCols = NULL, delim = "<;>")
+getLongMetaTb(meta, targetCols = NULL, delim = NULL)
 }
 \arguments{
 \item{meta}{A data frame. Metadata table containing all treatment-related 
@@ -14,7 +14,7 @@ columns}
 present. Default is the name of all cBioPortal treatment-related columns.}
 
 \item{delim}{Optional. A character (1) of a delimiter used to separate 
-multiple values in the metadata table. Default is `<;>`.}
+multiple values in the metadata table.}
 }
 \value{
 A data frame of metadata expanded so that each individual treatment 
@@ -30,8 +30,8 @@ name is required/provided.
 }
 \examples{
 dir <- system.file("extdata", package = "OmicsMLRepoR")
-meta <- read.csv(file.path(dir, "mini_cbio.csv"), header = TRUE)
-lmeta <- getLongMetaTb(meta)
+meta <- read.csv(file.path(dir, "mini_cmd.csv"), header = TRUE)
+lmeta <- getLongMetaTb(meta, "hla")
 dim(meta) 
 dim(lmeta) 
 

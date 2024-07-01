@@ -1,38 +1,39 @@
-#' Extract the terms used under a given attributes/column
+#' Extract all the terms used in a quired attribute/column
 #'
-#' @param attributes A character (1). Name of the attribute/column you want to 
+#' @importFrom rlang is_empty
+#' 
+#' @param attribute A character (1). Name of the attribute/column you want to 
 #' extract the terms used under. 
 #' @param db A character(1). Currently, `cMD` (curatedMetagenomicData) is only
 #' supported.
 #' 
-#' @return A named list. Name of the list is the attribute/column name
+#' @return A data frame with two columns - existing values under the quried
+#' attribute (`allowedvalues` column) and their ontology term id (`ontology`
+#' column).
 #' 
 #' @examples
 #' availableTerms("age_group")
+#' availableTerms("disease")
 #'
 #' @export
-availableTerms <- function(attributes, db = "cMD") {
+availableTerms <- function(attribute, db = "cMD") {
 
     ## Curated cMD metadata data dictionary
     dir <- system.file("extdata", package = "OmicsMLRepoR")
     fname <- paste0(db, "_data_dictionary.csv") 
-    dict <- read.csv(file.path(dir, fname), header = TRUE)
+    dd <- read.csv(file.path(dir, fname), header = TRUE)
 
-    ## Separate the attributes to check
-    ind <- grep(attributes, dict$col.name)
+    ## Separate the attribute to check
+    ind <- which(dd$col.name == attribute)
+    
+    ## Sanity check: the presence of attribute in the metadata
+    if (is_empty(ind)) {stop("Quried attribute doesn't exist in the metadata.")}
 
     ## Extract allowed values
-    res_ls <- vector(mode = "list", length = length(ind))
-    names(res_ls) <- dict$col.name[ind]
-    
-    for (i in seq_along(ind)) {
-        j <- ind[i]
-        allowedvalues <- strsplit(dict$allowedvalues[j], "\\|") %>% unlist
-        ontology <- strsplit(dict$ontology[j], "\\|") %>% unlist
-        res_tb <- data.frame(allowedvalues = allowedvalues,
-                             ontology = ontology)
-        res_ls[[i]] <- res_tb
-    }
+    allowedvalues <- strsplit(dd$allowedvalues[ind], "\\|") %>% unlist
+    ontology <- strsplit(dd$ontology[ind], "\\|") %>% unlist
+    res_tb <- data.frame(allowedvalues = allowedvalues,
+                         ontology = ontology)
 
-    return(res_ls)
+    return(res_tb)
 }

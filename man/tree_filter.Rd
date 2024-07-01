@@ -2,9 +2,9 @@
 % Please edit documentation in R/ontoFilter.R
 \name{tree_filter}
 \alias{tree_filter}
-\title{Analog of Tidyverse 'filter' function that includes ontology}
+\title{Keep rows that include the queried terms and their descendants}
 \usage{
-tree_filter(.data, col, query, db, delim = ";")
+tree_filter(.data, col, query, delim = NULL)
 }
 \arguments{
 \item{.data}{A data frame}
@@ -14,20 +14,22 @@ tree_filter(.data, col, query, db, delim = ";")
 \item{query}{A character vector containing words or ids to be used in the
 ontology search}
 
-\item{db}{A character (1) indicating ancestor file to access. Available
-options are 'cMD' (curatedMetagenomicData) and 'cBioPortalData'.}
-
-\item{delim}{A character (1) used to separate multiple values. Default ';'.}
+\item{delim}{A character (1) used to separate multiple values. If your
+`.data` input is obtained from \code{getMetadata} function, this input is
+automatically configured.}
 }
 \value{
 Data frame filtered by provided queries along with child terms in the
 specified column
 }
 \description{
-Analog of Tidyverse 'filter' function that includes ontology
+Similar to \code{\link[dplyr]{filter}} function, while its filtering 
+includes descendants and synonyms of the query term in addition to ontology 
+terms and ids identical or similar to the query term across different 
+ontologies collected through OLS search.
 }
 \examples{
 meta <- getMetadata("cMD")
-tree_filter(meta, disease, c("pancreatic disease", "cancer"), "cMD")
+tree_filter(meta, disease, c("pancreatic disease", "cancer"))
 
 }
