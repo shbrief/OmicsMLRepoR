@@ -1,8 +1,8 @@
 Package: OmicsMLRepoR
 Type: Package
 Title: Queries and analyze OmicsMLRepo data
-Version: 0.4.5
-Date: 2024-6-26
+Version: 0.4.6
+Date: 2024-7-1
 Authors@R: 
     c(person(given = "Sehyun",
              family = "Oh",
@@ -30,11 +30,14 @@ Imports:
     BiocFileCache,
     readr,
     DiagrammeR,
-    rlang
+    rlang,
+    lubridate,
+    utils
 Suggests: 
     arrow,
     knitr,
     BiocStyle,
+    curatedMetagenomicData,
     testthat (>= 3.0.0)
 License: Artistic-2.0
 biocViews: 
@@ -43,7 +46,7 @@ biocViews:
   ReproducibleResearch
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 VignetteBuilder: knitr
 URL: https://github.com/shbrief/OmicsMLRepoR
 BugReports: https://github.com/shbrief/OmicsMLRepoR/issues
