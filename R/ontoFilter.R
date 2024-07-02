@@ -67,14 +67,11 @@ tree_filter <- function(.data, col, query, db, delim = ";") {
         stop(msg)
     }
     
-<<<<<<< Updated upstream
-=======
     ## Get delimiter
     targetDB <- .getTargetDB(.data)
     delim <- .getDelimiter(.data, feat_name, delim) 
     ontoDBs <- .getOntos(.data, feat_name)
       
->>>>>>> Stashed changes
     ## Search OLS
     resAll <- lapply(query, function(x) getOntoInfo(query, ontoDBs)) %>%
         bind_rows(.id = colnames(.))

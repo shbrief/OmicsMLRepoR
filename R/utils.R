@@ -92,8 +92,6 @@ merge_vectors <- function(base, update, sep = ":", delim = ";") {
     res <- paste0(merged_vector, collapse = delim)
     return(res)
 }
-<<<<<<< Updated upstream
-=======
 
 
 ## Get target database information
@@ -170,4 +168,3 @@ merge_vectors <- function(base, update, sep = ":", delim = ";") {
     }
     return(res)
 }
->>>>>>> Stashed changes
