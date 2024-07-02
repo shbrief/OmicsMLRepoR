@@ -92,3 +92,82 @@ merge_vectors <- function(base, update, sep = ":", delim = ";") {
     res <- paste0(merged_vector, collapse = delim)
     return(res)
 }
+<<<<<<< Updated upstream
+=======
+
+
+## Get target database information
+.getTargetDB <- function(meta) {
+    targetDB <- unique(meta$package)
+    if (is.null(targetDB)) {message("`meta` table doesn't include `targetDB` information.")}
+    return(targetDB)
+}
+
+
+# Get delimiter
+# @importFrom utils read.csv
+
+.getDelimiter <- function(meta, targetCols, delim) {
+    
+    targetDB <- .getTargetDB(meta)
+    
+    ## Extract the delimiter
+    if (is.null(delim) & is.null(targetDB)) {
+        stop("Provide the `delim` input")
+    } else if (is.null(delim)) {
+        ## Load data dictionary
+        dir <- system.file("extdata", package = "OmicsMLRepoR")
+        fname <- paste0(targetDB, "_data_dictionary.csv")
+        dd <- read.csv(file.path(dir, fname), header = TRUE)
+        
+        ## Get the delimiter(s)
+        colInd <- which(dd$col.name %in% targetCols)
+        delim <- dd$delimiter[colInd] %>% unique %>% .[!is.na(.)]
+    }
+    
+    if (is.na(delim)) {stop("The targetCols do not have multiple values.")}
+    if (!length(delim)) {stop("The targetCols using different delimiter. Process one at a time.")}
+    
+    return(delim)
+}
+
+# Get ontology database(s)
+# @importFrom utils read.csv
+# @importFrom readr str_split
+
+.getOntos <- function(meta, targetCols) {
+    
+    targetDB <- .getTargetDB(meta)
+    
+    ## Extract the delimiter
+    ## Load data dictionary
+    dir <- system.file("extdata", package = "OmicsMLRepoR")
+    fname <- paste0(targetDB, "_data_dictionary.csv")
+    dd <- read.csv(file.path(dir, fname), header = TRUE)
+    
+    ## Get the delimiter(s)
+    colInd <- which(dd$col.name %in% targetCols)
+    ontos <- dd$ontoDB[colInd] %>% unique %>% .[!is.na(.)]
+    split_ontos <- unlist(str_split(ontos, "\\|"))
+    
+    if (is.null(split_ontos)) {stop("The targetCols do not have listed ontology databases.")}
+    
+    return(split_ontos)
+}
+
+## Convert "NA" to `NA`
+.charToLogicNA <- function(tb) {
+    timeVar <- sapply(tb, lubridate::is.POSIXct)
+    if (any(timeVar)) {
+        ## Handle `POSIXct` separately
+        timeInd <- which(timeVar)
+        tb_sub <- tb[,-timeInd]
+        tb_sub[tb_sub == "NA"] <- NA
+        res <- cbind(tb_sub, tb[timeInd])
+    } else {
+        tb[tb == "NA"] <- NA
+        res <- tb
+    }
+    return(res)
+}
+>>>>>>> Stashed changes
