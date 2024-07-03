@@ -1,18 +1,30 @@
-#' Collect both labels and obo_ids related to the query term
-#' 
-#' This function can take multiple obo_id and labels, and return both 
-#' labels/obo_ids exactly matching with the `query`.
-#' 
-#' @param query A character vector of terms or term ids. For example, 
-#' `c("NCIT:C35025", "HP:0003003", "colon cancer")`.
-#' 
-#' @return A character vector of all the related terms' label and obo_id.
-#' 
-.getAllTargetForms <- function(query) {
+# Collect both labels and obo_ids related to the query term
+# 
+# This function can take multiple obo_id and labels, and return both 
+# labels/obo_ids exactly matching with the `query`. It subsets the output from
+# `getOntoInfo` function only to the `label` and/or `obo_id`.
+# 
+# @param query A character vector of terms or term ids. For example, 
+# `c("NCIT:C35025", "HP:0003003", "colon cancer")`.
+# @param returns A character vector of returned value's format. Available
+# options are `c("label", "obo_id)` (default).
+# 
+# 
+# @return A character vector of all the related terms' label and obo_id.
+# 
+.getAllTargetForms <- function(query, returns = c("label", "obo_id")) {
     
     resAll <- lapply(query, getOntoInfo) %>%
         bind_rows(.id = colnames(.))
-    res <- unique(c(resAll$label, resAll$obo_id))
+    
+    if (returns == "label") {
+        res <- unique(c(resAll$label))
+    } else if (returns == "obo_id") {
+        res <- unique(c(resAll$obo_id))
+    } else if (all(returns %in% c("label", "obo_id"))) {
+        res <- unique(c(resAll$label, resAll$obo_id))
+    }
+    
     return(res)
 }
 
@@ -132,10 +144,8 @@ tree_filter <- function(.data, col, query, delim = NULL) {
     delim <- .getDelimiter(.data, feat_name, delim) 
       
     ## Search OLS
-    resAll <- lapply(query, getOntoInfo) %>%
-        bind_rows(.id = colnames(.))
-    res_ids <- unique(resAll$obo_id)
-    
+    targets <- c(query, .getAllTargetForms(query, "obo_id"))
+
     ## Load ancestors for the appropriate database
     dir <- system.file("extdata", package = "OmicsMLRepoR")
     fname <- paste0(targetDB, "_ancestors.csv")
@@ -146,12 +156,12 @@ tree_filter <- function(.data, col, query, delim = NULL) {
     names(unlistedAncestors) <- allAncestors$ontology_term_id
     
     ## Retrieve ids to filter by
-    related_terms <- .findDistantRelatives(unlistedAncestors, res_ids)
-    terms_to_find <- unique(c(related_terms, res_ids))
+    related_terms <- .findDistantRelatives(unlistedAncestors, targets)
+    terms_to_find <- unique(c(related_terms, targets))
     
     ## Filter data
     .data %>%
         rowwise() %>%
-        filter(any(unlist(strsplit(!!sym(id_col), split = delim)) %in% 
+        filter(any(unlist(strsplit(!!sym(id_col), split = delim)) %in%
                        terms_to_find))
 }
