@@ -142,9 +142,12 @@ tree_filter <- function(.data, col, query, delim = NULL) {
     ## Get delimiter
     targetDB <- .getTargetDB(.data)
     delim <- .getDelimiter(.data, feat_name, delim) 
+    ontoDBs <- .getOntos(.data, feat_name)
       
     ## Search OLS
-    targets <- c(query, .getAllTargetForms(query, "obo_id"))
+    resAll <- lapply(query, function(x) getOntoInfo(query, ontoDBs)) %>%
+        bind_rows(.id = colnames(.))
+    res_ids <- unique(resAll$obo_id)
 
     ## Load ancestors for the appropriate database
     dir <- system.file("extdata", package = "OmicsMLRepoR")

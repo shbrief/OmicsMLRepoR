@@ -130,6 +130,30 @@ merge_vectors <- function(base, update, sep = ":", delim = ";") {
     return(delim)
 }
 
+# Get ontology database(s)
+# @importFrom utils read.csv
+# @importFrom readr str_split
+
+.getOntos <- function(meta, targetCols) {
+    
+    targetDB <- .getTargetDB(meta)
+    
+    ## Extract the delimiter
+    ## Load data dictionary
+    dir <- system.file("extdata", package = "OmicsMLRepoR")
+    fname <- paste0(targetDB, "_data_dictionary.csv")
+    dd <- read.csv(file.path(dir, fname), header = TRUE)
+    
+    ## Get the delimiter(s)
+    colInd <- which(dd$col.name %in% targetCols)
+    ontos <- dd$ontoDB[colInd] %>% unique %>% .[!is.na(.)]
+    split_ontos <- unlist(str_split(ontos, "\\|"))
+    
+    if (is.null(split_ontos)) {stop("The targetCols do not have listed ontology databases.")}
+    
+    return(split_ontos)
+}
+
 ## Convert "NA" to `NA`
 .charToLogicNA <- function(tb) {
     timeVar <- sapply(tb, lubridate::is.POSIXct)
