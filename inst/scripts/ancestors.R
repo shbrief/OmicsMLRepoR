@@ -1,6 +1,61 @@
 ## Create a collection of all the ancestors of ontology terms used in the
 ## curated/harmonized metadata
 
+# Retrieves all ancestors for supplied terms
+# 
+# @import rols
+# 
+# @param onto A character vector. Name(s) of ontologies that terms are from.
+# @param terms A character vector of ontology term IDs.
+# 
+# @return A named list. Names of elements are original nodes (`terms`). 
+# Each element is a character vectors containing the ancestors of the 
+# element name (i.e., original terms provided).
+# 
+# @examples
+# terms <- c("NCIT:C25301", "NCIT:C29844", "NCIT:C29846", "NCIT:C29848")
+# getNodes(onto = "NCIT", terms = terms)
+# 
+getNodes <- function(onto, terms) {
+    # Load ontology
+    ontob <- Ontology(onto)
+    
+    # Get unique terms
+    terms <- unique(terms)
+    
+    # Initialize list to store retrieve nodes
+    all_nodes <- list()
+    
+    # Loop through supplied terms
+    for (i in 1:length(terms)) {
+        print(paste0("Getting possible nodes for ", terms[i]))
+        
+        tryCatch({
+            # Get term information and ancestors from ontology
+            cur_trm <- Term(ontob, terms[i])
+            ancs <- ancestors(cur_trm)
+            
+            # Filter out ancestors labeled as ontology root
+            not_root <- Filter(function(x) attr(x, "is_root") == FALSE, ancs@x)
+            
+            # Save ancestors
+            node_names <- names(not_root)
+            node_names <- list(node_names[node_names != "NULL"])
+            
+        }, error = function(e) {
+            print(e)
+            print("Original term assigned as node, proceeding to next term")
+            node_names <<- terms[i]
+        })
+        
+        # Save ancestors under original term
+        all_nodes <- c(all_nodes, node_names)
+        names(all_nodes)[i] <- terms[i]
+    }
+    
+    return(all_nodes)
+}
+
 
 #' Retrieve and save ancestors of a given ontology term
 #'

@@ -7,7 +7,7 @@
 getOntoInfo(query, ontology = "", exact = FALSE, rows = 20)
 }
 \arguments{
-\item{query}{A character vector containing the search query, either a term
+\item{query}{A character (1) containing the search query, either a term
 label or term id.}
 
 \item{ontology}{A character vector defining the ontology to be queried. 

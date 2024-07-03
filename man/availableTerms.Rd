@@ -2,24 +2,27 @@
 % Please edit documentation in R/availableTerms.R
 \name{availableTerms}
 \alias{availableTerms}
-\title{Extract the terms used under a given attributes/column}
+\title{Extract all the terms used in a quired attribute/column}
 \usage{
-availableTerms(attributes, db = "cMD")
+availableTerms(attribute, db = "cMD")
 }
 \arguments{
-\item{attributes}{A character (1). Name of the attribute/column you want to 
+\item{attribute}{A character (1). Name of the attribute/column you want to 
 extract the terms used under.}
 
 \item{db}{A character(1). Currently, `cMD` (curatedMetagenomicData) is only
 supported.}
 }
 \value{
-A named list. Name of the list is the attribute/column name
+A data frame with two columns - existing values under the quried
+attribute (`allowedvalues` column) and their ontology term id (`ontology`
+column).
 }
 \description{
-Extract the terms used under a given attributes/column
+Extract all the terms used in a quired attribute/column
 }
 \examples{
 availableTerms("age_group")
+availableTerms("disease")
 
 }

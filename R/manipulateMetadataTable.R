@@ -14,15 +14,15 @@
 #' @param targetCols Optional. A character vector of column names to expand if 
 #' present. Default is the name of all cBioPortal treatment-related columns.
 #' @param delim Optional. A character (1) of a delimiter used to separate 
-#' multiple values in the metadata table. Default is `<;>`.
+#' multiple values in the metadata table. 
 #' 
 #' @return A data frame of metadata expanded so that each individual treatment 
 #' has its own row.
 #' 
 #' @examples
 #' dir <- system.file("extdata", package = "OmicsMLRepoR")
-#' meta <- read.csv(file.path(dir, "mini_cbio.csv"), header = TRUE)
-#' lmeta <- getLongMetaTb(meta)
+#' meta <- read.csv(file.path(dir, "mini_cmd.csv"), header = TRUE)
+#' lmeta <- getLongMetaTb(meta, "hla")
 #' dim(meta) 
 #' dim(lmeta) 
 #' 
@@ -37,26 +37,38 @@
 #' @export
 getLongMetaTb <- function(meta, 
                           targetCols = NULL, 
-                          delim = "<;>") {
+                          delim = NULL) {
     
     ## Character vector of treatment-related columns 
-    ## Current but not complete <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    # ## Current but not complete <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    # if (is.null(targetCols)) {
+    #     dir <- system.file("extdata", package = "OmicsMLRepoR")
+    #     targetCols <- readLines(file.path(dir, "treatment_columns.txt"))
+    # }
     if (is.null(targetCols)) {
-        dir <- system.file("extdata", package = "OmicsMLRepoR")
-        targetCols <- readLines(file.path(dir, "treatment_columns.txt"))
+        stop("Please provide the valid `targetCols`.")
     }
     
     ## Validate input
-    stopifnot(is.data.frame(meta),
-              is.character(targetCols),
-              is.character(delim))
+    if (!is.data.frame(meta)) {stop("`meta` input should be a data frame.")}
+    if (!is.character(targetCols)) {
+        stop("`targetCols` input is missing.")
+    } else if (!any(targetCols %in% colnames(meta))) {
+        stop("`targetCols` should be the column name of the `meta` table.")
+    } 
+    
+    ## Extract the delimiter
+    delim <- .getDelimiter(meta, targetCols, delim)
   
     ## Expand data frame
     res <- tidyr::separate_longer_delim(data = meta,
                                         cols = any_of(targetCols),
                                         delim = delim)
-    res[res == "NA"] <- NA
-    return(res)
+    
+    ## Convert "NA" to `NA`
+    res_all <- .charToLogicNA(res)
+    
+    return(res_all)
 }
 
 
@@ -76,10 +88,10 @@ getLongMetaTb <- function(meta,
 #' 
 #' @examples
 #' dir <- system.file("extdata", package = "OmicsMLRepoR")
-#' meta <- read.csv(file.path(dir, "mini_cbio.csv"), header = TRUE)
-#' lmeta <- getLongMetaTb(meta)
-#' res <- getShortMetaTb(lmeta)
-#' dim(res) # 200 x 158 table
+#' meta <- read.csv(file.path(dir, "mini_cmd.csv"), header = TRUE)
+#' lmeta <- getLongMetaTb(meta, "hla")
+#' res <- getShortMetaTb(lmeta, targetCols = "hla")
+#' dim(res) # 200 x 3 table
 #' 
 #' long_tb <- data.frame(ind = c("A", "A", "B", "C", "D", "D", "E"),
 #'                       aval = c("cat", "dog", "chicken", "horse", 
@@ -259,7 +271,7 @@ getNarrowMetaTb <- function(meta,
 #' the provided `delim`.
 #' @param sep A character (1). Delimiter used to concatenate column name 
 #' and its value. Default is double colons, `:`.
-#' @param delim A character(1). Separator used between values. Default `;`.
+#' @param delim A character(1). Separator used between values. Default `<;>`.
 #' @param remove If `TRUE`, remove input columns from output data frame.
 #'
 #' @return A data frame where the contents under `targetCol` is split into
@@ -291,7 +303,7 @@ getNarrowMetaTb <- function(meta,
 getWideMetaTb <- function(meta, 
                           targetCol = NULL, 
                           sep = ":",
-                          delim = ";",
+                          delim = "<;>",
                           remove = TRUE) {
     
     if (is.null(targetCol)) {
@@ -341,7 +353,9 @@ getWideMetaTb <- function(meta,
         res[newColName] <- gsub(paste0(newColName, sep), 
                                 "", res[[newColName]], fixed = TRUE)
     } 
-    res[res == "NA"] <- NA
     
-    return(res)
+    ## Convert "NA" to `NA`
+    res_all <- .charToLogicNA(res)
+    
+    return(res_all)
 }
