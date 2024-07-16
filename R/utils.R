@@ -132,7 +132,6 @@ merge_vectors <- function(base, update, sep = ":", delim = ";") {
 
 # Get ontology database(s)
 # @importFrom utils read.csv
-# @importFrom readr str_split
 
 .getOntos <- function(meta, targetCols) {
     
@@ -147,7 +146,7 @@ merge_vectors <- function(base, update, sep = ":", delim = ";") {
     ## Get the delimiter(s)
     colInd <- which(dd$col.name %in% targetCols)
     ontos <- dd$ontoDB[colInd] %>% unique %>% .[!is.na(.)]
-    split_ontos <- unlist(str_split(ontos, "\\|"))
+    split_ontos <- unlist(strsplit(ontos, "\\|"))
     
     if (is.null(split_ontos)) {stop("The targetCols do not have listed ontology databases.")}
     
