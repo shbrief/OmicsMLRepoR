@@ -108,8 +108,8 @@ abbreviations.
 
 ### Not case-sensitive
 ```{r}
-nrow(cmd |> tree_filter(disease, c("healthy", "colorectal carcinoma")))
-nrow(cmd |> tree_filter(disease, c("Healthy", "Colorectal Carcinoma")))
+nrow(cmd |> tree_filter(disease, "colorectal carcinoma"))
+nrow(cmd |> tree_filter(disease, "Colorectal Carcinoma"))
 ```
 
 ### Include synonyms
@@ -122,9 +122,26 @@ nrow(syn_res1)
 nrow(syn_res2)
 nrow(syn_res3)
 
-unique(syn_res1$disease)
-unique(syn_res2$disease)
-unique(syn_res3$disease)
+# ## Check that the returned results are identical
+# unique(syn_res1$disease)
+# unique(syn_res2$disease)
+# unique(syn_res3$disease)
+```
+
+Searching the same information in the original, unharmonized metadata is much
+less robust:
+```{r}
+## Information spread out in two different columns
+nrow(sampleMetadata |> filter(study_condition == "CRC"))
+nrow(sampleMetadata |> filter(disease == "CRC"))
+
+## Case sensitive
+nrow(sampleMetadata |> filter(study_condition == "CRC"))
+nrow(sampleMetadata |> filter(study_condition == "crc"))
+
+## Synonyms not covered
+nrow(sampleMetadata |> filter(study_condition == "Colorectal Carcinoma"))
+nrow(sampleMetadata |> filter(study_condition == "Colorectal Cancer"))
 ```
 
 ### Search descendants in ontology tree
