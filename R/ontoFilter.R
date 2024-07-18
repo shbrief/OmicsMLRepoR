@@ -6,15 +6,18 @@
 # 
 # @param query A character vector of terms or term ids. For example, 
 # `c("NCIT:C35025", "HP:0003003", "colon cancer")`.
+# @param ontology A character vector defining the ontology to be queried. 
+# Default is the empty character, to search all ontologies.
 # @param returns A character vector of returned value's format. Available
 # options are `c("label", "obo_id)` (default).
 # 
-# 
 # @return A character vector of all the related terms' label and obo_id.
 # 
-.getAllTargetForms <- function(query, returns = c("label", "obo_id")) {
+.getAllTargetForms <- function(query, 
+                               ontology = "",
+                               returns = c("label", "obo_id")) {
     
-    resAll <- lapply(query, getOntoInfo) %>%
+    resAll <- lapply(query, getOntoInfo, ontology) %>%
         bind_rows(.id = colnames(.))
     
     if (returns == "label") {
@@ -113,6 +116,8 @@ onto_filter <- function(.data, col, query, delim = NULL) {
 #' @param col A character (1). Column name to filter by.
 #' @param query A character vector containing words or ids to be used in the
 #' ontology search
+#' @param logic A character (1). Operator used to determine filtering method.
+#' Values allowed: "AND", "OR", "NOT". Defaults to "OR"
 #' @param delim A character (1) used to separate multiple values. If your
 #' `.data` input is obtained from \code{getMetadata} function, this input is
 #' automatically configured.
@@ -122,10 +127,10 @@ onto_filter <- function(.data, col, query, delim = NULL) {
 #' 
 #' @examples
 #' meta <- getMetadata("cMD")
-#' tree_filter(meta, disease, c("pancreatic disease", "cancer"))
+#' tree_filter(meta, disease, c("pancreatic disease", "cancer"), "OR")
 #' 
 #' @export
-tree_filter <- function(.data, col, query, delim = NULL) {
+tree_filter <- function(.data, col, query, logic = "OR", delim = NULL) {
     
     ## Check that curated feature is present
     feat_name <- as_name(enquo(col))
@@ -139,16 +144,22 @@ tree_filter <- function(.data, col, query, delim = NULL) {
         stop(msg)
     }
     
+    ## Check that logic operator is valid
+    if (!logic %in% c("AND", "OR", "NOT")) {
+        msg <- paste0("\"", logic, "\" is not a valid value of \"logic\". Please enter \"AND\", \"OR\", or \"NOT\"")
+        stop(msg)
+    }
+    
     ## Get delimiter
     targetDB <- .getTargetDB(.data)
     delim <- .getDelimiter(.data, feat_name, delim) 
     ontoDBs <- .getOntos(.data, feat_name)
-      
+    
     ## Search OLS
-    resAll <- lapply(query, function(x) getOntoInfo(query, ontoDBs)) %>%
-        bind_rows(.id = colnames(.))
-    res_ids <- unique(resAll$obo_id)
-
+    targets <- lapply(query, function(x) unique(.getAllTargetForms(x,
+                                                                   ontoDBs,
+                                                                   "obo_id")))
+    
     ## Load ancestors for the appropriate database
     dir <- system.file("extdata", package = "OmicsMLRepoR")
     fname <- paste0(targetDB, "_ancestors.csv")
@@ -159,12 +170,29 @@ tree_filter <- function(.data, col, query, delim = NULL) {
     names(unlistedAncestors) <- allAncestors$ontology_term_id
     
     ## Retrieve ids to filter by
-    related_terms <- .findDistantRelatives(unlistedAncestors, targets)
-    terms_to_find <- unique(c(related_terms, targets))
+    related_terms <- lapply(targets, function(x)
+        .findDistantRelatives(unlistedAncestors, x))
+    terms_to_find <- mapply(function(a, b) unique(c(a, b)),
+                            related_terms,
+                            targets,
+                            SIMPLIFY = FALSE)
     
     ## Filter data
-    .data %>%
-        rowwise() %>%
-        filter(any(unlist(strsplit(!!sym(id_col), split = delim)) %in%
-                       terms_to_find))
+    filter_results <- list()
+    for (i in 1:length(terms_to_find)) {
+        filter_results[[i]] <- .data %>%
+            rowwise() %>%
+            filter(any(unlist(strsplit(!!sym(id_col), split = delim)) %in%
+                           terms_to_find[[i]]))
+    }
+    
+    ## Combine filtered data based on logic
+    if (logic == "AND") {
+        results <- Reduce(intersect, filter_results)
+    } else if (logic == "NOT") {
+        results <- setdiff(.data, unique(bind_rows(filter_results)))
+    } else  if (logic == "OR") {
+        results <- unique(bind_rows(filter_results))
+    }
+    return(results)
 }
