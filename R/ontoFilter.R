@@ -6,15 +6,18 @@
 # 
 # @param query A character vector of terms or term ids. For example, 
 # `c("NCIT:C35025", "HP:0003003", "colon cancer")`.
+# @param ontology A character vector defining the ontology to be queried. 
+# Default is the empty character, to search all ontologies.
 # @param returns A character vector of returned value's format. Available
 # options are `c("label", "obo_id)` (default).
 # 
-# 
 # @return A character vector of all the related terms' label and obo_id.
 # 
-.getAllTargetForms <- function(query, returns = c("label", "obo_id")) {
+.getAllTargetForms <- function(query, 
+                               ontology = "",
+                               returns = c("label", "obo_id")) {
     
-    resAll <- lapply(query, getOntoInfo) %>%
+    resAll <- lapply(query, getOntoInfo, ontology) %>%
         bind_rows(.id = colnames(.))
     
     if (returns == "label") {
@@ -144,10 +147,13 @@ tree_filter <- function(.data, col, query, delim = NULL) {
     delim <- .getDelimiter(.data, feat_name, delim) 
     ontoDBs <- .getOntos(.data, feat_name)
       
+    # ## Search OLS
+    # resAll <- lapply(query, function(x) getOntoInfo(x, ontoDBs)) %>%
+    #     bind_rows(.id = colnames(.))
+    # targets <- unique(resAll$obo_id)
+    
     ## Search OLS
-    resAll <- lapply(query, function(x) getOntoInfo(query, ontoDBs)) %>%
-        bind_rows(.id = colnames(.))
-    res_ids <- unique(resAll$obo_id)
+    targets <- unique(.getAllTargetForms(query, ontoDBs, "obo_id"))
 
     ## Load ancestors for the appropriate database
     dir <- system.file("extdata", package = "OmicsMLRepoR")
