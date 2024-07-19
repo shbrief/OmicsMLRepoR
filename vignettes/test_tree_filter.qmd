@@ -1,0 +1,121 @@
+---
+title: "`tree_filter` example for presentation"
+format: html
+editor: visual
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(comment = "#>", 
+                      collapse = TRUE, 
+                      message = FALSE, 
+                      warning = FALSE)
+```
+
+```{r}
+suppressPackageStartupMessages({
+    library(OmicsMLRepoR)
+    library(dplyr)
+    library(curatedMetagenomicData)
+})
+```
+
+```{r}
+cmd <- getMetadata("cMD")
+```
+
+```{r}
+nrow(sampleMetadata |> filter(disease %in% c("healthy"))) # 14,566 samples
+nrow(sampleMetadata |> filter(disease %in% c("CRC"))) # 625 samples
+nrow(sampleMetadata |> filter(disease %in% c("healthy", "CRC"))) # 15,191 samples
+```
+
+### Example version 1
+```{r cMD_example}
+## Not detecting all the available samples
+nrow(sampleMetadata |> filter(disease %in% c("Healthy", "CRC")))
+nrow(sampleMetadata |> filter(disease %in% c("Healthy", "crc")))
+nrow(sampleMetadata |> filter(disease %in% c("Healthy", "Colorectal Carcinoma")))
+nrow(sampleMetadata |> filter(disease %in% c("Healthy", "Colorectal Cancer")))
+```
+
+```{r onto_example}
+nrow(cmd |> tree_filter(disease, c("Healthy", "CRC")))
+nrow(cmd |> tree_filter(disease, c("Healthy", "crc")))
+nrow(cmd |> tree_filter(disease, c("Healthy", "Colorectal Carcinoma")))
+nrow(cmd |> tree_filter(disease, c("Healthy", "Colorectal Cancer")))
+```
+
+### Example version 2
+```{r cMD_example2}
+nrow(sampleMetadata |> filter(study_condition == "CRC"))
+nrow(sampleMetadata |> filter(disease == "CRC"))
+nrow(sampleMetadata |> filter(study_condition == "crc"))
+nrow(sampleMetadata |> filter(study_condition == "Colorectal Carcinoma"))
+nrow(sampleMetadata |> filter(study_condition == "Colorectal Cancer"))
+nrow(sampleMetadata |> filter(study_condition == "Intestinal Disorder"))
+```
+
+```{r onto_example2}
+nrow(cmd |> tree_filter(disease, "CRC"))
+nrow(cmd |> tree_filter(disease, "crc"))
+nrow(cmd |> tree_filter(disease, "Colorectal Carcinoma"))
+nrow(cmd |> tree_filter(disease, "Colorectal Cancer"))
+```
+
+```{r}
+curated_all <- readr::read_csv("~/OmicsMLRepo/OmicsMLRepoData/inst/extdata/cMD_curated_metadata_all.csv")
+```
+
+```{r}
+ind <- grep("CRC", curated_all$original_disease)
+sub <- curated_all |> 
+    select(curated_disease, curated_disease_source, original_disease) %>%
+    .[ind,]
+```
+
+
+```{r}
+nrow(cmd |> tree_filter(disease, "CRC")) # 791 samples
+nrow(cmd |> tree_filter(disease, "Healthy")) # 14,566 samples
+# nrow(cmd |> tree_filter(disease %in% c("CRC"))) 
+# nrow(cmd |> tree_filter(disease %in% c("healthy", "CRC"))) 
+
+nrow(cmd |> tree_filter(disease, c("Periodontitis")))
+nrow(cmd |> tree_filter(disease, c("Healthy")))
+nrow(cmd |> tree_filter(disease, c("Healthy", "Periodontitis")))
+nrow(cmd |> tree_filter(disease, c("Healthy;Periodontitis")))
+```
+
+```{r}
+res1 <- cmd |> tree_filter(disease, c("Healthy", "Periodontitis"))
+res2 <- cmd |> tree_filter(disease, c("Healthy;Periodontitis"))
+res3 <- cmd |> tree_filter(disease, c("Healthy|Periodontitis"))
+res4 <- cmd |> tree_filter(disease, c("Healthy&Periodontitis"))
+res5 <- cmd |> tree_filter(disease, "Healthy") |> tree_filter(disease, "Periodontitis")
+
+nrow(res1) # 14,634 --> correct?!
+nrow(res2) # 14,634 --> should be 23
+nrow(res3) # 14,634 --> correct?!
+nrow(res4) # 14,566 --> should be 23
+nrow(res5) # 23
+
+setdiff(res1$disease, res2$disease)
+setdiff(res1$disease, res4$disease)
+
+# How can we filter OUT `Healthy`?
+length(grep("Healthy", cmd$disease, ignore.case = TRUE)) # 14,566
+length(grep("Periodontitis", cmd$disease, ignore.case = TRUE)) # 91
+length(grep("Healthy;Periodontitis", cmd$disease, ignore.case = TRUE)) # 23
+length(grep("Healthy|Periodontitis", cmd$disease, ignore.case = TRUE)) # 14,634
+length(grep("^Healthy$", cmd$disease, ignore.case = TRUE)) # 14,445
+length(grep("^Periodontitis$", cmd$disease, ignore.case = TRUE)) # 24
+
+dp1 <- cmd %>% filter(disease %in% c("Healthy", "Periodontitis"))
+dp2 <- cmd %>% filter(disease == "Healthy")
+dp3 <- cmd %>% filter(disease != "Healthy")
+dp4 <- cmd %>% filter(disease == "Periodontitis")
+nrow(dp1) # 14,469
+nrow(dp2) # 14,445
+nrow(dp3) # 8,182
+nrow(dp4) # 24
+```
