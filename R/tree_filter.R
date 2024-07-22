@@ -127,7 +127,7 @@ onto_filter <- function(.data, col, query, delim = NULL) {
 #' 
 #' @examples
 #' meta <- getMetadata("cMD")
-#' tree_filter(meta, disease, c("pancreatic disease", "cancer"), "OR")
+#' tree_filter(meta, disease, c("pancreatic disease", "cancer"))
 #' 
 #' @export
 tree_filter <- function(.data, col, query, logic = "OR", delim = NULL) {
