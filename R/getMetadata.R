@@ -42,7 +42,7 @@ s2p_cached_url <- function(url,
 #' there are two available options.
 #' \itemize{
 #'     \item \code{cMD} : metadata for curatedMetagenomicData
-#'     \item \code{cBioPortalData} : metadata for cBioPortalData
+#'     \item \code{cBioPortal} : metadata for cBioPortalData
 #' }
 #' @param load Default is \code{TRUE}. If it's set to \code{FALSE}, the 
 #' metadata table is downloaded to cache but not loaded into memory.

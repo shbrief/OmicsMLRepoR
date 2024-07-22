@@ -11,7 +11,7 @@ getMetadata(database = NULL, load = TRUE)
 there are two available options.
 \itemize{
     \item \code{cMD} : metadata for curatedMetagenomicData
-    \item \code{cBioPortalData} : metadata for cBioPortalData
+    \item \code{cBioPortal} : metadata for cBioPortalData
 }}
 
 \item{load}{Default is \code{TRUE}. If it's set to \code{FALSE}, the 
