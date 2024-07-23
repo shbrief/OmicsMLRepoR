@@ -121,12 +121,11 @@ merge_vectors <- function(base, update, sep = ":", delim = ";") {
         
         ## Get the delimiter(s)
         colInd <- which(dd$col.name %in% targetCols)
-        delim <- dd$delimiter[colInd] %>% unique %>% .[!is.na(.)]
+        delim <- dd$delimiter[colInd] %>% unique
     }
     
-    if (is.na(delim)) {stop("The targetCols do not have multiple values.")}
     if (!length(delim)) {stop("The targetCols using different delimiter. Process one at a time.")}
-    
+
     return(delim)
 }
 
