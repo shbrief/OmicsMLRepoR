@@ -57,10 +57,13 @@ getMetadata <- function(database = NULL,
                         load = TRUE) {
     
     if (is.null(database)) {stop("Provide the database name.")}
-    bucket_name <- "omics_ml_repo"
+    # bucket_name <- "omics_ml_repo"
+    # request_meta <- paste0(database, "_curated_metadata_release.csv")
+    # fpath <- file.path("https://storage.googleapis.com",
+    #                    bucket_name, request_meta)
+    zenodo_url <- "https://zenodo.org/records/12811885/files"
     request_meta <- paste0(database, "_curated_metadata_release.csv")
-    fpath <- file.path("https://storage.googleapis.com",
-                       bucket_name, request_meta)
+    fpath <- file.path(zenodo_url, request_meta)
 
     fpath <- s2p_cached_url(fpath)
     if (isTRUE(load)) {
