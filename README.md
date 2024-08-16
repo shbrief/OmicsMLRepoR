@@ -8,15 +8,9 @@ part of [cBioPortalData][]'s metadata are processed under this project.
 [cBioPortalData]: https://www.bioconductor.org/packages/release/bioc/html/cBioPortalData.html
 
 ### Harmonized metadata
-The harmonized metadata are featured with,   
-1. _**Compression**_: original attributes with same or relevant information are 
-merged into a new curated attribute   
-2. _**Consolidation**_: different forms of the same concept is replaced to one
-controlled term   
-3. _**Completeness**_: improved the completeness of the attribute from 
-compression   
-4. _**Correction rate**_: incorporate ontology, fix wrong or conflicting 
-information, remove arbitrary abbreviations
+The harmonized metadata are featured with the following standards:
+
+<img src="https://raw.githubusercontent.com/shbrief/OmicsMLRepoR/master/vignettes/4C_Diagram.png" width="60%" height="60%"/>
 
 ### Rubust data searching
 *OmicsMLRepoR* is the R package to facilitate the easy access and search of 
