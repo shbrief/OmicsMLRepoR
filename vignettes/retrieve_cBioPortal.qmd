@@ -4,87 +4,111 @@ author:
   - Kaelyn Long
 ---
 
-```{r libraries, echo = FALSE}
+```{r setup, echo = FALSE}
 suppressPackageStartupMessages({
-    library(cBioPortalData)
+    library(dplyr)
 })
 ```
 
 Retrieving specific samples from the cBioPortal API is very simple. First, we
-set up the API and view the studies included.
+load our curated metadata and set up the API.
 
-```{r}
+```{r libraries}
+if (!require("devtools"))
+    install.packages("devtools")
+devtools::install_github("shbrief/OmicsMLRepoR")
+
+suppressPackageStartupMessages({
+    library(OmicsMLRepoR)
+    library(cBioPortalData)
+})
+```
+
+```{r load}
+# Get curated metadata
+cbio <- getMetadata("cBioPortal")
+
 # Set up cBioPortal API
-cbio <- cBioPortal()
-studies <- getStudies(cbio, buildReport = TRUE)
-head(studies)
+cbio_api <- cBioPortal()
 ```
 
 We can then retrieve our list of desired samples using any method. Here, we will
-browse the types of samples available within the study "acc_tcga" and choose a
-random subset of 5 samples with protein ("rppa") data
-(sampleListId = "acc_tcga_rppa").
+select 5 samples each from 5 studies by randomly selecting from the curated
+metadata.
 
-```{r}
-# View sample lists
-sampleLists(cbio, studyId = "acc_tcga")
+```{r random_samples}
+# Select random sample that includes samples from 5 different studies
+studies <- sample(unique(cbio$studyId), 5)
+small_data <- cbio %>%
+    filter(studyId %in% studies)
+samples <- small_data %>%
+    group_by(studyId) %>%
+    sample_n(5)
 ```
 
-```{r}
-# View samples in selected list
-samps <- samplesInSampleLists(cbio, "acc_tcga_rppa")[[1]]
-samps
-```
+Once we have our study and sample IDs, we can simply provide those to the
+`cBioPortalData` function. In order to retrieve samples from multiple studies,
+simply run `cBioPortalData` once for each study represented in the sample list.
 
-```{r}
-# Select random subset of samples
-sampset <- sample(samps, 5)
-```
+```{r retrieve_data}
+# Study 1
+study_a <- studies[1]
+study_a_samples <- samples %>%
+    filter(studyId == study_a) %>%
+    pull(sampleId)
 
-Once we have our list of sample IDs, we can simply provide that to the
-`cBioPortalData` function in the `sampleIds` argument.
+study_a_data <- cBioPortalData(api = cbio_api,
+                               by = "hugoGeneSymbol",
+                               studyId = study_a,
+                               sampleIds = study_a_samples,
+                               genePanelId = "IMPACT341"
+                               )
+# Study 2
+study_b <- studies[2]
+study_b_samples <- samples %>%
+    filter(studyId == study_b) %>%
+    pull(sampleId)
 
-```{r}
-# Retrieve samples from cBioPortal API
-rppa <- cBioPortalData(api = cbio,
-                       by = "hugoGeneSymbol",
-                       studyId = "acc_tcga",
-                       sampleIds = sampset,
-                       genePanelId = "IMPACT341"
-)
-```
+study_b_data <- cBioPortalData(api = cbio_api,
+                               by = "hugoGeneSymbol",
+                               studyId = study_b,
+                               sampleIds = study_b_samples,
+                               genePanelId = "IMPACT341"
+                               )
+# Study 3
+study_c <- studies[3]
+study_c_samples <- samples %>%
+    filter(studyId == study_c) %>%
+    pull(sampleId)
 
-In order to retrieve samples from multiple studies, simply run `cBioPortalData` once for
-each study represented in the sample list. Below we see the retrieval of 5 random samples
-each from the "acc_tcga" and "acc_tcga_gdc" studies.
+study_c_data <- cBioPortalData(api = cbio_api,
+                               by = "hugoGeneSymbol",
+                               studyId = study_c,
+                               sampleIds = study_c_samples,
+                               genePanelId = "IMPACT341"
+                               )
+# Study 4
+study_d <- studies[4]
+study_d_samples <- samples %>%
+    filter(studyId == study_d) %>%
+    pull(sampleId)
 
-```{r}
-# Samples from multiple studies
-# acc_tcga
-a <- c("TCGA-OR-A5K4-01",
-       "TCGA-OR-A5KX-01",
-       "TCGA-OR-A5JJ-01",
-       "TCGA-OR-A5JQ-01",
-       "TCGA-OR-A5L5-01")
+study_d_data <- cBioPortalData(api = cbio_api,
+                               by = "hugoGeneSymbol",
+                               studyId = study_d,
+                               sampleIds = study_d_samples,
+                               genePanelId = "IMPACT341"
+                               )
+# Study 5
+study_e <- studies[5]
+study_e_samples <- samples %>%
+    filter(studyId == study_e) %>%
+    pull(sampleId)
 
-acc_tcga_samples <- cBioPortalData(api = cbio,
-                                   by = "hugoGeneSymbol",
-                                   studyId = "acc_tcga",
-                                   sampleIds = a,
-                                   genePanelId = "IMPACT341"
-                                   )
-
-# acc_tcga_gdc
-b <- c("TCGA-OR-A5JC-01",
-       "TCGA-P6-A5OH-01",
-       "TCGA-OR-A5K6-01",
-       "TCGA-OR-A5LS-01",
-       "TCGA-OR-A5JS-01")
-
-acc_tcga_gdc_samples <- cBioPortalData(api = cbio,
-                                       by = "hugoGeneSymbol",
-                                       studyId = "acc_tcga",
-                                       sampleIds = a,
-                                       genePanelId = "IMPACT341"
-                                       )
+study_e_data <- cBioPortalData(api = cbio_api,
+                               by = "hugoGeneSymbol",
+                               studyId = study_e,
+                               sampleIds = study_e_samples,
+                               genePanelId = "IMPACT341"
+                               )
 ```
