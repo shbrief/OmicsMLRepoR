@@ -1,6 +1,7 @@
 #' Extract all the terms used in a quired attribute/column
 #'
 #' @importFrom rlang is_empty
+#' @importFrom utils read.csv
 #' 
 #' @param attribute A character (1). Name of the attribute/column you want to 
 #' extract the terms used under. 
@@ -21,7 +22,7 @@ availableTerms <- function(attribute, db = "cMD") {
     ## Curated cMD metadata data dictionary
     dir <- system.file("extdata", package = "OmicsMLRepoR")
     fname <- paste0(db, "_data_dictionary.csv") 
-    dd <- read.csv(file.path(dir, fname), header = TRUE)
+    dd <- utils::read.csv(file.path(dir, fname), header = TRUE)
 
     ## Separate the attribute to check
     ind <- which(dd$col.name == attribute)
