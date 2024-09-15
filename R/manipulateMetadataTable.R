@@ -148,11 +148,12 @@ getShortMetaTb <- function(meta,
         ungroup() %>%
         select(all_of(col_order))
     
-    ## Convert character `NA` as logical
-    cmeta[cmeta == "NA"] <- NA
-    
     ## Return as data frame
     res <- tibble::as_tibble(cmeta)
+    
+    ## Convert "NA" to `NA`
+    res_all <- .charToLogicNA(res)
+    
     return(res)
 }
 
@@ -254,6 +255,9 @@ getNarrowMetaTb <- function(meta,
         
     ## Return as a tibble
     res <- tibble::as_tibble(united)
+    
+    ## Convert "NA" to `NA`
+    res_all <- .charToLogicNA(res)
     return(res)
 }
 
