@@ -1,7 +1,7 @@
 Package: OmicsMLRepoR
 Type: Package
 Title: Search harmonized metadata created under the OmicsMLRepo project
-Version: 0.4.9
+Version: 0.99.0
 Date: 2024-9-15
 Authors@R: 
     c(person(given = "Sehyun",
