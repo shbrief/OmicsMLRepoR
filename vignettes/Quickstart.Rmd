@@ -57,6 +57,7 @@ suppressPackageStartupMessages({
     library(OmicsMLRepoR)
     library(dplyr)
     library(curatedMetagenomicData)
+    library(cBioPortalData)
 })
 ```
 
@@ -185,8 +186,65 @@ cmd_biomarker <- cmd %>%
     filter(!is.na(biomarker)) %>% 
     select(curation_id, biomarker)
 wtb <- getWideMetaTb(cmd_biomarker, "biomarker")
+head(wtb)
 ```
 
 ```{r}
 ltb <- getLongMetaTb(cmd, targetCols = "target_condition")
+dim(cmd)
+dim(ltb)
 ```
+
+
+# Download omics data
+## curatedMetagenomicData
+
+```{r debug_needed, echo=FALSE}
+cmd_sub <- tree_filter(cmd, target_condition, "Alzheimer's disease")
+```
+
+```{r}
+cmd_dat <- cmd %>%
+    tree_filter(col = "disease", "Type 2 Diabetes Mellitus") %>%
+    filter(sex == "Female") %>%
+    filter(age_group == "Elderly") %>%
+    returnSamples("relative_abundance", rownames = "short")
+```
+
+## cBioPortalData
+```{r}
+cbio_sub <- cbio %>%
+    getLongMetaTb("treatment_name", "<;>") %>%
+    filter(treatment_name == "Fluorouracil") %>%
+    filter(age_at_diagnosis > 50) %>%
+    filter(sex == "Female") %>%
+    getShortMetaTb(idCols = "curation_id", targetCols = "treatment_name")
+
+dim(cbio_sub)
+studies <- unique(cbio_sub$studyId)
+studies
+```
+
+A simple `for` loop can collect samples from multiple studies.
+```{r}
+cbio_api <- cBioPortal()
+resAll <- as.list(vector(length = length(studies)))
+
+for (i in seq_along(studies)) {
+    study <- studies[1]
+    samples <- cbio_sub %>%
+        filter(studyId == study) %>%
+        pull(sampleId)
+
+    res <- cBioPortalData(
+        api = cbio_api,
+        by = "hugoGeneSymbol",
+        studyId = study,
+        sampleIds = samples,
+        genePanelId = "IMPACT341"
+    )
+    
+    resAll[[i]] <- res
+}
+```
+
