@@ -12,11 +12,15 @@ get_ontologies(terms, delim = ":")
 \item{delim}{A character. Delimiter between ontology and its id.
 Default is `:`.}
 }
+\value{
+A character vector containing the ontology names of the input 
+`terms`. The length of this is same as the `terms` input.
+}
 \description{
 Extract ontology from the ontology term ids
 }
 \examples{
-terms <- c("HP:0001824", "MONDO:0010200", "NCIT:C122328")
+terms <- c("HP:0001824", "MONDO:0010200", "NCIT:C122328", "4471000175100")
 get_ontologies(terms = terms)
 
 }
