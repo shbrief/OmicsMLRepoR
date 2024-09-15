@@ -112,3 +112,20 @@ study_e_data <- cBioPortalData(api = cbio_api,
                                genePanelId = "IMPACT341"
                                )
 ```
+
+A simple `for` loop will also work to collect samples from multiple studies.
+
+```{r loop_retrieve}
+sample_list <- split(samples$sampleId, samples$studyId)
+
+results_list <- list()
+for (study in names(sample_list)) {
+    study_samples <- sample_list[[study]]
+    results <- cBioPortalData(api = cbio_api,
+                              by = "hugoGeneSymbol",
+                              studyId = study,
+                              sampleIds = study_samples,
+                              genePanelId = "IMPACT341")
+    results_list[[study]] <- results
+}
+```
