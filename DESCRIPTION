@@ -1,8 +1,8 @@
 Package: OmicsMLRepoR
 Type: Package
 Title: Search harmonized metadata created under the OmicsMLRepo project
-Version: 0.4.7
-Date: 2024-7-22
+Version: 0.4.9
+Date: 2024-9-15
 Authors@R: 
     c(person(given = "Sehyun",
              family = "Oh",
@@ -37,7 +37,8 @@ Suggests:
     knitr,
     BiocStyle,
     curatedMetagenomicData,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    cBioPortalData
 License: Artistic-2.0
 biocViews: 
   Software,
