@@ -179,7 +179,7 @@ tree_filter <- function(.data, col, query, logic = "OR", delim = NULL) {
     
     ## Filter data
     filter_results <- list()
-    for (i in 1:length(terms_to_find)) {
+    for (i in seq_along(terms_to_find)) {
         filter_results[[i]] <- .data %>%
             rowwise() %>%
             filter(any(unlist(strsplit(!!sym(id_col), split = delim)) %in%

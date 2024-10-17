@@ -7,6 +7,14 @@ part of [cBioPortalData][]'s metadata are processed under this project.
 [curatedMetagenomicData]: https://www.bioconductor.org/packages/release/data/experiment/html/curatedMetagenomicData.html
 [cBioPortalData]: https://www.bioconductor.org/packages/release/bioc/html/cBioPortalData.html
 
+### Installation
+```
+if (!require("BiocManager"))
+    install.packages("BiocManager")
+
+BiocManager::install("OmicsMLRepoR")
+```
+
 ### Harmonized metadata
 The harmonized metadata are featured with the following standards:
 

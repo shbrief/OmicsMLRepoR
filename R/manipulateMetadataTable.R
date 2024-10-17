@@ -126,7 +126,7 @@ getShortMetaTb <- function(meta,
               is.character(delim))
     
     ## Print message to user
-    cat("Compressing data frame: this may take a few minutes\n")
+    message("Compressing data frame: this may take a few minutes\n")
     
     ## Get original column order
     col_order <- colnames(meta)
@@ -327,7 +327,7 @@ getWideMetaTb <- function(meta,
         lapply(function(x) {x[c(TRUE, FALSE)]}) 
     
     ## The number of elements in each row
-    embeddedColNums <- sapply(embeddedColNames, length) 
+    embeddedColNums <- vapply(embeddedColNames, length, integer(1)) 
     
     ## Alphabetical ordering of all the unique columns
     newColNames <- unique(unlist(embeddedColNames)) %>% na.omit %>% sort 
@@ -335,8 +335,9 @@ getWideMetaTb <- function(meta,
         paste0(collapse = delim)
     
     ## Rows need to be filled with NAs
-    rowToFillInd <- which(sapply(embeddedColNames, 
-                                 function(x) any(!newColNames %in% x)))
+    rowToFillInd <- which(vapply(embeddedColNames, 
+                                 function(x) any(!newColNames %in% x),
+                                 FUN.VALUE = logical(1)))
     
     ## Add NA-placeholder for non-existing columns 
     for (ind in rowToFillInd) {

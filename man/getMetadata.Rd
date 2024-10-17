@@ -2,7 +2,7 @@
 % Please edit documentation in R/getMetadata.R
 \name{getMetadata}
 \alias{getMetadata}
-\title{Download a curated metadata table}
+\title{Download a harmonized metadata table}
 \usage{
 getMetadata(database = NULL, load = TRUE)
 }
@@ -21,7 +21,7 @@ metadata table is downloaded to cache but not loaded into memory.}
 Curated metadata table or file cache location, if `load = FALSE`.
 }
 \description{
-Download a curated metadata table
+Download a harmonized metadata table
 }
 \examples{
 cmd <- getMetadata("cMD")

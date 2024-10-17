@@ -4,13 +4,13 @@
 \alias{ontoTreePlot}
 \title{Plot ontology tree}
 \usage{
-ontoTreePlot(term, display = "Term")
+ontoTreePlot(term, display = c("Term", "Text"))
 }
 \arguments{
 \item{term}{A character (1). Ontology term id (obo_id)}
 
 \item{display}{A character (1) specifying a node labeling option. Two 
-available options are `Term` (default) for ontology term or IRI 
+available options are `Term` for ontology term or IRI 
 (Internationalized Resource Identifier) and `Text` for the label or 
 preferred name.}
 }
@@ -22,6 +22,6 @@ ancestors of the queried term, so the queried term is the tip.
 Plot ontology tree
 }
 \examples{
-ontoTreePlot("NCIT:C2852")
+ontoTreePlot("NCIT:C2852", "Term")
 
 }

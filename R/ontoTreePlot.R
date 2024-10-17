@@ -9,7 +9,7 @@
 #' 
 #' @param term A character (1). Ontology term id (obo_id)
 #' @param display A character (1) specifying a node labeling option. Two 
-#' available options are `Term` (default) for ontology term or IRI 
+#' available options are `Term` for ontology term or IRI 
 #' (Internationalized Resource Identifier) and `Text` for the label or 
 #' preferred name.
 #' 
@@ -17,10 +17,11 @@
 #' ancestors of the queried term, so the queried term is the tip.
 #' 
 #' @examples 
-#' ontoTreePlot("NCIT:C2852")
+#' ontoTreePlot("NCIT:C2852", "Term")
 #' 
 #' @export
-ontoTreePlot <- function(term, display = "Term") {
+ontoTreePlot <- function(term, display = c("Term", "Text")) {
+    display <- match.arg(display)
     
     sample_id <- term
     sample_db <- get_ontologies(term)
@@ -46,17 +47,10 @@ ontoTreePlot <- function(term, display = "Term") {
         filter(from != "#")
     
     ## display options
-    if (display == "Term") {
-        edgelist <- edgelist_base %>%
-            mutate(from = plyr::mapvalues(from, map$id, map$term, warn_missing = FALSE)) %>%
-            mutate(to = plyr::mapvalues(to, map$id, map$term, warn_missing = FALSE))
-    } else if (display == "Text") {
-        edgelist <- edgelist_base %>%
-            mutate(from = plyr::mapvalues(from, map$id, map$text, warn_missing = FALSE)) %>%
-            mutate(to = plyr::mapvalues(to, map$id, map$text, warn_missing = FALSE))
-    } else {
-        stop("Provide the valid input for `display`.")
-    }
+    foo <- base::switch(display, Term = map$term, Text = map$text)
+    edgelist <- edgelist_base %>%
+        mutate(from = plyr::mapvalues(from, map$id, foo, warn_missing = FALSE)) %>%
+        mutate(to = plyr::mapvalues(to, map$id, foo, warn_missing = FALSE))
     
     ## plot tree with data.tree package; other packages will also work with the edgelist
     tree <- data.tree::FromDataFrameNetwork(edgelist)

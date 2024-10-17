@@ -79,10 +79,12 @@ merge_vectors <- function(base, update, sep = ":", delim = ";") {
     update_pairs <- strsplit(strsplit(update, delim)[[1]], sep)
     
     ## Create a dictionary from base pairs
-    base_dict <- setNames(sapply(base_pairs, 
-                                 function(x) ifelse(length(x) == 2, x[2], NA)), 
-                          sapply(base_pairs, 
-                                 function(x) ifelse(length(x) == 2, x[1], NA)))
+    base_dict <- setNames(vapply(base_pairs, 
+                                 function(x) ifelse(length(x) == 2, x[2], NA),
+                                 character(1)), 
+                          vapply(base_pairs, 
+                                 function(x) ifelse(length(x) == 2, x[1], NA),
+                                 character(1)))
     
     ## Update the base dictionary with values from update pairs
     for (pair in update_pairs) {

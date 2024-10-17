@@ -24,7 +24,7 @@ s2p_cached_url <- function(url,
     ## If needs update, do the download
     if (bfcneedsupdate(bfc, rid)) {
         bfcdownload(bfc, rid, ask = ask_on_update)
-        print("Updating")
+        message("Updating")
     }
     
     res <- bfcrpath(bfc, rids = rid)
@@ -34,7 +34,7 @@ s2p_cached_url <- function(url,
 
 
 
-#' Download a curated metadata table
+#' Download a harmonized metadata table
 #' 
 #' @importFrom readr read_csv
 #'

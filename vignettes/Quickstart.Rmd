@@ -31,9 +31,10 @@ is metadata harmonization (e.g., remove redundant information) and
 standardization (i.e., incorporate ontology).
 
 Currently, we released the harmonized version of metadata for two Bioconductor 
-data packages - [curatedMetagenomicData][] containing human microbiome data and 
-[cBioPortalData][] package on cancer genomics data. OmicsMLRepoR is a software 
-package allowing users to easily access the harmonized metadata and to leverage
+data packages - `r BiocStyle::Biocpkg("curatedMetagenomicData")`containing 
+human microbiome data and `r BiocStyle::Biocpkg("cBioPortalData")` package 
+on cancer genomics data. OmicsMLRepoR is a software package allowing users 
+to easily access the harmonized metadata and to leverage
 ontology in metadata search.
 
 OmicsMLRepoR package provides the three major functions:\
@@ -41,15 +42,13 @@ OmicsMLRepoR package provides the three major functions:\
 2. Browse the harmonized metadata using ontology\
 3. Manipulate the 'shape' of the harmonized metadata
 
-[curatedMetagenomicData]: https://www.bioconductor.org/packages/release/data/experiment/html/curatedMetagenomicData.html
-[cBioPortalData]: https://www.bioconductor.org/packages/release/bioc/html/cBioPortalData.html
 
 ## Load package
 
-```{r eval=FALSE}
-if (!require("devtools"))
-    install.packages("devtools")
-devtools::install_github("shbrief/OmicsMLRepoR")
+```{r}
+if (!require("BiocManager"))
+    install.packages("BiocManager")
+BiocManager::install("OmicsMLRepoR")
 ```
 
 ```{r}
@@ -91,7 +90,7 @@ colnames(cmd)[grep("_ontology_term_id", colnames(cmd))] %>%
 
 ## Robust search using ontology
 Compared to the typical searching in the original metadata from the 
-`curatedMetagenomicData`, OmicsMLRepoR enables more robust dadta browsing, 
+`curatedMetagenomicData`, OmicsMLRepoR enables more robust data browsing, 
 including case-insensitive, synonyms and descendant searching capabilities.
 
 Searching the same information in the original, unharmonized metadata is
@@ -131,7 +130,7 @@ nrow(syn_res3)
 ```
 
 Check that the returned results are identical.
-```{r eval=FALSE}
+```{r}
 unique(syn_res1$disease)
 unique(syn_res2$disease)
 unique(syn_res3$disease)
@@ -231,7 +230,7 @@ cbio_api <- cBioPortal()
 resAll <- as.list(vector(length = length(studies)))
 
 for (i in seq_along(studies)) {
-    study <- studies[1]
+    study <- studies[i]
     samples <- cbio_sub %>%
         filter(studyId == study) %>%
         pull(sampleId)
@@ -247,4 +246,12 @@ for (i in seq_along(studies)) {
     resAll[[i]] <- res
 }
 ```
+
+
+# Session Info
+<details>
+```{r}
+sessionInfo()
+```
+</details>
 
