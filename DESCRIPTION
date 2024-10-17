@@ -1,8 +1,8 @@
 Package: OmicsMLRepoR
 Type: Package
 Title: Search harmonized metadata created under the OmicsMLRepo project
-Version: 0.99.0
-Date: 2024-9-15
+Version: 0.99.1
+Date: 2024-10-17
 Authors@R: 
     c(person(given = "Sehyun",
              family = "Oh",
@@ -13,9 +13,9 @@ Authors@R:
              family = "Long",
              email = "krlong586@gmail.com",
              role = "aut"))
-Description: This package provides functions to browse and query the harmonized metadata for large omics databases. This package also supports data navigation if the metadata incorporates ontology. 
+Description: This package provides functions to browse the harmonized metadata for large omics databases. This package also supports data navigation if the metadata incorporates ontology. 
 Depends: 
-    R (>= 4.2.0)
+    R (>= 4.4.0)
 Imports: 
     dplyr, 
     stringr, 
@@ -42,7 +42,6 @@ Suggests:
 License: Artistic-2.0
 biocViews: Software, Infrastructure, DataRepresentation
 Encoding: UTF-8
-LazyData: true
 RoxygenNote: 7.3.2
 VignetteBuilder: knitr
 URL: https://github.com/shbrief/OmicsMLRepoR
