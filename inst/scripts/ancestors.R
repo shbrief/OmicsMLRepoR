@@ -27,7 +27,7 @@ getNodes <- function(onto, terms) {
     all_nodes <- list()
     
     # Loop through supplied terms
-    for (i in 1:length(terms)) {
+    for (i in seq_along(terms)) {
         print(paste0("Getting possible nodes for ", terms[i]))
         
         tryCatch({
