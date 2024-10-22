@@ -86,8 +86,9 @@ Compared to the typical searching in the original metadata from the
 `curatedMetagenomicData`, OmicsMLRepoR enables more robust data browsing, 
 including case-insensitive, synonyms and descendant searching capabilities.
 
-Searching the same information in the original, unharmonized metadata is
-much less robust:
+Searching the same information in the original, unharmonized metadata
+(`sampleMetadata`) from the `curatedMetagenomicData` package is much less 
+robust:
 
 ```{r}
 ## Information spread out in two different columns
