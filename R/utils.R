@@ -48,30 +48,31 @@ get_ontologies <- function(terms, delim = ":") {
 }
 
 
-# Custom function to merge vectors 
-# 
-# This function is designed for a group of, collapsible metadata attributes
-# (e.g., 'biomarker' for curatedMetagenomicData).
-# 
-# @importFrom stats setNames
-# 
-# @param base A character. A space-holder version of the key:value 
-# concatenates (e.g., `column1:NA;column2:NA;column3:NA`)
-# @param update A character. The target string to be compared and filled with 
-# `base` if there is missing pairs. (e.g., `column1:value1;column3:value3`) 
-# @param sep A character string to separate the column name and value. 
-# Default is `:`
-# @param delim A character string to separate the column:value pairs. 
-# Default is `;`
-# 
-# @return A character updated the target string (`update`) to follow the
-# reference string (`base`).
-# 
-# @examples
-# x <- "color:NA;shape:NA;size:NA"
-# y <- "color:green;size:large"
-# merge_vectors(x, y)
-# 
+#' Custom function to merge vectors 
+#' 
+#' This function is designed for a group of, collapsible metadata attributes
+#' (e.g., 'biomarker' for curatedMetagenomicData).
+#' 
+#' @importFrom stats setNames
+#' 
+#' @param base A character. A space-holder version of the key:value 
+#' concatenates (e.g., `column1:NA;column2:NA;column3:NA`)
+#' @param update A character. The target string to be compared and filled with 
+#' `base` if there is missing pairs. (e.g., `column1:value1;column3:value3`) 
+#' @param sep A character string to separate the column name and value. 
+#' Default is `:`
+#' @param delim A character string to separate the column:value pairs. 
+#' Default is `;`
+#' 
+#' @return A character updated the target string (`update`) to follow the
+#' reference string (`base`).
+#' 
+#' @examples
+#' x <- "color:NA;shape:NA;size:NA"
+#' y <- "color:green;size:large"
+#' merge_vectors(x, y)
+#' 
+#' @export
 merge_vectors <- function(base, update, sep = ":", delim = ";") {
     
     ## Split the vectors into key-value pairs
