@@ -44,13 +44,6 @@ OmicsMLRepoR package provides the three major functions:\
 
 
 ## Load package
-
-```{r}
-if (!require("BiocManager"))
-    install.packages("BiocManager")
-BiocManager::install("OmicsMLRepoR")
-```
-
 ```{r}
 suppressPackageStartupMessages({
     library(OmicsMLRepoR)
