@@ -20,10 +20,9 @@
 #' has its own row.
 #' 
 #' @examples
-#' dir <- system.file("extdata", package = "OmicsMLRepoR")
-#' meta <- read.csv(file.path(dir, "mini_cmd.csv"), header = TRUE)
-#' lmeta <- getLongMetaTb(meta, "hla")
-#' dim(meta) 
+#' data(mini_cmd)
+#' lmeta <- getLongMetaTb(mini_cmd, "hla")
+#' dim(mini_cmd) 
 #' dim(lmeta) 
 #' 
 #' short_tb <- data.frame(
@@ -87,9 +86,8 @@ getLongMetaTb <- function(meta,
 #' @return A data frame where each sample gets a single row
 #' 
 #' @examples
-#' dir <- system.file("extdata", package = "OmicsMLRepoR")
-#' meta <- read.csv(file.path(dir, "mini_cmd.csv"), header = TRUE)
-#' lmeta <- getLongMetaTb(meta, "hla")
+#' data(mini_cmd)
+#' lmeta <- getLongMetaTb(mini_cmd, "hla")
 #' res <- getShortMetaTb(lmeta, targetCols = "hla")
 #' dim(res) # 200 x 3 table
 #' 

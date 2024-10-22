@@ -1,6 +1,5 @@
 ##### getLongMetaTb and getShortMetaTb -----------
-dir <- system.file("extdata", package = "OmicsMLRepoR")
-meta <- read.csv(file.path(dir, "mini_cmd.csv"), header = TRUE)
+data(mini_cmd)
 
 short_tb <- data.frame(
     ind = c("A", "B", "C", "D", "E"),
@@ -14,12 +13,12 @@ long_tb <- data.frame(
     cval = c(1, 1, NA, 3, 4, 4, 5),
     bval = c("red", "blue", "yellow", NA, "green", NA, "brown"))
 
-lmeta <- getLongMetaTb(meta, "hla")
+lmeta <- getLongMetaTb(mini_cmd, "hla")
 smeta <- getShortMetaTb(lmeta, targetCols = "hla")
                               
 
 test_that("Test getLongMetaTb function", {
-    expect_equal(dim(meta), c(200,3))
+    expect_equal(dim(mini_cmd), c(200,3))
     expect_equal(dim(lmeta), c(539,3))
     ltb <- getLongMetaTb(short_tb, c("aval", "bval"), delim = ";")
     expect_equal(dim(ltb), c(7, 4))

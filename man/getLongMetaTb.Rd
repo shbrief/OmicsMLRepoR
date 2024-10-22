@@ -29,10 +29,9 @@ belongs to the same column/attribute/field, i.e., no additional column
 name is required/provided.
 }
 \examples{
-dir <- system.file("extdata", package = "OmicsMLRepoR")
-meta <- read.csv(file.path(dir, "mini_cmd.csv"), header = TRUE)
-lmeta <- getLongMetaTb(meta, "hla")
-dim(meta) 
+data(mini_cmd)
+lmeta <- getLongMetaTb(mini_cmd, "hla")
+dim(mini_cmd) 
 dim(lmeta) 
 
 short_tb <- data.frame(
