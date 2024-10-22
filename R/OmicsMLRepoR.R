@@ -15,6 +15,5 @@
 #' For more detailed information, see the vignette:
 #' \code{vignette("Quickstart", package = "OmicsMLRepoR")}
 #'
-#' @docType _PACKAGE
 #' @name OmicsMLRepoR
 NULL
