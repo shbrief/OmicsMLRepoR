@@ -17,3 +17,18 @@
 #' 'hla', and 'package')
 #' @author Sehyun Oh \email{shbrief@gmail.com}
 "mini_cmd"
+
+
+#' @name mini_cmd2
+#' @title A subset of cMD metadata
+#' @description A subset of curated version of `sampleMetadata` from the 
+#' curatedMetagenomicData (cMD, ver.3.8.0) package.
+#' @keywords data
+#' @format A data frame with 200 samples and 7 columns ('curation_id', 
+#' 'target_condition', 'target_condition_ontology_term_id',
+#' 'pmid', 'disease', 'disease_ontology_term_id', 'package'). 
+#' The two key exemplary attributes ('target_condition' and 'disease') 
+#' selected here contain multiple values. 
+#' @author Sehyun Oh \email{shbrief@gmail.com}
+"mini_cmd2"
+
