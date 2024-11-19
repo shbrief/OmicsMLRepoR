@@ -1,6 +1,5 @@
 ## Subset of cMD metadata for test
 library(dplyr)
-library(OmicsMLRepoR)
 
 extDir <- "~/OmicsMLRepo/OmicsMLRepoData/inst/extdata"
 cmd <- read.csv(file.path(extDir, "cMD_curated_metadata_release.csv"))
