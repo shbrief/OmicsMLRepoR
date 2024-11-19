@@ -2,10 +2,10 @@
 library(dplyr)
 
 extDir <- "~/OmicsMLRepo/OmicsMLRepoData/inst/extdata"
-cbio <- read.csv(file.path(extDir, "cBioPortal_curated_metadata_release.csv"))
+cbio <- read.csv(file.path(extDir, "cBioPortal_curated_metadata_release_v2.csv"))
 
 other_cols <- c("curation_id", "acronym", "acronym_ontology_term_id", "sex","package")
-trt_cols <- grep("^treatment_", colnames(mini_cbio), value = TRUE)
+trt_cols <- grep("^treatment_", colnames(cbio), value = TRUE)
 non_na_rows <- which(!is.na(cbio$treatment_name))
 
 mini_cbio <- cbio[non_na_rows[1:10], c(other_cols, trt_cols)]
