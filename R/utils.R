@@ -112,7 +112,7 @@ merge_vectors <- function(base, update, sep = ":", delim = ";") {
 # Get delimiter
 # @importFrom utils read.csv
 
-.getDelimiter <- function(meta, targetCol, delim) {
+.getDelimiter <- function(meta, targetCol, delim = NULL) {
     
     targetDB <- .getTargetDB(meta)
     
@@ -126,8 +126,8 @@ merge_vectors <- function(base, update, sep = ":", delim = ";") {
         dd <- read.csv(file.path(dir, fname), header = TRUE)
         
         ## Get the delimiter(s)
-        colInd <- which(dd$col.name %in% targetCol)
-        delim <- dd$delimiter[colInd] %>% unique
+        colInd <- which(dd$ColName %in% targetCol)
+        delim <- dd$Delimiter[colInd] %>% unique
     }
     
     if (!length(delim)) {stop("The targetCol using different delimiter. Process one at a time.")}
@@ -148,9 +148,9 @@ merge_vectors <- function(base, update, sep = ":", delim = ";") {
     fname <- paste0(targetDB, "_data_dictionary.csv")
     dd <- read.csv(file.path(dir, fname), header = TRUE)
     
-    ## Get the separater(s)
-    colInd <- which(dd$col.name %in% targetCol)
-    seperater <- dd$separater[colInd] %>% unique
+    ## Get the separater
+    colInd <- which(dd$ColName %in% targetCol)
+    seperater <- dd$Separater[colInd] %>% unique
     
     if (length(seperater) > 1) {
         stop("The targetCol using different separater. Process one at a time.")
@@ -173,8 +173,8 @@ merge_vectors <- function(base, update, sep = ":", delim = ";") {
     dd <- read.csv(file.path(dir, fname), header = TRUE)
     
     ## Get the delimiter(s)
-    colInd <- which(dd$col.name %in% targetCol)
-    ontos <- dd$ontoDB[colInd] %>% unique %>% .[!is.na(.)]
+    colInd <- which(dd$ColName %in% targetCol)
+    ontos <- dd$OntoDB[colInd] %>% unique %>% .[!is.na(.)]
     split_ontos <- unlist(strsplit(ontos, "\\|"))
     
     if (is.null(split_ontos)) {stop("The targetCol do not have listed ontology databases.")}
