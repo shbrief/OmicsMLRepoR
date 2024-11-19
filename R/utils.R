@@ -112,7 +112,7 @@ merge_vectors <- function(base, update, sep = ":", delim = ";") {
 # Get delimiter
 # @importFrom utils read.csv
 
-.getDelimiter <- function(meta, targetCols, delim) {
+.getDelimiter <- function(meta, targetCol, delim) {
     
     targetDB <- .getTargetDB(meta)
     
@@ -126,19 +126,43 @@ merge_vectors <- function(base, update, sep = ":", delim = ";") {
         dd <- read.csv(file.path(dir, fname), header = TRUE)
         
         ## Get the delimiter(s)
-        colInd <- which(dd$col.name %in% targetCols)
+        colInd <- which(dd$col.name %in% targetCol)
         delim <- dd$delimiter[colInd] %>% unique
     }
     
-    if (!length(delim)) {stop("The targetCols using different delimiter. Process one at a time.")}
+    if (!length(delim)) {stop("The targetCol using different delimiter. Process one at a time.")}
 
     return(delim)
+}
+
+
+# Get separater
+# @importFrom utils read.csv
+
+.getSeparater <- function(meta, targetCol) {
+    
+    targetDB <- .getTargetDB(meta)
+    
+    ## Load data dictionary
+    dir <- system.file("extdata", package = "OmicsMLRepoR")
+    fname <- paste0(targetDB, "_data_dictionary.csv")
+    dd <- read.csv(file.path(dir, fname), header = TRUE)
+    
+    ## Get the separater(s)
+    colInd <- which(dd$col.name %in% targetCol)
+    seperater <- dd$separater[colInd] %>% unique
+    
+    if (length(seperater) > 1) {
+        stop("The targetCol using different separater. Process one at a time.")
+    }
+    
+    return(seperater)
 }
 
 # Get ontology database(s)
 # @importFrom utils read.csv
 
-.getOntos <- function(meta, targetCols) {
+.getOntos <- function(meta, targetCol) {
     
     targetDB <- .getTargetDB(meta)
     
@@ -149,11 +173,11 @@ merge_vectors <- function(base, update, sep = ":", delim = ";") {
     dd <- read.csv(file.path(dir, fname), header = TRUE)
     
     ## Get the delimiter(s)
-    colInd <- which(dd$col.name %in% targetCols)
+    colInd <- which(dd$col.name %in% targetCol)
     ontos <- dd$ontoDB[colInd] %>% unique %>% .[!is.na(.)]
     split_ontos <- unlist(strsplit(ontos, "\\|"))
     
-    if (is.null(split_ontos)) {stop("The targetCols do not have listed ontology databases.")}
+    if (is.null(split_ontos)) {stop("The targetCol do not have listed ontology databases.")}
     
     return(split_ontos)
 }
@@ -173,3 +197,17 @@ merge_vectors <- function(base, update, sep = ":", delim = ";") {
     }
     return(res)
 }
+
+## Include associated attributes
+.getAssociatedAttr <- function(dat, attrName) {
+    attrName_onto <- c(attrName, paste0(attrName, "_ontology_term_id"))
+    res_onto <- intersect(attrName_onto, colnames(dat))
+    
+    attrName_unit <- c(attrName, paste0(attrName, "_unit"))
+    res_unit <- intersect(attrName_unit, colnames(dat))
+    
+    resAll <- c(res_onto, res_unit) %>% unique
+    return(resAll)
+}
+
+
