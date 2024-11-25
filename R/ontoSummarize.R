@@ -2,6 +2,7 @@
 #' under
 #' 
 #' @import rols
+#' @import stringr
 #'
 #' @param parent Character; Term to use as parent of summarized children
 #' @param descendants Character vector; Terms to summarize as children of parent
