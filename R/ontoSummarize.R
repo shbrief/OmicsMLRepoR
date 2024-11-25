@@ -6,9 +6,9 @@
 #' @param parent Character; Term to use as parent of summarized children
 #' @param descendants Character vector; Terms to summarize as children of parent
 #' @param ontology Character; Ontology database ID
-#' @return A named list of character vectors containing the descendants
-#' summarized into groups. Name of each element is the child of the parent that
-#' the descendants are grouped under.
+#' @return A dataframe containing the descendants summarized into groups. Name
+#' of each group is the child of the parent that the descendants are grouped
+#' under. Both IDs and labels of the ontology terms are provided.
 #' 
 #' @examples
 #' ontology <- "ncit"
@@ -40,5 +40,20 @@ ontoSummarize <- function(parent, descendants, ontology) {
     dgroups[lengths(dgroups) == 0] <- paste0("Not a descendant of ", parent)
     
     finalgroups <- split(names(dgroups), unname(unlist(dgroups)))
-    return(finalgroups)
+    collapse_groups <- unlist(unname(lapply(finalgroups, function(x)
+        paste(x, collapse = ";"))))
+    
+    ids_to_convert <- unique(c(names(finalgroups), unlist(unname(finalgroups))))
+    extract_ids <- str_match(ids_to_convert, "NCIT:.*$")
+    termnames <- unlist(lapply(extract_ids, function(x) termLabel(Term(ontob, x))))
+    names(termnames) <- extract_ids
+    group_names <- str_replace_all(names(finalgroups), termnames)
+    original_names <- str_replace_all(collapse_groups, termnames)
+    
+    finalframe <- data.frame(group_ids = names(finalgroups),
+                             group_names = group_names,
+                             original_ids = collapse_groups,
+                             original_names = original_names)
+    
+    return(finalframe)
 }
