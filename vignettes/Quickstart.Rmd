@@ -218,8 +218,8 @@ studies <- unique(cbio_sub$studyId)
 studies
 ```
 
-A simple `for` loop can collect samples from multiple studies.
-```{r}
+A simple `for` loop can collect samples from multiple studies. For example,
+```{r echo=FALSE, eval=FALSE}
 cbio_api <- cBioPortal()
 resAll <- as.list(vector(length = length(studies)))
 
