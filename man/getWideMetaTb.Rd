@@ -52,7 +52,7 @@ getWideMetaTb(narrow_tb2, targetCol = "feature", sep = ":", delim = ";")
 
 ## Subset of cMD metadata
 data(mini_cmd3)
-wtb <- getWideMetaTb(mini_cmd3, targetCol = c("probing_pocket_depth"))
+wtb <- getWideMetaTb(mini_cmd3, targetCol = "probing_pocket_depth")
 head(wtb)
 
 }

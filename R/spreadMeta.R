@@ -183,7 +183,7 @@ getWideMetaTb <- function(meta,
 #' 
 #' data(mini_cbio)
 #' trt_cols <- grep("^treatment_", colnames(mini_cbio), value = TRUE)
-#' spreadMeta (mini_cbio, targetCol = trt_cols)
+#' spreadMeta(mini_cbio, targetCol = trt_cols)
 #' 
 #' @export
 spreadMeta <- function(meta, targetCol) {
@@ -206,6 +206,7 @@ spreadMeta <- function(meta, targetCol) {
     sep <- .getSeparater(meta, targetCol)
     
     if (is.na(sep)) { # multi-valued attribute
+        ## [Todo] Can have two layers of multi-values (e.g., "NA<;>NA<;>Bile Duct;Resection<;>Anastomosis")
         targetCol <- .getAssociatedAttr(meta, targetCol) # Include associated attributes (e.g., `_ontology_term_id` or `_unit`) if exist
         res <- getLongMetaTb(meta, targetCol, delim = delim)
     } else { # composite attribute

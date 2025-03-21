@@ -7,7 +7,8 @@
 spreadMeta(meta, targetCol)
 }
 \arguments{
-\item{meta}{A data frame.}
+\item{meta}{A data frame. Harmonized metadata available through the
+OmicsMLRepoR package. It should have the `package` column.}
 
 \item{targetCol}{A character (1). The column name to expand if present.}
 }
@@ -21,4 +22,15 @@ This function speads gout multiple values per attribute (‘multi-valued’
 attribute) or multiple features under a single generic attribute 
 (‘composite’ attribute). Multi-valued attribute will return 'long' table, 
 while composite attribute will return 'wide' table.
+}
+\examples{
+data(mini_cmd2) # multi-valued attribute
+data(mini_cmd3) # composite attribute
+spreadMeta(mini_cmd2, "target_condition")
+spreadMeta(mini_cmd3, "probing_pocket_depth")
+
+data(mini_cbio)
+trt_cols <- grep("^treatment_", colnames(mini_cbio), value = TRUE)
+spreadMeta (mini_cbio, targetCol = trt_cols)
+
 }
