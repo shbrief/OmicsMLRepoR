@@ -1,3 +1,5 @@
+library(rols)
+
 test_that("ontoTreePlot function works correctly", {
 
     test_term <- "NCIT:C2852"
