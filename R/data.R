@@ -46,3 +46,14 @@
 #' 'probing_pocket_depth' are composite attributes.
 #' @author Sehyun Oh \email{shbrief@gmail.com}
 "mini_cmd3"
+
+#' @name mini_cbio
+#' @title A subset of cBioPortalData metadata
+#' @description A subset of curated version of cBioPortal's clinical metadata.
+#' @keywords data
+#' @format A data frame with 10 samples and 9 columns ('curation_id',
+#' 'acronym', 'acronym_ontology_term_id', 'sex', 'package', 'treatment_name',
+#' 'treatment_name_ontology_term_id', 'treatment_type', 
+#' 'treatment_type_ontology_term_id')
+#' @author Sehyun Oh \email{shbrief@gmail.com}
+"mini_cbio"
