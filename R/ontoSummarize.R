@@ -18,6 +18,7 @@
 #'                  "NCIT:C43672", "NCIT:C2991", "NCIT:C43860")
 #' ontoSummarize(parent, descendants, ontology)
 #' 
+#' @export
 ontoSummarize <- function(parent, descendants, ontology) {
     # Initialize ontology
     ontob <- Ontology(ontology)
