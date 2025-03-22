@@ -174,7 +174,7 @@ merge_vectors <- function(base, update, sep = ":", delim = ";") {
     
     ## Get the delimiter(s)
     colInd <- which(dd$ColName %in% targetCol)
-    ontos <- dd$OntoDB[colInd] %>% unique %>% .[!is.na(.)]
+    ontos <- dd$OntologyDB[colInd] %>% unique %>% .[!is.na(.)]
     split_ontos <- unlist(strsplit(ontos, "\\|"))
     
     if (is.null(split_ontos)) {stop("The targetCol do not have listed ontology databases.")}
