@@ -14,7 +14,7 @@ long_tb <- data.frame(
     bval = c("red", "blue", "yellow", NA, "green", NA, "brown"))
 
 lmeta <- getLongMetaTb(mini_cmd, "hla")
-smeta <- getShortMetaTb(lmeta, targetCols = "hla")
+smeta <- getShortMetaTb(lmeta, targetCol = "hla")
                               
 
 test_that("Test getLongMetaTb function", {
@@ -28,7 +28,7 @@ test_that("Test getShortMetaTb function", {
     expect_equal(dim(smeta), c(200,3))
     stb <- getShortMetaTb(long_tb, 
                           idCols = "ind", 
-                          targetCols = c("aval", "bval"))
+                          targetCol = c("aval", "bval"))
     expect_equal(dim(stb), c(5, 4))
 })
 
@@ -42,7 +42,7 @@ wide_tb <- data.frame(
     size = c("medium", "medium", NA, "large", "small"))
 
 ntb <- getNarrowMetaTb(wide_tb, newCol = "feature", 
-                       targetCols = c("color", "shape", "size"), 
+                       targetCol = c("color", "shape", "size"), 
                        sep = ":", delim = ";")
 
 test_that("Test getNarrowMetaTb function", {

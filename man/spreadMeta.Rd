@@ -31,6 +31,6 @@ spreadMeta(mini_cmd3, "probing_pocket_depth")
 
 data(mini_cbio)
 trt_cols <- grep("^treatment_", colnames(mini_cbio), value = TRUE)
-spreadMeta (mini_cbio, targetCol = trt_cols)
+spreadMeta(mini_cbio, targetCol = trt_cols)
 
 }

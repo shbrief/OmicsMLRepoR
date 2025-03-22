@@ -183,7 +183,7 @@ head(wtb)
 ```
 
 ```{r}
-ltb <- getLongMetaTb(cmd, targetCols = "target_condition")
+ltb <- getLongMetaTb(cmd, targetCol = "target_condition")
 dim(cmd)
 dim(ltb)
 ```
@@ -211,7 +211,7 @@ cbio_sub <- cbio %>%
     filter(treatment_name == "Fluorouracil") %>%
     filter(age_at_diagnosis > 50) %>%
     filter(sex == "Female") %>%
-    getShortMetaTb(idCols = "curation_id", targetCols = "treatment_name")
+    getShortMetaTb(idCols = "curation_id", targetCol = "treatment_name")
 
 dim(cbio_sub)
 studies <- unique(cbio_sub$studyId)
