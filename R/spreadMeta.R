@@ -115,17 +115,72 @@ getWideMetaTb <- function(meta,
                           delim = "<;>",
                           remove = TRUE) {
     
-    embeddedColNames <- meta[[targetCol]] %>%
-        strsplit(split = paste0(sep, "|", delim)) %>%
-        lapply(function(x) {x[c(TRUE, FALSE)]}) 
+    ## Get columns and values from targetCol
+    embeddedCols <- meta[[targetCol]] %>%
+        strsplit(split = delim) 
+    
+    embeddedColNames <- embeddedCols %>%
+        lapply(function(x) {strsplit(x, split = sep)}) %>%
+        lapply(function(x) {unlist(lapply(x, function(y) {y[1]}))})
+    
+    embeddedColValues <- embeddedCols %>%
+        lapply(function(x) {strsplit(x, split = sep)}) %>%
+        lapply(function(x) {unlist(lapply(x, function(y) {y[2]}))})
     
     ## The number of elements in each row
-    embeddedColNums <- vapply(embeddedColNames, length, integer(1)) 
+    embeddedColNums <- vapply(embeddedCols, length, integer(1)) 
     
     ## Alphabetical ordering of all the unique columns
     newColNames <- unique(unlist(embeddedColNames)) %>% na.omit %>% sort 
     base <- paste0(newColNames, sep, "NA") %>%
         paste0(collapse = delim)
+    
+    ## Rows to be filled with TRUE
+    rowToFillTrue <- which(vapply(embeddedCols,
+                                  function(x) {if (!anyNA(x)) {
+                                      any(!grepl(sep, x))
+                                      } else {FALSE}},
+                                  FUN.VALUE = logical(1)))
+    
+    ## Add TRUE to indicator columns
+    for (ind in rowToFillTrue) {
+        vals <- meta[[ind, targetCol]] %>%
+                strsplit(split = delim) %>%
+                unlist()
+        add_true <- which(!grepl(sep, vals))
+        
+        for (i in add_true) {
+            vals[i] <- paste0(vals[i], ":TRUE")
+        }
+        
+        updatedVal <- paste(vals, collapse = delim)
+        meta[ind, targetCol] <- updatedVal
+    }
+    
+    ## Rows to be consolidated
+    colToCombine <- which(vapply(embeddedColNames,
+                                 function(x) length(unique(table(x))) > 1, 
+                                 FUN.VALUE = logical(1)))
+    
+    ## Consolidate values of repeated columns
+    for (ind in colToCombine) {
+        sep_cols <- meta[[ind, targetCol]] %>%
+            strsplit(split = delim) %>% 
+            unlist() %>% 
+            str_extract(".*(?=:)")
+        
+        sep_vals <- meta[[ind, targetCol]] %>%
+            strsplit(split = delim) %>% 
+            unlist() %>% 
+            str_extract("(?<=:).*")
+        
+        groups <- split(sep_vals, sep_cols) %>% 
+            lapply(function(x) paste(unique(x),
+                                     collapse = "<temporary_separator>"))
+        
+        meta[[ind, targetCol]] <- paste(names(groups), groups,
+                                        sep = sep, collapse = delim)
+    }
     
     ## Rows need to be filled with NAs
     rowToFillInd <- which(vapply(embeddedColNames, 
@@ -140,18 +195,28 @@ getWideMetaTb <- function(meta,
         meta[ind, targetCol] <- updatedVal
     }
     
+    ## Confirm column order
+    meta[targetCol] <- meta[[targetCol]] %>%
+        strsplit(delim) %>% 
+        lapply(sort) %>% 
+        lapply(function(x) paste(x, collapse = delim)) %>%
+        unlist
+    
     res <- meta %>%
         separate_wider_delim(targetCol,
                              delim = delim,
                              names = newColNames,
                              cols_remove = remove)
     
-    ## Remove column names in values
+    ## Remove column names in values and <temporary_separator>
     for (newColName in newColNames) {
         res[newColName] <- gsub(paste0(newColName, sep), 
                                 "", res[[newColName]], fixed = TRUE)
+        
+        res[newColName] <- gsub("<temporary_separator>", delim,
+                                res[[newColName]], fixed = TRUE)
     } 
-    
+
     ## Convert "NA" to `NA`
     res_all <- .charToLogicNA(res)
     
