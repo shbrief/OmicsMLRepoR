@@ -61,8 +61,7 @@ getMetadata <- function(database = NULL,
     # request_meta <- paste0(database, "_curated_metadata_release.csv")
     # fpath <- file.path("https://storage.googleapis.com",
     #                    bucket_name, request_meta)
-    # zenodo_url <- "https://zenodo.org/records/12811885/files" # version 1 on 7.24.24
-    zenodo_url <- "https://zenodo.org/records/15069439/files" # version 3 on 03.22.25
+    zenodo_url <- "https://zenodo.org/records/15611405/files" # version 3 on 03.22.25
     request_meta <- paste0(database, "_curated_metadata_release.csv")
     fpath <- file.path(zenodo_url, request_meta)
 
