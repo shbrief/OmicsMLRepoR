@@ -11,7 +11,10 @@
 #' @param meta A data frame. Each column (and associated `ontology_term_id`
 #' column) should use the same delimiter to separate multiple, same-numbered
 #' values.
-#' @param targetCol A character (1). The column name to expand if present. 
+#' @param targetCol A character. The column name(s) to expand if present. 
+#' If multiple columns are specified here, they should be separated by 
+#' the `sep` and the column name and its value should be separated by the 
+#' provided `delim`.
 #' @param delim Optional. A character (1) of a delimiter used to separate 
 #' multiple values in the metadata table. 
 #' 
@@ -70,9 +73,10 @@ getLongMetaTb <- function(meta,
 #' @importFrom stats na.omit
 #' 
 #' @param meta A data frame.
-#' @param targetCol A character (1). The column name to expand if present. 
-#' Multiple attributes should be separated by the `sep` and the column name 
-#' and its value should be separated by the provided `delim`.
+#' @param targetCol A character. The column name(s) to expand if present. 
+#' If multiple columns are specified here, they should be separated by 
+#' the `sep` and the column name and its value should be separated by the 
+#' provided `delim`.
 #' @param sep A character (1). Delimiter used to concatenate column name 
 #' and its value. Default is double colons, `:`.
 #' @param delim A character(1). Separator used between values. Default `<;>`.
@@ -168,7 +172,10 @@ getWideMetaTb <- function(meta,
 #' 
 #' @param meta A data frame. Harmonized metadata available through the
 #' OmicsMLRepoR package. It should have the `package` column.
-#' @param targetCol A character (1). The column name to expand if present.
+#' @param targetCol A character. The column name(s) to expand if present. 
+#' If multiple columns are specified here, they should be separated by 
+#' the `sep` and the column name and its value should be separated by the 
+#' provided `delim`.
 #' 
 #' @returns 
 #' A metadata table where the `targetCol` is updated to a long form (if it
