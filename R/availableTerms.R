@@ -25,14 +25,14 @@ availableTerms <- function(attribute, db = "cMD") {
     dd <- utils::read.csv(file.path(dir, fname), header = TRUE)
 
     ## Separate the attribute to check
-    ind <- which(dd$col.name == attribute)
+    ind <- which(dd$ColName == attribute)
     
     ## Sanity check: the presence of attribute in the metadata
     if (is_empty(ind)) {stop("Quried attribute doesn't exist in the metadata.")}
 
     ## Extract allowed values
-    allowedvalues <- strsplit(dd$allowedvalues[ind], "\\|") %>% unlist
-    ontology <- strsplit(dd$ontology[ind], "\\|") %>% unlist
+    allowedvalues <- strsplit(dd$AllowedValues[ind], "\\|") %>% unlist
+    ontology <- strsplit(dd$Ontology[ind], "\\|") %>% unlist
     res_tb <- data.frame(allowedvalues = allowedvalues,
                          ontology = ontology)
 

@@ -86,8 +86,9 @@ Compared to the typical searching in the original metadata from the
 `curatedMetagenomicData`, OmicsMLRepoR enables more robust data browsing, 
 including case-insensitive, synonyms and descendant searching capabilities.
 
-Searching the same information in the original, unharmonized metadata is
-much less robust:
+Searching the same information in the original, unharmonized metadata
+(`sampleMetadata`) from the `curatedMetagenomicData` package is much less 
+robust:
 
 ```{r}
 ## Information spread out in two different columns
@@ -182,7 +183,7 @@ head(wtb)
 ```
 
 ```{r}
-ltb <- getLongMetaTb(cmd, targetCols = "target_condition")
+ltb <- getLongMetaTb(cmd, targetCol = "target_condition")
 dim(cmd)
 dim(ltb)
 ```
@@ -210,15 +211,15 @@ cbio_sub <- cbio %>%
     filter(treatment_name == "Fluorouracil") %>%
     filter(age_at_diagnosis > 50) %>%
     filter(sex == "Female") %>%
-    getShortMetaTb(idCols = "curation_id", targetCols = "treatment_name")
+    getShortMetaTb(idCols = "curation_id", targetCol = "treatment_name")
 
 dim(cbio_sub)
 studies <- unique(cbio_sub$studyId)
 studies
 ```
 
-A simple `for` loop can collect samples from multiple studies.
-```{r}
+A simple `for` loop can collect samples from multiple studies. For example,
+```{r echo=FALSE, eval=FALSE}
 cbio_api <- cBioPortal()
 resAll <- as.list(vector(length = length(studies)))
 

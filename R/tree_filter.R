@@ -86,8 +86,7 @@
 # synonyms/ids in the specified column. Not case-sensitive.
 # 
 # @examples
-# dir <- system.file("extdata", package="OmicsMLRepoR")
-# df <- read.csv(file.path(dir, "sample_metadata.csv"))
+# data(sample_metadata)
 # onto_filter(df, curated_disease, c("diabetes", "adenoma"))
 # 
 onto_filter <- function(.data, col, query, delim = NULL) {

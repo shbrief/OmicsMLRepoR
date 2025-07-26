@@ -18,6 +18,7 @@
 #'                  "NCIT:C43672", "NCIT:C2991", "NCIT:C43860")
 #' ontoSummarize(parent, descendants, ontology)
 #' 
+#' @export
 ontoSummarize <- function(parent, descendants, ontology) {
     # Initialize ontology
     ontob <- Ontology(ontology)
@@ -45,7 +46,8 @@ ontoSummarize <- function(parent, descendants, ontology) {
         paste(x, collapse = ";"))))
     
     ids_to_convert <- unique(c(names(finalgroups), unlist(unname(finalgroups))))
-    extract_ids <- str_match(ids_to_convert, "NCIT:.*$")
+    extract_ids <- str_match(ids_to_convert, paste0(toupper(ontology), ":.*$"))
+    extract_ids <- extract_ids[!is.na(extract_ids)]
     termnames <- unlist(lapply(extract_ids, function(x) termLabel(Term(ontob, x))))
     names(termnames) <- extract_ids
     group_names <- str_replace_all(names(finalgroups), termnames)
