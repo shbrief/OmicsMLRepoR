@@ -2,10 +2,11 @@
 
 The *OmicsMLRepo project* aims to harmonize and standardize clinical metadata 
 from public Omics data resources. Currently, [curatedMetagenomicData][] and the 
-part of [cBioPortalData][]'s metadata are processed under this project.
+part of [cBioPortalData][]'s metadata are processed under [this project][].
 
 [curatedMetagenomicData]: https://www.bioconductor.org/packages/release/data/experiment/html/curatedMetagenomicData.html
 [cBioPortalData]: https://www.bioconductor.org/packages/release/bioc/html/cBioPortalData.html
+[this project]: https://github.com/waldronlab/OmicsMLRepoData 
 
 ### Installation
 ```
