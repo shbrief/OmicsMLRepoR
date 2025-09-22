@@ -172,11 +172,12 @@ merge_vectors <- function(base, update, sep = ":", delim = ";") {
     fname <- paste0(targetDB, "_data_dictionary.csv")
     dd <- read.csv(file.path(dir, fname), header = TRUE)
     
-    ## Get the delimiter(s)
+    ## Get the ontology names
     colInd <- which(dd$ColName %in% targetCol)
-    ontos <- dd$OntologyDB[colInd] %>% unique %>% .[!is.na(.)]
-    split_ontos <- unlist(strsplit(ontos, "\\|"))
-    
+    # ontos <- dd$OntologyDB[colInd] %>% unique %>% .[!is.na(.)]
+    # split_ontos <- unlist(strsplit(ontos, "\\|"))
+    split_ontos <- strsplit(dd$DynamicEnum[colInd], ";") %>% unlist %>% get_ontologies(., ":")
+
     if (is.null(split_ontos)) {stop("The targetCol do not have listed ontology databases.")}
     
     return(split_ontos)

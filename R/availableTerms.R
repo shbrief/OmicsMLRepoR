@@ -31,8 +31,9 @@ availableTerms <- function(attribute, db = "cMD") {
     if (is_empty(ind)) {stop("Quried attribute doesn't exist in the metadata.")}
 
     ## Extract allowed values
-    allowedvalues <- strsplit(dd$AllowedValues[ind], "\\|") %>% unlist
-    ontology <- strsplit(dd$Ontology[ind], "\\|") %>% unlist
+    allowedvalues <- strsplit(dd$AllowedValues[ind], "\\;") %>% unlist
+    # ontology <- strsplit(dd$Ontology[ind], "\\|") %>% unlist
+    ontology <- strsplit(dd$DynamicEnum[ind], ";") %>% unlist %>% get_ontologies(., ":")
     res_tb <- data.frame(allowedvalues = allowedvalues,
                          ontology = ontology)
 
