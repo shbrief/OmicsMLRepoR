@@ -5,12 +5,13 @@ res1 <- spreadMeta(mini_cbio, targetCol = trt_cols)
 data(mini_cmd2) # multi-valued attribute
 data(mini_cmd3) # composite attribute
 res2 <- spreadMeta(mini_cmd2, "target_condition")
-res3 <- spreadMeta(mini_cmd3, "probing_pocket_depth")
+# res3 <- spreadMeta(mini_cmd3, "probing_pocket_depth")
+res3 <- getWideMetaTb(mini_cmd3, "probing_pocket_depth")
 
 test_that("Test spreadMeta function", {
     expect_equal(dim(res1), c(12,9))
     expect_equal(dim(res2), c(465,7))
-    expect_equal(dim(res3), c(10,12))
+    expect_equal(dim(res3), c(10,12)) # `spreadMeta` should be updated to use `getWideMetaTb` for this attribute
     
     expect_equal(res1$treatment_name[9:12], 
                  c("Mitotane", "Mitotane", NA, "Mitotane"))
