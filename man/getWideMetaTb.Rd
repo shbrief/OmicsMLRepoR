@@ -9,9 +9,10 @@ getWideMetaTb(meta, targetCol = NULL, sep = ":", delim = "<;>", remove = TRUE)
 \arguments{
 \item{meta}{A data frame.}
 
-\item{targetCol}{A character (1). The column name to expand if present. 
-Multiple attributes should be separated by the `sep` and the column name 
-and its value should be separated by the provided `delim`.}
+\item{targetCol}{A character. The column name(s) to expand if present. 
+If multiple columns are specified here, they should be separated by 
+the `sep` and the column name and its value should be separated by the 
+provided `delim`.}
 
 \item{sep}{A character (1). Delimiter used to concatenate column name 
 and its value. Default is double colons, `:`.}

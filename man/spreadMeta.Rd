@@ -10,7 +10,10 @@ spreadMeta(meta, targetCol)
 \item{meta}{A data frame. Harmonized metadata available through the
 OmicsMLRepoR package. It should have the `package` column.}
 
-\item{targetCol}{A character (1). The column name to expand if present.}
+\item{targetCol}{A character. The column name(s) to expand if present. 
+If multiple columns are specified here, they should be separated by 
+the `sep` and the column name and its value should be separated by the 
+provided `delim`.}
 }
 \value{
 A metadata table where the `targetCol` is updated to a long form (if it

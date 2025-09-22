@@ -90,7 +90,7 @@ Searching the same information in the original, unharmonized metadata
 (`sampleMetadata`) from the `curatedMetagenomicData` package is much less 
 robust:
 
-```{r}
+```{r robust_browsing}
 ## Information spread out in two different columns
 nrow(sampleMetadata |> filter(study_condition == "CRC"))
 nrow(sampleMetadata |> filter(disease == "CRC"))
@@ -106,14 +106,14 @@ nrow(sampleMetadata |> filter(study_condition == "Colorectal Cancer"))
 
 ### Not case-sensitive
 `tree_filter` is not case-sensitive.
-```{r}
+```{r not_case_sensitive}
 nrow(cmd |> tree_filter(disease, "Colorectal Carcinoma"))
 nrow(cmd |> tree_filter(disease, "colorectal carcinoma"))
 ```
 
 ### Include synonyms
 `tree_filter` includes the synonyms of the queried terms in its searching.
-```{r}
+```{r include_synonyms}
 syn_res1 <- cmd |> tree_filter(disease, "CRC")
 syn_res2 <- cmd |> tree_filter(disease, "Colorectal Cancer")
 syn_res3 <- cmd |> tree_filter(disease, "Colorectal Carcinoma")
@@ -124,7 +124,7 @@ nrow(syn_res3)
 ```
 
 Check that the returned results are identical.
-```{r}
+```{r sanity_check}
 unique(syn_res1$disease)
 unique(syn_res2$disease)
 unique(syn_res3$disease)
@@ -132,7 +132,7 @@ unique(syn_res3$disease)
 
 ### Search descendants in ontology tree
 `tree_filter` includes all the descendants of the queried term in its searching.
-```{r}
+```{r descendant_search}
 onto_res <- cmd |> tree_filter(disease, "Intestinal Disorder")
 unique(onto_res$disease)
 ```
@@ -141,7 +141,7 @@ unique(onto_res$disease)
 For example, you can search for any row including a disease related to either 
 "migraine" or "diabetes."
 
-```{r}
+```{r multiple_searching_terms}
 res_or <- cmd %>% tree_filter(disease, c("migraine", "diabetes"), "OR")
 ```
 
@@ -151,7 +151,7 @@ value that is related to both "migraine" and "diabetes," and "NOT" will return
 any rows including a disease value that is not related to either "migraine" or
 "diabetes."
 
-```{r}
+```{r different_filter_logic}
 res_and <- cmd %>% tree_filter(disease, c("migraine", "diabetes"), "AND")
 res_not <- cmd %>% tree_filter(disease, c("migraine", "diabetes"), "NOT")
 ```
@@ -160,7 +160,7 @@ You can combine `tree_filter` and `dplyr` functions. For example, if you want
 all rows with a disease value related to either "migraine" or "diabetes," as 
 well as with an age_years value under 30,
 
-```{r}
+```{r example}
 res_or_below30 <- cmd %>% 
     filter(age_years < 30) %>%
     tree_filter(disease, c("migraine", "diabetes"))

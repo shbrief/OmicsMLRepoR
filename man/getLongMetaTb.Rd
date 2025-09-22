@@ -11,7 +11,10 @@ getLongMetaTb(meta, targetCol = NULL, delim = NULL)
 column) should use the same delimiter to separate multiple, same-numbered
 values.}
 
-\item{targetCol}{A character (1). The column name to expand if present.}
+\item{targetCol}{A character. The column name(s) to expand if present. 
+If multiple columns are specified here, they should be separated by 
+the `sep` and the column name and its value should be separated by the 
+provided `delim`.}
 
 \item{delim}{Optional. A character (1) of a delimiter used to separate 
 multiple values in the metadata table.}
