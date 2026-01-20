@@ -1,7 +1,7 @@
 #' Groups ontology terms by the child term of a provided "parent" they fall
 #' under
 #' 
-#' @import rols
+#' @importFrom rols Ontology Term termLabel children ancestors
 #' @import stringr
 #'
 #' @param parent Character; Term to use as parent of summarized children
