@@ -10,24 +10,40 @@ s2p_cached_url <- function(url,
                            ask_on_update = FALSE,
                            ...) {
     bfc <- s2p_get_cache()
-    bfcres <- bfcquery(x = bfc, 
-                       query = rname, # regular expression pattern(s) to match
-                       field = "rname") # column names in resource to query
-
+    bfcres <- BiocFileCache::bfcquery(x = bfc, 
+                                      query = rname, # regular expression pattern(s) to match
+                                      field = "rname") # column names in resource to query
+    
     rid <- bfcres$rid # auto-generated resource id
     
     ## Cached file not found
     if (!length(rid)) {
-        rid <- names(bfcadd(x = bfc, rname = rname, fpath = url))
+        rid <- names(BiocFileCache::bfcadd(x = bfc, rname = rname, fpath = url))
     }
     
     ## If needs update, do the download
-    if (bfcneedsupdate(bfc, rid)) {
-        bfcdownload(bfc, rid, ask = ask_on_update)
+    ## bfcneedsupdate() can return NA or a logical vector; make the decision robust
+    needs <- BiocFileCache::bfcneedsupdate(bfc, rids = rid)
+    
+    if (length(needs) > 1) {
+        # If all are NA, treat as needing update so we attempt to download.
+        if (all(is.na(needs))) {
+            needs <- TRUE
+        } else {
+            # If any element is TRUE (ignoring NA), update.
+            needs <- any(needs, na.rm = TRUE)
+        }
+    } else {
+        # Single value: if NA, set to TRUE to attempt download; otherwise use the logical value
+        if (is.na(needs)) needs <- TRUE
+    }
+    
+    if (isTRUE(needs)) {
+        BiocFileCache::bfcdownload(bfc, rids = rid, ask = ask_on_update)
         message("Updating")
     }
     
-    res <- bfcrpath(bfc, rids = rid)
+    res <- BiocFileCache::bfcrpath(bfc, rids = rid)
     return(res)
 }
 
@@ -55,7 +71,6 @@ s2p_cached_url <- function(url,
 #' @export
 getMetadata <- function(database = NULL, 
                         load = TRUE) {
-    
     if (is.null(database)) {stop("Provide the database name.")}
     # bucket_name <- "omics_ml_repo"
     # request_meta <- paste0(database, "_curated_metadata_release.csv")
@@ -65,7 +80,7 @@ getMetadata <- function(database = NULL,
     zenodo_url <- "https://zenodo.org/records/16458151/files"
     request_meta <- paste0(database, "_curated_metadata_release.csv")
     fpath <- file.path(zenodo_url, request_meta)
-
+    
     fpath <- s2p_cached_url(fpath)
     if (isTRUE(load)) {
         model <- readr::read_csv(fpath)
