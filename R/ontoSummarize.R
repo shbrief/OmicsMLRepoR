@@ -22,15 +22,15 @@
 #' @export
 ontoSummarize <- function(parent, descendants, ontology) {
     # Initialize ontology
-    ontob <- Ontology(ontology)
+    ontob <- rols::Ontology(ontology)
     
     # Get children of parent to establish groups
-    pterm <- Term(ontob, parent)
+    pterm <- rols::Term(ontob, parent)
     pchildren <- names(termLabel(children(pterm)))
     
     # Get ancestors of all descendants
     dancs <- sapply(descendants, 
-                  function(x) names(termLabel(ancestors(Term(ontob, x)))),
+                  function(x) names(termLabel(ancestors(rols::Term(ontob, x)))),
                    simplify = FALSE,
                    USE.NAMES = TRUE)
     
@@ -49,7 +49,7 @@ ontoSummarize <- function(parent, descendants, ontology) {
     ids_to_convert <- unique(c(names(finalgroups), unlist(unname(finalgroups))))
     extract_ids <- str_match(ids_to_convert, paste0(toupper(ontology), ":.*$"))
     extract_ids <- extract_ids[!is.na(extract_ids)]
-    termnames <- unlist(lapply(extract_ids, function(x) termLabel(Term(ontob, x))))
+    termnames <- unlist(lapply(extract_ids, function(x) termLabel(rols::Term(ontob, x))))
     names(termnames) <- extract_ids
     group_names <- str_replace_all(names(finalgroups), termnames)
     original_names <- str_replace_all(collapse_groups, termnames)

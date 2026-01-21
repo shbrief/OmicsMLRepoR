@@ -28,8 +28,8 @@ ontoTreePlot <- function(term, display = c("Term", "Text")) {
     sample_db <- get_ontologies(term)
     
     ## load term object and retrieve link to JSON tree
-    ontob <- Ontology(sample_db)
-    cur_trm <- Term(ontob, sample_id)
+    ontob <- rols::Ontology(sample_db)
+    cur_trm <- rols::Term(ontob, sample_id)
     jstree <- cur_trm@links$jstree$href
     
     ## transform JSON into dataframe
