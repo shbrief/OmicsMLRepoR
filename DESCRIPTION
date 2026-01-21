@@ -1,8 +1,8 @@
 Package: OmicsMLRepoR
 Type: Package
 Title: Search harmonized metadata created under the OmicsMLRepo project
-Version: 1.3.3
-Date: 2025-9-22
+Version: 1.5.1
+Date: 2026-1-21
 Authors@R: 
     c(person(given = "Sehyun",
              family = "Oh",
@@ -42,7 +42,7 @@ Suggests:
 License: Artistic-2.0
 biocViews: Software, Infrastructure, DataRepresentation
 Encoding: UTF-8
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 VignetteBuilder: knitr
 URL: https://github.com/shbrief/OmicsMLRepoR
 BugReports: https://github.com/shbrief/OmicsMLRepoR/issues
