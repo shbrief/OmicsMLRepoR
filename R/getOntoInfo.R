@@ -2,6 +2,7 @@
 #' 
 #' Extract identical or similar ontology terms across different ontologies
 #'
+#' @importFrom rols OlsSearch olsSearch
 #' @importFrom methods as
 #' @importFrom dplyr filter
 #' @importFrom tibble as_tibble
