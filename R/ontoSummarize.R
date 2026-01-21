@@ -2,6 +2,7 @@
 #' under
 #' 
 #' @import rols
+#' @importFrom rols Ontology Term
 #' @import stringr
 #'
 #' @param parent Character; Term to use as parent of summarized children

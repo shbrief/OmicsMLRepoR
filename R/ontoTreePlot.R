@@ -1,6 +1,7 @@
 #' Plot ontology tree
 #' 
 #' @import rols
+#' @importFrom rols Ontology Term
 #' @import dplyr
 #' @import DiagrammeR 
 #' @importFrom plyr mapvalues
