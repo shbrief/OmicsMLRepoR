@@ -9,11 +9,11 @@ test_that("ontoTreePlot function works correctly", {
     expect_true(all(class(test_plot) == c("grViz", "htmlwidget")))
     
     # Check if the Term object is created correctly
-    ontob <- Ontology(get_ontologies(test_term))
-    expect_s4_class(Term(ontob, test_term), "Term")
+    ontob <- olsOntology(get_ontologies(test_term))
+    expect_s4_class(olsTerm(ontob, test_term), "olsTerm")
     
     # Check if the JSON tree is retrieved and parsed correctly
-    cur_trm <- Term(ontob, test_term)
+    cur_trm <- olsTerm(ontob, test_term)
     jstree <- cur_trm@links$jstree$href
     expect_true(is.data.frame(jsonlite::fromJSON(jstree)))
     
