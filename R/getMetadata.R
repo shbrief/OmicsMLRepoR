@@ -39,7 +39,7 @@ s2p_cached_url <- function(url,
     }
     
     if (isTRUE(needs)) {
-        BiocFileCache::bfcdownload(bfc, rids = rid, ask = ask_on_update)
+        BiocFileCache::bfcdownload(bfc, rid = rid, ask = ask_on_update)
         message("Updating")
     }
     
