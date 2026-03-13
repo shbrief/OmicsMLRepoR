@@ -28,10 +28,11 @@ ontoSummarize <- function(parent, descendants, ontology) {
     pchildren <- names(termLabel(children(pterm)))
     
     # Get ancestors of all descendants
+    # FIX: was termLabel(ontob, x), should be olsTerm(ontob, x)
     dancs <- sapply(descendants, 
-                  function(x) names(termLabel(ancestors(termLabel(ontob, x)))),
-                   simplify = FALSE,
-                   USE.NAMES = TRUE)
+                    function(x) names(termLabel(ancestors(olsTerm(ontob, x)))),
+                    simplify = FALSE,
+                    USE.NAMES = TRUE)
     
     dall <- mapply(c, names(dancs), dancs)
     
