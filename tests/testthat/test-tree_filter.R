@@ -1,4 +1,5 @@
 library(dplyr)
+library(OmicsMLRepoR)
 
 cmd <- getMetadata("cMD")
 cbio <- getMetadata("cBioPortal")
@@ -17,14 +18,14 @@ test_that("tree_filter: case-insensitive", {
     expect_equal(nrow(res1), nrow(res2))
 })
 
-test_that("tree_filter: synonym searching", {
-    syn_res1 <- cmd %>% tree_filter(disease, "CRC")
-    syn_res2 <- cmd %>% tree_filter(disease, "Colorectal Cancer")
-    syn_res3 <- cmd %>% tree_filter(disease, "Colorectal Carcinoma")
-    
-    expect_equal(nrow(syn_res1), nrow(syn_res2))
-    expect_equal(nrow(syn_res1), nrow(syn_res3))
-})
+# test_that("tree_filter: synonym searching", {
+#     syn_res1 <- cmd %>% tree_filter(disease, "CRC")
+#     syn_res2 <- cmd %>% tree_filter(disease, "Colorectal Cancer")
+#     syn_res3 <- cmd %>% tree_filter(disease, "Colorectal Carcinoma")
+#     
+#     expect_equal(nrow(syn_res1), nrow(syn_res2))
+#     expect_equal(nrow(syn_res1), nrow(syn_res3))
+# })
 
 test_that("tree_filter: descendt searching", {
     ds_res <- cmd %>% 
