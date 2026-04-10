@@ -121,9 +121,15 @@ merge_vectors <- function(base, update, sep = ":", delim = ";") {
         stop("Provide the `delim` input")
     } else if (is.null(delim)) {
         ## Load data dictionary
-        dir <- system.file("extdata", package = "OmicsMLRepoR")
         fname <- paste0(targetDB, "_data_dictionary.csv")
-        dd <- read.csv(file.path(dir, fname), header = TRUE)
+        if (targetDB %in% c("cMD", "cBioPortal")) {
+            dir <- system.file("extdata", package = "OmicsMLRepoR")
+            dd <- read.csv(file.path(dir, fname), header = TRUE)
+        } else {
+            bfc <- .omics_get_cache()
+            fpath <- bfcquery(bfc, fname, field = "rname")$rpath
+            dd <- read.csv(fpath, header = TRUE)
+        }
         
         ## Get the delimiter(s)
         colInd <- which(dd$ColName %in% targetCol)
@@ -144,9 +150,15 @@ merge_vectors <- function(base, update, sep = ":", delim = ";") {
     targetDB <- .getTargetDB(meta)
     
     ## Load data dictionary
-    dir <- system.file("extdata", package = "OmicsMLRepoR")
     fname <- paste0(targetDB, "_data_dictionary.csv")
-    dd <- read.csv(file.path(dir, fname), header = TRUE)
+    if (targetDB %in% c("cMD", "cBioPortal")) {
+        dir <- system.file("extdata", package = "OmicsMLRepoR")
+        dd <- read.csv(file.path(dir, fname), header = TRUE)
+    } else {
+        bfc <- .omics_get_cache()
+        fpath <- bfcquery(bfc, fname, field = "rname")$rpath
+        dd <- read.csv(fpath, header = TRUE)
+    }
     
     ## Get the separater
     colInd <- which(dd$ColName %in% targetCol)
@@ -168,9 +180,15 @@ merge_vectors <- function(base, update, sep = ":", delim = ";") {
     
     ## Extract the delimiter
     ## Load data dictionary
-    dir <- system.file("extdata", package = "OmicsMLRepoR")
     fname <- paste0(targetDB, "_data_dictionary.csv")
-    dd <- read.csv(file.path(dir, fname), header = TRUE)
+    if (targetDB %in% c("cMD", "cBioPortal")) {
+        dir <- system.file("extdata", package = "OmicsMLRepoR")
+        dd <- read.csv(file.path(dir, fname), header = TRUE)
+    } else {
+        bfc <- .omics_get_cache()
+        fpath <- bfcquery(bfc, fname, field = "rname")$rpath
+        dd <- read.csv(fpath, header = TRUE)
+    }
     
     ## Get the ontology names
     colInd <- which(dd$ColName %in% targetCol)
@@ -211,4 +229,19 @@ merge_vectors <- function(base, update, sep = ":", delim = ";") {
     return(resAll)
 }
 
+## Create cache directory for user-generated files
+.omics_get_cache <- function() {
+    ## Create a directory for cached data
+    cache <- tools::R_user_dir("OmicsMLRepoR", "cache")
+    
+    ## Directory path of cache
+    BiocFileCache::BiocFileCache(cache = cache)
+}
 
+
+## Copy local file to cache
+.cache_file <- function(fpath) {
+    bfc <- .omics_get_cache()
+    bfcadd(x = bfc, rname = basename(fpath), fpath = fpath, rtype = "local",
+           action = "copy")
+}
