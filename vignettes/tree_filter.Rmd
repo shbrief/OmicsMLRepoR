@@ -1,0 +1,72 @@
+---
+title: "Tree Filter Basics"
+author: "Sehyun Oh, Kaelyn Long"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+vignette: >
+  %\VignetteIndexEntry{tree_filter}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+output:
+  BiocStyle::html_document:
+    number_sections: yes
+    toc: yes
+    toc_depth: 4
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(comment = "#>", 
+                      collapse = TRUE, 
+                      message = FALSE, 
+                      warning = FALSE)
+```
+
+# Function Overview
+
+The `tree_filter` function is a very useful tool that allows the user to input a plain string search and return data that uses ontology terms related to that search. It is very straightforward to use with the included curatedMetagenomicData (cMD) dataset.
+
+```{r basic_example}
+suppressPackageStartupMessages({
+    library(OmicsMLRepoR)
+    library(dplyr)
+})
+
+# Load cMD dataset
+meta <- getMetadata("cMD")
+
+# Perform filter operation
+result <- tree_filter(.data = meta,
+                      col = disease,
+                      query = c("pancreatic disease", "cancer"))
+```
+
+If we examine the first few rows of the filtered dataset, we can see that the 'disease' column always contains at least one term that is related to either pancreatic disease or cancer.
+
+```{r examine_results}
+unique(result$disease)[1:10]
+```
+
+# Filtering Custom Datasets
+
+To use `tree_filter` on a custom dataset, there are a number of required setup steps:
+
+**1.** Confirm that your metadata table has properly formatted ontology term id columns. This means that for any column with ontology terms that you want to filter (e.g. "disease"), there must be a matching "_ontology_term_id" column (e.g. "disease_ontology_term_id").
+```{r onto_col_format}
+meta[,c("disease", "disease_ontology_term_id")] |>
+  distinct() |>
+  head()
+```
+
+**2.** Give your metadata table a shorthand name (e.g. "cMD") and make sure that is listed in the table's "package" column.
+```{r package_col}
+meta[,"package"] |>
+  head()
+```
+
+**3.** Run `saveAncestors()` (In `inst/scripts/ancestors.R`) on your metadata table, ensuring that the ancestors are saved to a file with a name similar to “cMD_ancestors.csv” (In `inst/extdata`), where “cMD” is replaced with your dataset’s shorthand name. You will also want to make sure the `add_to_cache` option is set to TRUE, or you run `.cache_file()` (In `R/utils.R`) on the resulting file afterwards. This caching step simply makes sure that your ancestors file is automatically retrieved when you run `tree_filter()`.
+
+**4.** Create a data dictionary file modeled after `inst/extdata/cMD_data_dictionary.csv`, where "cMD" is replaced with your dataset's shorthand name. This dictionary must include rows for any features you intend to filter, and those rows must have values for the "ColName", "Delimiter", and "DynamicEnum" columns. Each ontology represented within an ontology-based column must also be represented in the "DynamicEnum" column of the data dictionary. That is, if the "disease" column comprises of NCIT and EFO terms, the "DynamicEnum" value must include both an NCIT term and an EFO term. This file also needs to be cached with `.cache_file()`.
+
+When these steps have been completed, you should be able to run `tree_filter()` on any ontology column in your metadata table.

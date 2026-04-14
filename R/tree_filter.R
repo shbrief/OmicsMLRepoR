@@ -160,10 +160,16 @@ tree_filter <- function(.data, col, query, logic = "OR", delim = NULL) {
                                                                    "obo_id")))
     
     ## Load ancestors for the appropriate database
-    dir <- system.file("extdata", package = "OmicsMLRepoR")
     fname <- paste0(targetDB, "_ancestors.csv")
-    allAncestors <- read.csv(file.path(dir, fname), header = TRUE)
-    
+    if (targetDB %in% c("cMD", "cBioPortal")) {
+        dir <- system.file("extdata", package = "OmicsMLRepoR")
+        allAncestors <- read.csv(file.path(dir, fname), header = TRUE)
+    } else {
+        bfc <- .omics_get_cache()
+        fpath <- bfcquery(bfc, fname, field = "rname")$rpath
+        allAncestors <- read.csv(fpath, header = TRUE)
+    }
+
     unlistedAncestors <- lapply(allAncestors$ancestors, 
                                 function(x) unlist(strsplit(x, split = ";")))
     names(unlistedAncestors) <- allAncestors$ontology_term_id

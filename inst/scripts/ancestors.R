@@ -18,7 +18,7 @@
 # 
 getNodes <- function(onto, terms) {
     # Load ontology
-    ontob <- Ontology(onto)
+    ontob <- olsOntology(onto)
     
     # Get unique terms
     terms <- unique(terms)
@@ -32,7 +32,7 @@ getNodes <- function(onto, terms) {
         
         tryCatch({
             # Get term information and ancestors from ontology
-            cur_trm <- Term(ontob, terms[i])
+            cur_trm <- olsTerm(ontob, terms[i])
             ancs <- ancestors(cur_trm)
             
             # Filter out ancestors labeled as ontology root
@@ -104,8 +104,10 @@ getAncestors <- function(ids, dbs) {
 #' @param curatedMetaTb A curated metadata table. Curated ontology terms should
 #' be under the column name satisfying the pattern, `^.*_ontology_term_id$`
 #' @param saveAs A character (1). The file path for the returned list.
+#' @param add_to_cache Boolean. Whether to save to user cache directory or not.
+#' `saveAs` will still be used as the file name.
 #' 
-saveAncestors <- function(curatedMetaTb, saveAs) {
+saveAncestors <- function(curatedMetaTb, saveAs, add_to_cache = FALSE) {
     
     ## Extract ontology terms incorporated into the curated metadata
     idColInds <- grep("_ontology_term_id", colnames(curatedMetaTb))
@@ -115,7 +117,8 @@ saveAncestors <- function(curatedMetaTb, saveAs) {
     ## A named list, where the name of the element is the target attribute
     allIds <- apply(curatedMetaTb[idCols], 2, 
                     function(x) strsplit(x, split = ";") %>%
-                        unlist %>% na.omit %>% unique)
+                        unlist %>% na.omit %>% unique,
+                    simplify = FALSE)
     names(allIds) <- gsub("curated_|_ontology_term_id", "", names(allIds))
     
     ## Create a `tb` with three columns:
@@ -138,6 +141,14 @@ saveAncestors <- function(curatedMetaTb, saveAs) {
     res <- dplyr::full_join(tb[c("attributes", "ontology_term_id")], 
                             ancestorTb, 
                             by = "ontology_term_id")
-    
+
+    ## Write to local directory
     write.csv(res, saveAs, row.names = FALSE)
+    
+    if (add_to_cache) {
+        ## Write to user cache
+        bfc <- .omics_get_cache()
+        bfcadd(x = bfc, rname = saveAs, fpath = saveAs, rtype = "local",
+               action = "copy")
+    }
 }
