@@ -81,6 +81,20 @@ colnames(cmd)[grep("_ontology_term_id", colnames(cmd))] %>%
 ```
 
 
+```{r ols_check, include = FALSE}
+## `tree_filter` queries the EBI Ontology Lookup Service (OLS) over the
+## network. If OLS is unreachable, the chunks relying on it are skipped so
+## that a service outage does not fail the vignette build.
+ols_ok <- !inherits(
+    try(getOntoInfo("colorectal carcinoma", ontology = "NCIT", rows = 1),
+        silent = TRUE),
+    "try-error")
+
+if (!ols_ok) {
+    message("OLS is currently unavailable - ontology search chunks are skipped.")
+}
+```
+
 ## Robust search using ontology
 Compared to the typical searching in the original metadata from the 
 `curatedMetagenomicData`, OmicsMLRepoR enables more robust data browsing, 
@@ -106,14 +120,14 @@ nrow(sampleMetadata |> filter(study_condition == "Colorectal Cancer"))
 
 ### Not case-sensitive
 `tree_filter` is not case-sensitive.
-```{r not_case_sensitive}
+```{r not_case_sensitive, eval = ols_ok}
 nrow(cmd |> tree_filter(disease, "Colorectal Carcinoma"))
 nrow(cmd |> tree_filter(disease, "colorectal carcinoma"))
 ```
 
 ### Include synonyms
 `tree_filter` includes the synonyms of the queried terms in its searching.
-```{r include_synonyms}
+```{r include_synonyms, eval = ols_ok}
 syn_res1 <- cmd |> tree_filter(disease, "CRC")
 syn_res2 <- cmd |> tree_filter(disease, "Colorectal Cancer")
 syn_res3 <- cmd |> tree_filter(disease, "Colorectal Carcinoma")
@@ -124,7 +138,7 @@ nrow(syn_res3)
 ```
 
 Check that the returned results are identical.
-```{r sanity_check}
+```{r sanity_check, eval = ols_ok}
 unique(syn_res1$disease)
 unique(syn_res2$disease)
 unique(syn_res3$disease)
@@ -132,7 +146,7 @@ unique(syn_res3$disease)
 
 ### Search descendants in ontology tree
 `tree_filter` includes all the descendants of the queried term in its searching.
-```{r descendant_search}
+```{r descendant_search, eval = ols_ok}
 onto_res <- cmd |> tree_filter(disease, "Intestinal Disorder")
 unique(onto_res$disease)
 ```
@@ -141,7 +155,7 @@ unique(onto_res$disease)
 For example, you can search for any row including a disease related to either 
 "migraine" or "diabetes."
 
-```{r multiple_searching_terms}
+```{r multiple_searching_terms, eval = ols_ok}
 res_or <- cmd %>% tree_filter(disease, c("migraine", "diabetes"), "OR")
 ```
 
@@ -151,7 +165,7 @@ value that is related to both "migraine" and "diabetes," and "NOT" will return
 any rows including a disease value that is not related to either "migraine" or
 "diabetes."
 
-```{r different_filter_logic}
+```{r different_filter_logic, eval = ols_ok}
 res_and <- cmd %>% tree_filter(disease, c("migraine", "diabetes"), "AND")
 res_not <- cmd %>% tree_filter(disease, c("migraine", "diabetes"), "NOT")
 ```
@@ -160,7 +174,7 @@ You can combine `tree_filter` and `dplyr` functions. For example, if you want
 all rows with a disease value related to either "migraine" or "diabetes," as 
 well as with an age_years value under 30,
 
-```{r example}
+```{r example, eval = ols_ok}
 res_or_below30 <- cmd %>% 
     filter(age_years < 30) %>%
     tree_filter(disease, c("migraine", "diabetes"))
@@ -192,11 +206,11 @@ dim(ltb)
 # Download omics data
 ## curatedMetagenomicData
 
-```{r debug_needed, echo=FALSE}
+```{r debug_needed, echo=FALSE, eval = ols_ok}
 cmd_sub <- tree_filter(cmd, target_condition, "Alzheimer's disease")
 ```
 
-```{r}
+```{r cmd_download, eval = ols_ok}
 cmd_dat <- cmd %>%
     tree_filter(col = "disease", "Type 2 Diabetes Mellitus") %>%
     filter(sex == "Female") %>%

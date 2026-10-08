@@ -212,3 +212,73 @@ merge_vectors <- function(base, update, sep = ":", delim = ";") {
 }
 
 
+
+
+# Check whether an OLS request failed for a transient reason
+#
+# HTTP 5xx responses, dropped connections, and timeouts are server- or
+# network-side problems that typically succeed on a second attempt. Client
+# errors (e.g., HTTP 400 from a malformed query) are not retried.
+#
+# @param e A condition caught from an OLS request.
+# @return A logical(1).
+#
+# @keywords internal
+.isTransientOlsError <- function(e) {
+    cls <- class(e)
+    isServerError <- any(grepl("^httr2_http_5[0-9]{2}$", cls))
+    isConnError <- any(c("httr2_failure", "httr2_timeout") %in% cls)
+    msgPattern <- single_line_str(r"(HTTP 5[0-9]{2}|Internal Server Error|
+                                 Bad Gateway|Service Unavailable|
+                                 Gateway Time-?out|timed out|
+                                 Could not resolve|Connection reset|
+                                 Empty reply|Recv failure|
+                                 Failed to connect)")
+    isMsgMatch <- grepl(msgPattern, conditionMessage(e), ignore.case = TRUE)
+    return(isServerError || isConnError || isMsgMatch)
+}
+
+
+# Retry an OLS request that fails for a transient reason
+#
+# The EBI Ontology Lookup Service intermittently returns HTTP 5xx responses.
+# Because a single `tree_filter` call issues one OLS query per search term,
+# an unretried blip is enough to fail a whole script, vignette, or build.
+#
+# @param fun A function performing the OLS request. Called with no argument.
+# @param retries An integer(1). Number of additional attempts made after the
+# first one fails for a transient reason.
+# @param backoff A numeric(1). Seconds to wait before the first retry. The
+# wait doubles with every subsequent retry.
+#
+# @return The value of `fun()`.
+#
+# @keywords internal
+.olsRetry <- function(fun, retries = 3L, backoff = 1) {
+
+    for (i in seq_len(retries + 1L)) {
+        res <- tryCatch(fun(), error = function(e) e)
+
+        ## Request succeeded
+        if (!inherits(res, "error")) {return(res)}
+
+        ## Give up on client errors and after the last attempt
+        isLastTry <- i > retries
+        isTransient <- .isTransientOlsError(res)
+        if (isLastTry || !isTransient) {
+            hint <- ifelse(
+                isTransient,
+                paste("The Ontology Lookup Service may be temporarily",
+                      "unavailable - check https://www.ebi.ac.uk/ols4",
+                      "and try again."),
+                "Check that the query and the `ontology` input are valid.")
+            stop("OLS request failed after ", i, " attempt(s): ",
+                 conditionMessage(res), "\n  ", hint, call. = FALSE)
+        }
+
+        ## Back off before retrying
+        Sys.sleep(backoff * 2^(i - 1L))
+        message("Retrying the OLS request (attempt ", i + 1L, " of ",
+                retries + 1L, ")...")
+    }
+}

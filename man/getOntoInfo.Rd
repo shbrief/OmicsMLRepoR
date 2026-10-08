@@ -4,7 +4,7 @@
 \alias{getOntoInfo}
 \title{Query Ontology Lookup Service (OLS)}
 \usage{
-getOntoInfo(query, ontology = "", exact = FALSE, rows = 20)
+getOntoInfo(query, ontology = "", exact = FALSE, rows = 20, retries = 3L)
 }
 \arguments{
 \item{query}{A character (1) containing the search query, either a term
@@ -18,6 +18,11 @@ matches. Defaults is `FALSE`.}
 
 \item{rows}{An integer (1) defining the number of query returns. 
 Default is 20L. Maximum number of values returned by the server is 1000.}
+
+\item{retries}{An integer (1) defining how many times a failed query is
+re-attempted when it fails for a transient reason, such as an HTTP 5xx
+response or a dropped connection. Default is 3L. Set it to 0L to fail on
+the first error.}
 }
 \value{
 A tibble containing ontology term label and description
