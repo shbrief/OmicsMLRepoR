@@ -15,6 +15,10 @@
 #' matches. Defaults is `FALSE`. 
 #' @param rows An integer (1) defining the number of query returns. 
 #' Default is 20L. Maximum number of values returned by the server is 1000.
+#' @param retries An integer (1) defining how many times a failed query is
+#' re-attempted when it fails for a transient reason, such as an HTTP 5xx
+#' response or a dropped connection. Default is 3L. Set it to 0L to fail on
+#' the first error.
 #' 
 #' @return A tibble containing ontology term label and description
 #'
@@ -32,11 +36,16 @@
 getOntoInfo <- function(query, 
                         ontology = "",
                         exact = FALSE,
-                        rows = 20) {
-    qry <- OlsSearch(q = query, ontology = ontology, rows = rows, exact = exact)
-    qry <- olsSearch(qry)
-    qdrf <- as(qry, "data.frame")
-    qdrf <- tibble::as_tibble(qdrf)
-    qdrf$description <- as.character(qdrf$description)
-    return(qdrf)
+                        rows = 20,
+                        retries = 3L) {
+    ## OLS is queried over the network, so transient failures are retried
+    .olsRetry(function() {
+        qry <- OlsSearch(q = query, ontology = ontology, rows = rows,
+                         exact = exact)
+        qry <- olsSearch(qry)
+        qdrf <- as(qry, "data.frame")
+        qdrf <- tibble::as_tibble(qdrf)
+        qdrf$description <- as.character(qdrf$description)
+        qdrf
+    }, retries = retries)
 }
