@@ -2,7 +2,6 @@
 #' 
 #' Extract identical or similar ontology terms across different ontologies
 #'
-#' @importFrom rols OlsSearch olsSearch
 #' @importFrom methods as
 #' @importFrom dplyr filter
 #' @importFrom tibble as_tibble
@@ -40,10 +39,8 @@ getOntoInfo <- function(query,
                         retries = 3L) {
     ## OLS is queried over the network, so transient failures are retried
     .olsRetry(function() {
-        qry <- OlsSearch(q = query, ontology = ontology, rows = rows,
-                         exact = exact)
-        qry <- olsSearch(qry)
-        qdrf <- as(qry, "data.frame")
+        qdrf <- .olsSearch(query, ontology = ontology, exact = exact,
+                           rows = rows)
         qdrf <- tibble::as_tibble(qdrf)
         qdrf$description <- as.character(qdrf$description)
         qdrf

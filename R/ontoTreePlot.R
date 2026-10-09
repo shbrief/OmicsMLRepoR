@@ -1,6 +1,5 @@
 #' Plot ontology tree
 #' 
-#' @import rols
 #' @import dplyr
 #' @import DiagrammeR 
 #' @importFrom plyr mapvalues
@@ -27,9 +26,8 @@ ontoTreePlot <- function(term, display = c("Term", "Text")) {
     sample_db <- get_ontologies(term)
     
     ## load term object and retrieve link to JSON tree
-    ontob <- olsOntology(sample_db)
-    cur_trm <- olsTerm(ontob, sample_id)
-    jstree <- cur_trm@links$jstree$href
+    cur_trm <- .olsTerm(sample_db, sample_id)
+    jstree <- cur_trm[["_links"]][["jstree"]][["href"]]
     
     ## transform JSON into dataframe
     tree_frame <- jsonlite::fromJSON(jstree)
