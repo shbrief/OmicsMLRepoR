@@ -228,9 +228,9 @@ merge_vectors <- function(base, update, sep = ":", delim = ";") {
     cls <- class(e)
     isServerError <- any(grepl("^httr2_http_5[0-9]{2}$", cls))
     isConnError <- any(c("httr2_failure", "httr2_timeout") %in% cls)
-    msgPattern <- single_line_str(r"(HTTP 5[0-9]{2}|Internal Server Error|
-                                 Bad Gateway|Service Unavailable|
-                                 Gateway Time-?out|timed out|
+    msgPattern <- single_line_str(r"(HTTP (error )?5[0-9]{2}|
+                                 Internal Server Error|Bad Gateway|
+                                 Service Unavailable|Gateway Time-?out|timed out|
                                  Could not resolve|Connection reset|
                                  Empty reply|Recv failure|
                                  Failed to connect)")
